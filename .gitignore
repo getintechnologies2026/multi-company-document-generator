@@ -40,5 +40,6 @@ desktop.ini
 # Puppeteer cache
 .cache/
 
-# MySQL dump files
-*.sql
+# MySQL dump files (keep database/schema.sql in repo)
+*dump*.sql
+*backup*.sql
