@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>
+  body { font-family: 'Segoe UI', Arial, sans-serif; color: #222; font-size: 13px; line-height: 1.7; margin: 0; }
+  .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #1e40af; padding-bottom: 12px; margin-bottom: 22px; }
+  .header img { max-height: 65px; max-width: 200px; }
+  .cinfo { text-align: right; font-size: 11px; color: #444; }
+  .cinfo .cname { font-size: 16px; font-weight: 700; color: #1e40af; }
+  h1.title { text-align: center; font-size: 18px; text-decoration: underline; margin: 18px 0 22px; letter-spacing: 1px; }
+  .meta { display: flex; justify-content: space-between; margin-bottom: 14px; font-size: 12px; }
+  p { margin: 10px 0; text-align: justify; }
+  .signature-block { margin-top: 50px; }
+  .signature-block img { max-height: 55px; }
+  .footer { margin-top: 30px; border-top: 1px solid #ccc; padding-top: 6px; text-align: center; font-size: 10px; color: #666; }
+</style>
+</head><body>
+
+<div class="header">
+  <div>
+    {{#if company.logo_url}}<img src="{{company.logo_url}}" />{{else}}<div style="font-size:20px;font-weight:700;color:#1e40af">{{company.name}}</div>{{/if}}
+  </div>
+  <div class="cinfo">
+    <div class="cname">{{company.name}}</div>
+    <div>{{company.address}}{{#if company.city}}, {{company.city}}{{/if}} {{company.pincode}}</div>
+    <div>{{company.email}} | {{company.phone}}</div>
+  </div>
+</div>
+
+<div class="meta">
+  <div><strong>Ref:</strong> {{doc_number}}</div>
+  <div><strong>Date:</strong> {{today}}</div>
+</div>
+
+<h1 class="title">EXPERIENCE CERTIFICATE</h1>
+
+<p><strong>TO WHOMSOEVER IT MAY CONCERN</strong></p>
+
+<p>This is to certify that <strong>{{employee.full_name}}</strong>{{#if employee.father_name}}, S/o D/o {{employee.father_name}},{{/if}} was employed with <strong>{{company.name}}</strong> from <strong>{{formatDate employee.date_of_joining}}</strong> to <strong>{{formatDate employee.date_of_leaving}}</strong>.</p>
+
+<p>During the tenure of his/her service with us, he/she held the position of <strong>{{employee.designation}}</strong> in the <strong>{{employee.department}}</strong> department.</p>
+
+<p>{{#if data.summary}}{{data.summary}}{{else}}Throughout his/her association with the organization, we found him/her to be sincere, hardworking, and dedicated towards his/her assigned responsibilities. His/her conduct and behaviour were satisfactory during the period of employment.{{/if}}</p>
+
+<p>We wish him/her the very best in all future endeavours.</p>
+
+<div class="signature-block">
+  <p>For <strong>{{company.name}}</strong>,</p>
+  {{#if company.signature_url}}<img src="{{company.signature_url}}" />{{/if}}
+  <div><strong>{{company.signatory_name}}</strong></div>
+  <div>{{company.signatory_designation}}</div>
+</div>
+
+<div class="footer">{{company.name}} | {{company.address}} | {{company.email}} | {{company.phone}}</div>
+</body></html>

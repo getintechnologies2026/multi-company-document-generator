@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>
+  body { font-family: 'Segoe UI', Arial, sans-serif; color: #222; font-size: 13px; line-height: 1.7; margin: 0; }
+  .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #1e40af; padding-bottom: 12px; margin-bottom: 22px; }
+  .header img { max-height: 65px; max-width: 200px; }
+  .cinfo { text-align: right; font-size: 11px; color: #444; }
+  .cinfo .cname { font-size: 16px; font-weight: 700; color: #1e40af; }
+  h1.title { text-align: center; font-size: 18px; text-decoration: underline; margin: 18px 0 22px; letter-spacing: 1px; }
+  .meta { display: flex; justify-content: space-between; margin-bottom: 14px; font-size: 12px; }
+  p { margin: 10px 0; text-align: justify; }
+  .signature-block { margin-top: 50px; }
+  .signature-block img { max-height: 55px; }
+  .footer { margin-top: 30px; border-top: 1px solid #ccc; padding-top: 6px; text-align: center; font-size: 10px; color: #666; }
+</style>
+</head><body>
+
+<div class="header">
+  <div>
+    {{#if company.logo_url}}<img src="{{company.logo_url}}" />{{else}}<div style="font-size:20px;font-weight:700;color:#1e40af">{{company.name}}</div>{{/if}}
+  </div>
+  <div class="cinfo">
+    <div class="cname">{{company.name}}</div>
+    <div>{{company.address}}{{#if company.city}}, {{company.city}}{{/if}} {{company.pincode}}</div>
+    <div>{{company.email}} | {{company.phone}}</div>
+  </div>
+</div>
+
+<div class="meta">
+  <div><strong>Ref:</strong> {{doc_number}}</div>
+  <div><strong>Date:</strong> {{today}}</div>
+</div>
+
+<h1 class="title">RELIEVING LETTER</h1>
+
+<p>Dear <strong>{{employee.full_name}}</strong>,</p>
+
+<p>This has reference to your resignation from the services of <strong>{{company.name}}</strong>. We acknowledge the receipt of your resignation and hereby relieve you from your duties effective close of business hours on <strong>{{formatDate employee.date_of_leaving}}</strong>.</p>
+
+<p>You joined our organization on <strong>{{formatDate employee.date_of_joining}}</strong> and last held the position of <strong>{{employee.designation}}</strong> in the <strong>{{employee.department}}</strong> department.</p>
+
+<p>We confirm that you have handed over all the company property, documents, and responsibilities entrusted to you, and there are no dues pending against you. Your full and final settlement will be processed as per company policy.</p>
+
+<p>We take this opportunity to thank you for your contribution and services rendered to the organization. We wish you all the best for your future endeavours.</p>
+
+<div class="signature-block">
+  <p>For <strong>{{company.name}}</strong>,</p>
+  {{#if company.signature_url}}<img src="{{company.signature_url}}" />{{/if}}
+  <div><strong>{{company.signatory_name}}</strong></div>
+  <div>{{company.signatory_designation}}</div>
+</div>
+
+<div class="footer">{{company.name}} | {{company.address}} | {{company.email}} | {{company.phone}}</div>
+</body></html>

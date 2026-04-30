@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; color: #222; font-size: 13px; line-height: 1.6; margin: 0; }
+  .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #1e40af; padding-bottom: 12px; margin-bottom: 22px; }
+  .header .logo img { max-height: 65px; max-width: 200px; }
+  .header .company-info { text-align: right; font-size: 11px; color: #444; }
+  .header .company-info .cname { font-size: 16px; font-weight: 700; color: #1e40af; }
+  h1.title { text-align: center; font-size: 18px; text-decoration: underline; margin: 12px 0 20px; }
+  .meta { display: flex; justify-content: space-between; margin-bottom: 14px; font-size: 12px; }
+  p { margin: 8px 0; text-align: justify; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+  th, td { border: 1px solid #999; padding: 7px 9px; font-size: 12px; }
+  th { background: #1e40af; color: #fff; text-align: left; }
+  .signature-block { margin-top: 50px; }
+  .signature-block img { max-height: 55px; }
+  .footer { margin-top: 30px; border-top: 1px solid #ccc; padding-top: 6px; text-align: center; font-size: 10px; color: #666; }
+</style>
+</head><body>
+<div class="header">
+  <div class="logo">
+    {{#if company.logo_url}}<img src="{{company.logo_url}}" />{{else}}<div style="font-size:20px;font-weight:700;color:#1e40af">{{company.name}}</div>{{/if}}
+  </div>
+  <div class="company-info">
+    <div class="cname">{{company.name}}</div>
+    <div>{{company.address}}{{#if company.city}}, {{company.city}}{{/if}}{{#if company.state}}, {{company.state}}{{/if}} {{company.pincode}}</div>
+    <div>{{company.email}} | {{company.phone}}</div>
+    {{#if company.website}}<div>{{company.website}}</div>{{/if}}
+  </div>
+</div>
+
+<div class="meta">
+  <div><strong>Ref:</strong> {{doc_number}}</div>
+  <div><strong>Date:</strong> {{today}}</div>
+</div>
+
+<h1 class="title">OFFER OF EMPLOYMENT</h1>
+
+<p>Dear <strong>{{employee.full_name}}</strong>,</p>
+
+<p>We are pleased to offer you the position of <strong>{{employee.designation}}</strong> at <strong>{{company.name}}</strong>. We were impressed with your background and feel that you would be a valuable asset to our team.</p>
+
+<p>The terms of your employment are as follows:</p>
+
+<table>
+  <tr><th style="width:35%">Particulars</th><th>Details</th></tr>
+  <tr><td>Designation</td><td>{{employee.designation}}</td></tr>
+  <tr><td>Department</td><td>{{employee.department}}</td></tr>
+  <tr><td>Date of Joining</td><td>{{formatDate employee.date_of_joining "DD-MMM-YYYY"}}</td></tr>
+  <tr><td>Employment Type</td><td>{{employee.employment_type}}</td></tr>
+  <tr><td>Annual CTC</td><td>₹ {{inr employee.ctc}} /-</td></tr>
+  <tr><td>Reporting Location</td><td>{{company.city}}, {{company.state}}</td></tr>
+</table>
+
+<p><strong>Terms & Conditions:</strong></p>
+<ol>
+  <li>You will be on probation for a period of six (6) months from the date of joining.</li>
+  <li>You are expected to maintain confidentiality of company information at all times.</li>
+  <li>The notice period during probation is 30 days, and 60 days post-confirmation.</li>
+  <li>You must abide by all rules, regulations, and policies of the company.</li>
+  <li>This offer is contingent upon successful background verification and submission of required documents.</li>
+</ol>
+
+<p>Kindly sign and return a copy of this letter as a token of acceptance. We look forward to a long and fruitful association with you.</p>
+
+<p>Wishing you a successful career with {{company.name}}.</p>
+
+<div class="signature-block">
+  <p>Yours sincerely,</p>
+  {{#if company.signature_url}}<img src="{{company.signature_url}}" />{{/if}}
+  <div><strong>{{company.signatory_name}}</strong></div>
+  <div>{{company.signatory_designation}}</div>
+  <div>{{company.name}}</div>
+</div>
+
+<div class="footer">{{company.name}} | {{company.address}} | {{company.email}}</div>
+</body></html>

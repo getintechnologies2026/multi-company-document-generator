@@ -1,0 +1,22 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Backend — Express API",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["server.js"],
+      "port": 5000,
+      "autoPort": false,
+      "cwd": "C:/Document Software/backend",
+      "description": "Node.js + Express REST API server"
+    },
+    {
+      "name": "Frontend — React (Vite)",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 5173,
+      "cwd": "C:/Document Software/frontend",
+      "description": "React + Vite dev server with HMR"
+    }
+  ]
+}
