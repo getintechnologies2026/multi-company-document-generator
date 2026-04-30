@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a2e; font-size: 13px; line-height: 1.7; margin: 0; }
+
+  /* Outer border frame */
+  .frame { border: 6px double #6366f1; padding: 6px; min-height: 96vh; display: flex; flex-direction: column; }
+  .inner { border: 2px solid #a5b4fc; padding: 20px 28px; flex: 1; display: flex; flex-direction: column; }
+
+  /* Header */
+  .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #6366f1; padding-bottom: 14px; margin-bottom: 20px; }
+  .header .logo img { max-height: 65px; max-width: 200px; }
+  .header .company-info { text-align: right; font-size: 11px; color: #4b5563; }
+  .header .company-info .cname { font-size: 16px; font-weight: 700; color: #4f46e5; }
+
+  /* Certificate title band */
+  .cert-band { background: linear-gradient(135deg, #4f46e5, #7c3aed); color: white; text-align: center; padding: 14px 0; border-radius: 10px; margin-bottom: 22px; }
+  .cert-band .cert-title { font-size: 22px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; }
+  .cert-band .cert-sub   { font-size: 11px; letter-spacing: 2px; opacity: 0.85; margin-top: 3px; }
+
+  /* Doc ref */
+  .ref-row { display: flex; justify-content: space-between; font-size: 11px; color: #6b7280; margin-bottom: 18px; }
+
+  /* Body text */
+  .body-text { font-size: 13.5px; line-height: 1.9; text-align: justify; margin-bottom: 16px; }
+  .body-text strong { color: #1e1b4b; }
+  .highlight-name { font-size: 16px; font-weight: 700; color: #4f46e5; }
+
+  /* Details table */
+  .detail-table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+  .detail-table tr td { padding: 7px 12px; font-size: 12px; border: 1px solid #e0e7ff; }
+  .detail-table tr:nth-child(even) td { background: #f5f3ff; }
+  .detail-table td:first-child { font-weight: 700; color: #4f46e5; width: 35%; background: #ede9fe; }
+
+  /* Performance badge */
+  .perf-block { display: flex; justify-content: center; margin: 16px 0; }
+  .perf-badge { display: inline-block; padding: 8px 28px; border-radius: 30px; font-weight: 800; font-size: 14px; letter-spacing: 1px; }
+  .perf-Excellent { background: #d1fae5; color: #065f46; border: 2px solid #6ee7b7; }
+  .perf-Good      { background: #dbeafe; color: #1e40af; border: 2px solid #93c5fd; }
+  .perf-Satisfactory { background: #fef3c7; color: #92400e; border: 2px solid #fcd34d; }
+  .perf-NeedsImprovement { background: #fee2e2; color: #991b1b; border: 2px solid #fca5a5; }
+
+  /* Skills tags */
+  .skills-wrap { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+  .skill-tag { background: #ede9fe; color: #4f46e5; border: 1px solid #c4b5fd; border-radius: 20px; padding: 3px 12px; font-size: 11px; font-weight: 600; }
+
+  /* Signature */
+  .sig-section { margin-top: 40px; display: flex; justify-content: space-between; align-items: flex-end; }
+  .sig-block { text-align: center; min-width: 180px; }
+  .sig-block img { max-height: 55px; margin-bottom: 4px; }
+  .sig-line { border-top: 1.5px solid #374151; padding-top: 6px; margin-top: 6px; }
+  .sig-name  { font-weight: 700; font-size: 13px; }
+  .sig-title { font-size: 11px; color: #6b7280; }
+
+  /* Seal area */
+  .seal-block { text-align: center; }
+  .seal-block img { max-height: 70px; }
+  .seal-block .seal-text { font-size: 10px; color: #9ca3af; margin-top: 4px; }
+
+  /* Footer */
+  .footer { margin-top: 24px; border-top: 2px solid #a5b4fc; padding-top: 8px; text-align: center; font-size: 10px; color: #9ca3af; }
+  .footer strong { color: #6366f1; }
+
+  /* Remarks box */
+  .remarks-box { background: #f5f3ff; border-left: 4px solid #6366f1; border-radius: 6px; padding: 10px 14px; margin: 12px 0; font-size: 12px; color: #374151; }
+</style>
+</head><body>
+
+<div class="frame">
+<div class="inner">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">
+      {{#if company.logo_url}}<img src="{{company.logo_url}}" />{{else}}<div style="font-size:20px;font-weight:700;color:#4f46e5">{{company.name}}</div>{{/if}}
+    </div>
+    <div class="company-info">
+      <div class="cname">{{company.name}}</div>
+      <div>{{company.address}}{{#if company.city}}, {{company.city}}{{/if}}{{#if company.state}}, {{company.state}}{{/if}}</div>
+      <div>{{company.email}} | {{company.phone}}</div>
+      {{#if company.website}}<div>{{company.website}}</div>{{/if}}
+    </div>
+  </div>
+
+  <!-- Title Band -->
+  <div class="cert-band">
+    <div class="cert-title">Internship Certificate</div>
+    <div class="cert-sub">Certificate of Successful Completion of Internship</div>
+  </div>
+
+  <!-- Ref & Date -->
+  <div class="ref-row">
+    <span>Ref: <strong>{{doc_number}}</strong></span>
+    <span>Date: <strong>{{data.issue_date}}</strong></span>
+  </div>
+
+  <!-- Body -->
+  <div class="body-text">
+    <p>This is to certify that</p>
+    <p style="text-align:center; margin: 10px 0;">
+      <span class="highlight-name">{{data.intern_name}}</span>
+    </p>
+    <p>
+      {{#if data.college}}student of <strong>{{data.college}}</strong>{{/if}}{{#if data.course}},
+      pursuing <strong>{{data.course}}{{#if data.branch}} — {{data.branch}}{{/if}}</strong>{{/if}},
+      has successfully completed an internship programme at <strong>{{company.name}}</strong>
+      {{#if data.department}}in the <strong>{{data.department}}</strong> department{{/if}}.
+    </p>
+  </div>
+
+  <!-- Details Table -->
+  <table class="detail-table">
+    <tr><td>Internship Period</td><td><strong>{{data.from_date}}</strong> to <strong>{{data.to_date}}</strong> ({{data.duration_text}})</td></tr>
+    <tr><td>Department / Domain</td><td>{{data.department}}</td></tr>
+    {{#if data.project_title}}<tr><td>Project / Role</td><td>{{data.project_title}}</td></tr>{{/if}}
+    {{#if data.college}}<tr><td>Institution</td><td>{{data.college}}</td></tr>{{/if}}
+    {{#if data.course}}<tr><td>Course / Degree</td><td>{{data.course}}{{#if data.branch}} — {{data.branch}}{{/if}}</td></tr>{{/if}}
+    {{#if data.mentor_name}}<tr><td>Internship Mentor</td><td>{{data.mentor_name}}</td></tr>{{/if}}
+  </table>
+
+  <!-- Performance -->
+  {{#if data.performance}}
+  <p style="text-align:center; font-size:12px; color:#6b7280; margin-bottom:4px; font-weight:600;">PERFORMANCE RATING</p>
+  <div class="perf-block">
+    <span class="perf-badge perf-{{data.performance}}">★ {{data.performance}}</span>
+  </div>
+  {{/if}}
+
+  <!-- Skills -->
+  {{#if data.skills_arr}}
+  <p style="font-size:12px; font-weight:700; color:#4f46e5; margin-bottom:6px;">Skills & Technologies Learned</p>
+  <div class="skills-wrap">
+    {{#each data.skills_arr}}<span class="skill-tag">{{this}}</span>{{/each}}
+  </div>
+  {{/if}}
+
+  <!-- Remarks -->
+  {{#if data.remarks}}
+  <div class="remarks-box">
+    <strong>Remarks:</strong> {{data.remarks}}
+  </div>
+  {{/if}}
+
+  <!-- Closing -->
+  <div class="body-text" style="margin-top:16px;">
+    <p>
+      During the internship, <strong>{{data.intern_name}}</strong> demonstrated
+      {{#if data.performance}}
+        {{#if (eq data.performance "Excellent")}}exceptional dedication, outstanding technical skills, and a highly professional attitude{{/if}}
+        {{#if (eq data.performance "Good")}}good dedication, sound technical skills, and a professional attitude{{/if}}
+        {{#if (eq data.performance "Satisfactory")}}satisfactory performance and a willingness to learn{{/if}}
+      {{else}}commendable dedication and a professional attitude{{/if}}.
+      We wish {{data.intern_name}} all the best in future endeavours.
+    </p>
+  </div>
+
+  <!-- Signature -->
+  <div class="sig-section">
+    <div class="seal-block">
+      {{#if company.stamp_url}}
+        <img src="{{company.stamp_url}}" />
+        <div class="seal-text">Company Seal</div>
+      {{else}}
+        <div style="width:80px;height:80px;border:2px dashed #c4b5fd;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;color:#a5b4fc;text-align:center;padding:8px;">Company Seal</div>
+      {{/if}}
+    </div>
+    <div class="sig-block">
+      {{#if company.signature_url}}<img src="{{company.signature_url}}" />{{/if}}
+      <div class="sig-line">
+        <div class="sig-name">{{company.signatory_name}}</div>
+        <div class="sig-title">{{company.signatory_designation}}</div>
+        <div class="sig-title">{{company.name}}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <strong>{{company.name}}</strong> | {{company.address}}{{#if company.city}}, {{company.city}}{{/if}} |
+    {{company.email}} | {{company.phone}}
+  </div>
+
+</div>
+</div>
+</body></html>

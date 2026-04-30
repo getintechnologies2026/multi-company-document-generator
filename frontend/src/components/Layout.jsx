@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Building2, Users, FileText, FilePlus, Layers, CreditCard, Calculator, LogOut } from 'lucide-react';
+import { LayoutDashboard, Building2, Users, FileText, FilePlus, Layers, CreditCard, Calculator, LogOut, TrendingUp, GraduationCap } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function Layout() {
@@ -10,8 +10,10 @@ export default function Layout() {
     { to: '/companies', label: 'Companies', icon: Building2 },
     { to: '/employees', label: 'Employees', icon: Users },
     { to: '/generate-all', label: 'Generate All Docs', icon: Layers },
+    { to: '/generate/salary_increment', label: 'Increment Letter', icon: TrendingUp },
     { to: '/bulk-payslips', label: 'Bulk Payslips', icon: CreditCard },
     { to: '/tn-salary', label: 'TN Salary Calc', icon: Calculator },
+    { to: '/internship-certificate', label: 'Internship Certificate', icon: GraduationCap },
     { to: '/generate', label: 'Single Document', icon: FilePlus },
     { to: '/documents', label: 'Documents', icon: FileText }
   ];

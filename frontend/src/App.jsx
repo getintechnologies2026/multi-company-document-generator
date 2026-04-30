@@ -11,6 +11,7 @@ import GenerateAll from './pages/GenerateAll';
 import BulkPayslips from './pages/BulkPayslips';
 import TNSalaryCalculator from './pages/TNSalaryCalculator';
 import Documents from './pages/Documents';
+import InternshipCertificate from './pages/InternshipCertificate';
 import { useAuth } from './context/AuthContext';
 
 function PrivateRoute({ children }) {
@@ -36,6 +37,7 @@ export default function App() {
         <Route path="generate" element={<Generate />} />
         <Route path="generate/:type" element={<Generate />} />
         <Route path="documents" element={<Documents />} />
+        <Route path="internship-certificate" element={<InternshipCertificate />} />
       </Route>
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>

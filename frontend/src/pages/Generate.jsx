@@ -1,23 +1,26 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { FileDown, FileText, CreditCard, Award, LogOut, Sparkles, Loader, CheckCircle, Download } from 'lucide-react';
+import { FileDown, FileText, CreditCard, Award, LogOut, Sparkles, Loader, CheckCircle, Download, TrendingUp, ArrowUpCircle, AlertCircle } from 'lucide-react';
 import api from '../services/api';
 
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const inrFmt = n => Number(n || 0).toLocaleString('en-IN', { minimumFractionDigits: 0 });
 
 const TYPES = [
-  { id: 'offer_letter',      label: 'Offer Letter',      icon: Sparkles,   gradient: 'from-orange-400 to-amber-600',   ring: 'ring-orange-400' },
-  { id: 'payslip',           label: 'Payslip',            icon: CreditCard, gradient: 'from-emerald-400 to-green-600',  ring: 'ring-emerald-400' },
-  { id: 'experience_letter', label: 'Experience Letter',  icon: Award,      gradient: 'from-violet-400 to-purple-600',  ring: 'ring-violet-400' },
-  { id: 'relieving_letter',  label: 'Relieving Letter',   icon: LogOut,     gradient: 'from-rose-400 to-red-600',       ring: 'ring-rose-400' }
+  { id: 'offer_letter',      label: 'Offer Letter',      icon: Sparkles,    gradient: 'from-orange-400 to-amber-600',  ring: 'ring-orange-400' },
+  { id: 'payslip',           label: 'Payslip',            icon: CreditCard,  gradient: 'from-emerald-400 to-green-600', ring: 'ring-emerald-400' },
+  { id: 'experience_letter', label: 'Experience Letter',  icon: Award,       gradient: 'from-violet-400 to-purple-600', ring: 'ring-violet-400' },
+  { id: 'relieving_letter',  label: 'Relieving Letter',   icon: LogOut,      gradient: 'from-rose-400 to-red-600',      ring: 'ring-rose-400' },
+  { id: 'salary_increment',  label: 'Increment Letter',   icon: TrendingUp,  gradient: 'from-teal-400 to-teal-600',    ring: 'ring-teal-400' },
 ];
 
 const TYPE_COLORS = {
   offer_letter:      { light: 'bg-orange-50',  border: 'border-orange-200', text: 'text-orange-700', ring: 'focus:ring-orange-400', gradient: 'from-orange-500 to-amber-600' },
   payslip:           { light: 'bg-emerald-50', border: 'border-emerald-200',text: 'text-emerald-700',ring: 'focus:ring-emerald-400',gradient: 'from-emerald-500 to-green-600' },
   experience_letter: { light: 'bg-violet-50',  border: 'border-violet-200', text: 'text-violet-700', ring: 'focus:ring-violet-400', gradient: 'from-violet-500 to-purple-600' },
-  relieving_letter:  { light: 'bg-rose-50',    border: 'border-rose-200',   text: 'text-rose-700',   ring: 'focus:ring-rose-400',   gradient: 'from-rose-500 to-red-600' }
+  relieving_letter:  { light: 'bg-rose-50',    border: 'border-rose-200',   text: 'text-rose-700',   ring: 'focus:ring-rose-400',   gradient: 'from-rose-500 to-red-600' },
+  salary_increment:  { light: 'bg-teal-50',    border: 'border-teal-200',   text: 'text-teal-700',   ring: 'focus:ring-teal-400',   gradient: 'from-teal-500 to-teal-700' },
 };
 
 function Field({ label, color = 'text-gray-600', children }) {
@@ -63,17 +66,54 @@ export default function Generate() {
 
   const od = (e) => setData(d => ({ ...d, [e.target.name]: e.target.value }));
 
+  // Live increment preview
+  const selEmp = employees.find(e => e.id == employeeId);
+  const curCtc  = Number(selEmp?.ctc || 0);
+  const incVal  = Number(data.increment_value || 0);
+  const newCtc  = data.increment_type === 'flat'
+    ? curCtc + Math.round(incVal * 12)
+    : Math.round(curCtc * (1 + incVal / 100));
+  const incAmt  = newCtc - curCtc;
+
   const submit = async (e) => {
     e.preventDefault();
     if (!companyId) return toast.error('Select a company');
+    // Validate before setting generating=true to avoid stuck button
+    if (docType === 'salary_increment') {
+      if (!data.increment_value) return toast.error('Enter increment value');
+      if (!data.increment_date)  return toast.error('Select effective date');
+    }
     setGenerating(true); setResult(null);
     try {
-      const { data: res } = await api.post('/documents/generate', { doc_type: docType, company_id: companyId, employee_id: employeeId || null, data });
+      let res;
+      if (docType === 'salary_increment') {
+        const empData = selEmp ? {
+          full_name: selEmp.full_name, designation: selEmp.designation, department: selEmp.department,
+          emp_code: selEmp.emp_code, ctc: selEmp.ctc, basic: selEmp.basic, hra: selEmp.hra,
+          da: selEmp.da, conveyance: selEmp.conveyance, medical: selEmp.medical,
+          special_allowance: selEmp.special_allowance, pf: selEmp.pf, esi: selEmp.esi,
+        } : {};
+        const { data: r } = await api.post('/documents/generate-salary-increment', {
+          company_id: companyId, employee_id: employeeId || null,
+          employee: empData,
+          increment: {
+            increment_date:  data.increment_date,
+            increment_type:  data.increment_type || 'percentage',
+            increment_value: data.increment_value,
+          }
+        });
+        res = r;
+      } else {
+        const { data: r } = await api.post('/documents/generate', {
+          doc_type: docType, company_id: companyId, employee_id: employeeId || null, data
+        });
+        res = r;
+      }
       toast.success('Document generated!');
       setResult(res);
+      setGenerating(false);
     } catch (err) {
       toast.error(err.response?.data?.error || 'Generation failed');
-    } finally {
       setGenerating(false);
     }
   };
@@ -274,6 +314,78 @@ export default function Generate() {
                         className={`w-full px-3 py-2.5 border ${C.border} rounded-lg text-sm bg-white focus:outline-none focus:ring-2 ${C.ring} resize-none`} />
                     </Field>
                   )}
+                </div>
+              </div>
+            )}
+
+            {/* ── Salary Increment Fields ── */}
+            {docType === 'salary_increment' && (
+              <div className="bg-white rounded-2xl shadow-md overflow-hidden">
+                <div className="bg-gradient-to-r from-teal-500 to-teal-700 px-5 py-3">
+                  <h3 className="text-white font-bold flex items-center gap-2"><TrendingUp size={16} /> Increment Details</h3>
+                  <p className="text-teal-100 text-xs">Enter CTC increment — new salary is auto-calculated</p>
+                </div>
+                <div className="bg-teal-50 p-5 space-y-4">
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <Field label="Effective Date *" color="text-teal-700">
+                      <input type="date" name="increment_date" value={data.increment_date||''} onChange={od}
+                        className="w-full px-3 py-2.5 border border-teal-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-400" />
+                    </Field>
+                    <Field label="Increment Type" color="text-teal-700">
+                      <div className="flex gap-2">
+                        {[['percentage','% Percent'],['flat','₹ Flat/mo']].map(([v,l]) => (
+                          <button key={v} type="button"
+                            onClick={() => setData(d => ({ ...d, increment_type: v }))}
+                            className={`flex-1 py-2.5 rounded-lg text-xs font-bold border-2 transition
+                              ${(data.increment_type||'percentage') === v
+                                ? 'bg-teal-600 text-white border-teal-600 shadow'
+                                : 'bg-white text-teal-700 border-teal-200 hover:border-teal-400'}`}>
+                            {l}
+                          </button>
+                        ))}
+                      </div>
+                    </Field>
+                    <Field label={(data.increment_type||'percentage') === 'percentage' ? 'Increment % *' : 'Monthly Flat (₹) *'} color="text-teal-700">
+                      <div className="relative">
+                        <span className="absolute left-3 top-2.5 font-bold text-sm text-teal-600">
+                          {(data.increment_type||'percentage') === 'percentage' ? '%' : '₹'}
+                        </span>
+                        <input type="number" name="increment_value" value={data.increment_value||''} onChange={od}
+                          placeholder={(data.increment_type||'percentage') === 'percentage' ? 'e.g. 15' : 'e.g. 5000'}
+                          className="w-full pl-8 pr-3 py-2.5 border border-teal-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-400" />
+                      </div>
+                    </Field>
+                  </div>
+
+                  {/* Live preview */}
+                  {curCtc > 0 && incVal > 0 ? (
+                    <div className="bg-white border border-teal-200 rounded-xl p-4">
+                      <p className="text-xs font-bold text-teal-700 flex items-center gap-1.5 mb-3">
+                        <ArrowUpCircle size={13} /> Live Increment Preview
+                      </p>
+                      <div className="grid grid-cols-3 gap-3">
+                        <div className="bg-gray-50 rounded-xl p-3 text-center">
+                          <p className="text-xs text-gray-500 mb-1">Current CTC</p>
+                          <p className="font-bold text-gray-700">₹{inrFmt(curCtc)}</p>
+                          <p className="text-xs text-gray-400">₹{inrFmt(Math.round(curCtc/12))}/mo</p>
+                        </div>
+                        <div className="bg-teal-50 rounded-xl p-3 text-center border border-teal-200">
+                          <p className="text-xs text-teal-600 mb-1">Increment</p>
+                          <p className="font-bold text-teal-700">+₹{inrFmt(incAmt)}</p>
+                          <p className="text-xs text-teal-500">annual</p>
+                        </div>
+                        <div className="bg-emerald-50 rounded-xl p-3 text-center border border-emerald-200">
+                          <p className="text-xs text-emerald-600 mb-1">New CTC</p>
+                          <p className="font-bold text-emerald-700">₹{inrFmt(newCtc)}</p>
+                          <p className="text-xs text-emerald-500">₹{inrFmt(Math.round(newCtc/12))}/mo</p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : !employeeId ? (
+                    <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-xs text-amber-700 flex items-center gap-2">
+                      <AlertCircle size={13} /> Select an employee above to see the live increment preview.
+                    </div>
+                  ) : null}
                 </div>
               </div>
             )}
