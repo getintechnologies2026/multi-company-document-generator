@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Plus, Edit, Trash2, Building2, MapPin, Mail, Phone, Globe, FileText } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../services/api';
+import ConfirmModal from '../components/ConfirmModal';
 
 const GRADIENTS = [
   'from-violet-500 to-purple-600',
@@ -27,16 +28,23 @@ const BG_LIGHTS = [
 ];
 
 export default function Companies() {
-  const [list, setList] = useState([]);
+  const [list, setList]       = useState([]);
+  const [confirm, setConfirm] = useState(null); // { id } when open
 
   const load = () => api.get('/companies').then(({ data }) => setList(data));
   useEffect(() => { load(); }, []);
 
-  const remove = async (id) => {
-    if (!confirm('Delete this company and all its data?')) return;
-    await api.delete(`/companies/${id}`);
-    toast.success('Company deleted');
-    load();
+  const remove = async () => {
+    const id = confirm?.id;
+    setConfirm(null);
+    if (!id) return;
+    try {
+      await api.delete(`/companies/${id}`);
+      toast.success('Company deleted');
+      load();
+    } catch (e) {
+      toast.error(e.response?.data?.error || 'Delete failed');
+    }
   };
 
   return (
@@ -162,7 +170,7 @@ export default function Companies() {
                       className={`flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg text-[11px] font-bold bg-gradient-to-r ${grad} text-white hover:opacity-90 transition shadow-sm`}>
                       <Edit size={11} /> Edit
                     </Link>
-                    <button onClick={() => remove(c.id)}
+                    <button onClick={() => setConfirm({ id: c.id })}
                       className="flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-bold bg-red-50 text-red-600 hover:bg-red-100 border border-red-100 transition">
                       <Trash2 size={11} /> Delete
                     </button>
@@ -173,6 +181,16 @@ export default function Companies() {
           })}
         </div>
       </div>
+
+      <ConfirmModal
+        open={!!confirm}
+        title="Delete Company?"
+        message="This will deactivate the company. All employee and document records associated with it will be preserved."
+        confirmLabel="Delete"
+        variant="danger"
+        onConfirm={remove}
+        onCancel={() => setConfirm(null)}
+      />
     </div>
   );
 }

@@ -16,7 +16,11 @@ exports.list = async (req, res) => {
     if (doc_type) { sql += ' AND d.doc_type = ?'; params.push(doc_type); }
     if (employee_id) { sql += ' AND d.employee_id = ?'; params.push(employee_id); }
     if (search) { sql += ' AND (d.employee_name LIKE ? OR d.doc_number LIKE ?)'; params.push(`%${search}%`, `%${search}%`); }
-    sql += ' ORDER BY d.id DESC LIMIT 500';
+    const limit  = Math.min(parseInt(req.query.limit)  || 100, 200);
+    const page   = Math.max(parseInt(req.query.page)   || 1, 1);
+    const offset = (page - 1) * limit;
+    sql += ' ORDER BY d.id DESC LIMIT ? OFFSET ?';
+    params.push(limit, offset);
     const [rows] = await db.query(sql, params);
     res.json(rows);
 };
@@ -581,16 +585,27 @@ exports.generateInternshipCertificate = async (req, res) => {
 exports.download = async (req, res) => {
     const [rows] = await db.query('SELECT * FROM documents WHERE id = ?', [req.params.id]);
     if (!rows.length) return res.status(404).json({ error: 'Not found' });
-    const filePath = path.join(__dirname, '..', '..', 'generated', rows[0].pdf_path);
+
+    // Path traversal protection — pdf_path must be a plain filename with no directory components
+    const pdfPath = rows[0].pdf_path || '';
+    if (!pdfPath || pdfPath.includes('..') || pdfPath.includes('/') || pdfPath.includes('\\')) {
+        return res.status(400).json({ error: 'Invalid file reference' });
+    }
+
+    const filePath = path.join(__dirname, '..', '..', 'generated', pdfPath);
     if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'PDF file missing' });
-    res.download(filePath, rows[0].pdf_path);
+    res.download(filePath, pdfPath);
 };
 
 exports.remove = async (req, res) => {
     const [rows] = await db.query('SELECT pdf_path FROM documents WHERE id = ?', [req.params.id]);
-    if (rows.length) {
-        const filePath = path.join(__dirname, '..', '..', 'generated', rows[0].pdf_path);
-        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    if (rows.length && rows[0].pdf_path) {
+        try {
+            const filePath = path.join(__dirname, '..', '..', 'generated', rows[0].pdf_path);
+            if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+        } catch (e) {
+            console.warn('Could not delete PDF file:', e.message);
+        }
     }
     await db.query('DELETE FROM documents WHERE id = ?', [req.params.id]);
     res.json({ message: 'Deleted' });

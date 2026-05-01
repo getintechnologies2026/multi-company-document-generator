@@ -1,8 +1,10 @@
 const router = require('express').Router();
 const ctrl = require('../controllers/auth.controller');
+const { verifyToken, requireRole } = require('../middleware/auth');
 
-router.post('/register', ctrl.register);
+// /register is restricted to super_admin only — use /api/users instead for normal user creation
+router.post('/register', verifyToken, requireRole('super_admin'), ctrl.register);
 router.post('/login', ctrl.login);
-router.get('/me', require('../middleware/auth').verifyToken, ctrl.me);
+router.get('/me', verifyToken, ctrl.me);
 
 module.exports = router;

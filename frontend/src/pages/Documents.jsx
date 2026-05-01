@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Trash2, Download, Eye, Search, FileText, CreditCard, Award, LogOut, TrendingUp, Sparkles, GraduationCap, User } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../services/api';
+import ConfirmModal from '../components/ConfirmModal';
 
 const TYPE_META = {
   offer_letter:      { label: 'Offer Letter',        icon: Sparkles,    bg: 'bg-blue-100',   text: 'text-blue-700',   dot: 'bg-blue-400' },
@@ -18,10 +19,13 @@ const STATS_COLORS = {
 };
 
 export default function Documents() {
-  const [list, setList]         = useState([]);
+  const [list, setList]           = useState([]);
   const [companies, setCompanies] = useState([]);
-  const [filters, setFilters]   = useState({ company_id: '', doc_type: '', search: '' });
-  const [stats, setStats]       = useState({});
+  const [filters, setFilters]     = useState({ company_id: '', doc_type: '', search: '' });
+  const [searchInput, setSearchInput] = useState('');
+  const [stats, setStats]         = useState({});
+  const [confirm, setConfirm]     = useState(null); // { id } when open
+  const debounceRef               = useRef(null);
 
   const load = async () => {
     const params = {};
@@ -38,11 +42,26 @@ export default function Documents() {
   useEffect(() => { api.get('/companies').then(({ data }) => setCompanies(data)); }, []);
   useEffect(() => { load(); }, [filters]);
 
-  const remove = async (id) => {
-    if (!confirm('Delete this document?')) return;
-    await api.delete(`/documents/${id}`);
-    toast.success('Deleted');
-    load();
+  // Debounce search input — only fires API after 300ms pause
+  const handleSearch = (val) => {
+    setSearchInput(val);
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setFilters(f => ({ ...f, search: val }));
+    }, 300);
+  };
+
+  const remove = async () => {
+    const id = confirm?.id;
+    setConfirm(null);
+    if (!id) return;
+    try {
+      await api.delete(`/documents/${id}`);
+      toast.success('Deleted');
+      load();
+    } catch (e) {
+      toast.error(e.response?.data?.error || 'Delete failed');
+    }
   };
 
   const TypeBadge = ({ type }) => {
@@ -104,7 +123,7 @@ export default function Documents() {
                 <Search size={14} className="absolute left-3 top-3 text-gray-400" />
                 <input className="w-full pl-8 pr-3 py-2.5 border border-gray-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                   placeholder="Doc number or employee name..."
-                  value={filters.search} onChange={e => setFilters({ ...filters, search: e.target.value })} />
+                  value={searchInput} onChange={e => handleSearch(e.target.value)} />
               </div>
             </div>
             <div>
@@ -125,7 +144,7 @@ export default function Documents() {
             </div>
           </div>
           {(filters.doc_type || filters.company_id || filters.search) && (
-            <button onClick={() => setFilters({ company_id: '', doc_type: '', search: '' })}
+            <button onClick={() => { setFilters({ company_id: '', doc_type: '', search: '' }); setSearchInput(''); }}
               className="mt-3 text-xs text-blue-600 hover:text-blue-800 font-medium">
               ✕ Clear filters
             </button>
@@ -172,7 +191,7 @@ export default function Documents() {
                           className="text-emerald-500 hover:text-emerald-700 transition" title="Download">
                           <Download size={16} />
                         </a>
-                        <button onClick={() => remove(d.id)}
+                        <button onClick={() => setConfirm({ id: d.id })}
                           className="text-red-400 hover:text-red-600 transition" title="Delete">
                           <Trash2 size={16} />
                         </button>
@@ -194,6 +213,16 @@ export default function Documents() {
           </div>
         </div>
       </div>
+
+      <ConfirmModal
+        open={!!confirm}
+        title="Delete Document?"
+        message="This will permanently delete the document record and its PDF file. This action cannot be undone."
+        confirmLabel="Delete"
+        variant="danger"
+        onConfirm={remove}
+        onCancel={() => setConfirm(null)}
+      />
     </div>
   );
 }

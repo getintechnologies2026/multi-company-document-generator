@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Edit, Trash2, Search, Users, Building2, Briefcase, Calendar } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../services/api';
+import ConfirmModal from '../components/ConfirmModal';
 
 const AVATAR_GRADIENTS = [
   'from-violet-500 to-purple-600',
@@ -32,6 +33,9 @@ export default function Employees() {
   const [list, setList]           = useState([]);
   const [companies, setCompanies] = useState([]);
   const [filters, setFilters]     = useState({ company_id: '', search: '' });
+  const [searchInput, setSearchInput] = useState('');
+  const [confirm, setConfirm]     = useState(null); // { id } when open
+  const debounceRef               = useRef(null);
 
   const load = async () => {
     const params = {};
@@ -44,11 +48,26 @@ export default function Employees() {
   useEffect(() => { api.get('/companies').then(({ data }) => setCompanies(data)); }, []);
   useEffect(() => { load(); }, [filters]);
 
-  const remove = async (id) => {
-    if (!confirm('Delete this employee?')) return;
-    await api.delete(`/employees/${id}`);
-    toast.success('Employee deleted');
-    load();
+  // Debounce search — wait 300ms after last keystroke
+  const handleSearch = (val) => {
+    setSearchInput(val);
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setFilters(f => ({ ...f, search: val }));
+    }, 300);
+  };
+
+  const remove = async () => {
+    const id = confirm?.id;
+    setConfirm(null);
+    if (!id) return;
+    try {
+      await api.delete(`/employees/${id}`);
+      toast.success('Employee deleted');
+      load();
+    } catch (e) {
+      toast.error(e.response?.data?.error || 'Delete failed');
+    }
   };
 
   const activeCount   = list.filter(e => e.status === 'Active').length;
@@ -86,8 +105,8 @@ export default function Employees() {
                 <input
                   className="w-full pl-8 pr-3 py-2.5 border border-gray-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent"
                   placeholder="Name, code, email..."
-                  value={filters.search}
-                  onChange={e => setFilters({ ...filters, search: e.target.value })}
+                  value={searchInput}
+                  onChange={e => handleSearch(e.target.value)}
                 />
               </div>
             </div>
@@ -106,7 +125,7 @@ export default function Employees() {
             </div>
           </div>
           {(filters.search || filters.company_id) && (
-            <button onClick={() => setFilters({ company_id: '', search: '' })}
+            <button onClick={() => { setFilters({ company_id: '', search: '' }); setSearchInput(''); }}
               className="mt-3 text-xs text-emerald-600 hover:text-emerald-800 font-medium">
               ✕ Clear filters
             </button>
@@ -209,7 +228,7 @@ export default function Employees() {
                       className={`flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg text-[11px] font-bold bg-gradient-to-r ${grad} text-white hover:opacity-90 transition shadow-sm`}>
                       <Edit size={11} /> Edit
                     </Link>
-                    <button onClick={() => remove(e.id)}
+                    <button onClick={() => setConfirm({ id: e.id })}
                       className="flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-bold bg-red-50 text-red-600 hover:bg-red-100 border border-red-100 transition">
                       <Trash2 size={11} /> Delete
                     </button>
@@ -220,6 +239,16 @@ export default function Employees() {
           })}
         </div>
       </div>
+
+      <ConfirmModal
+        open={!!confirm}
+        title="Delete Employee?"
+        message="This will permanently remove the employee record. All generated documents for this employee will remain. This action cannot be undone."
+        confirmLabel="Delete"
+        variant="danger"
+        onConfirm={remove}
+        onCancel={() => setConfirm(null)}
+      />
     </div>
   );
 }

@@ -9,6 +9,7 @@ import {
 import toast from 'react-hot-toast';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import ConfirmModal from '../components/ConfirmModal';
 
 const ROLES = ['super_admin', 'company_admin', 'hr', 'viewer'];
 
@@ -44,6 +45,7 @@ export default function UsersPage() {
   const [companies, setCompanies] = useState([]);
   const [stats, setStats]         = useState([]);
   const [modal, setModal]         = useState(null);   // null | 'create' | editUser
+  const [confirmDel, setConfirmDel] = useState(null); // { id } when open
   const [form, setForm]           = useState(blankForm());
   const [saving, setSaving]       = useState(false);
   const [showPass, setShowPass]   = useState(false);
@@ -137,8 +139,10 @@ export default function UsersPage() {
     }
   };
 
-  const remove = async (id) => {
-    if (!confirm('Delete this user?')) return;
+  const remove = async () => {
+    const id = confirmDel?.id;
+    setConfirmDel(null);
+    if (!id) return;
     try {
       await api.delete(`/users/${id}`);
       toast.success('User deleted');
@@ -274,7 +278,7 @@ export default function UsersPage() {
                             <Edit size={14} />
                           </button>
                           <button
-                            onClick={() => canDelete(u) && remove(u.id)}
+                            onClick={() => canDelete(u) && setConfirmDel({ id: u.id })}
                             disabled={!canDelete(u)}
                             title={deleteTooltip(u)}
                             className={`p-1.5 rounded-lg transition ${
@@ -541,6 +545,16 @@ export default function UsersPage() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        open={!!confirmDel}
+        title="Delete User?"
+        message="This will permanently delete the user account. Any documents they generated will remain. This action cannot be undone."
+        confirmLabel="Delete"
+        variant="danger"
+        onConfirm={remove}
+        onCancel={() => setConfirmDel(null)}
+      />
     </div>
   );
 }
