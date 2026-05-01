@@ -2,7 +2,7 @@ const db = require('../db');
 const path = require('path');
 const fs = require('fs');
 const archiver = require('archiver');
-const { generatePDF, createBrowser } = require('../utils/pdfGenerator');
+const { generatePDF, createBrowser, WKHTMLTOPDF_BIN } = require('../utils/pdfGenerator');
 
 exports.list = async (req, res) => {
     const { company_id, doc_type, employee_id, search } = req.query;
@@ -125,8 +125,8 @@ exports.generateAll = async (req, res) => {
         const docTypes = ['offer_letter', 'payslip', 'experience_letter', 'relieving_letter'];
         const extraData = { offer_letter: offer || {}, payslip: payslip || {}, experience_letter: experience || {}, relieving_letter: relieving || {} };
 
-        // ── Open ONE browser for the entire batch ──
-        const browser = await createBrowser();
+        // ── Open ONE browser for the entire batch (skipped when wkhtmltopdf is available) ──
+        const browser = WKHTMLTOPDF_BIN ? null : await createBrowser();
         try {
             for (const doc_type of docTypes) {
                 try {
@@ -237,7 +237,7 @@ exports.generateAll = async (req, res) => {
                 }
             }
         } finally {
-            await browser.close();
+            if (browser) await browser.close();
         }
 
         res.json({ success: true, documents: results });
@@ -269,8 +269,8 @@ exports.generateBulkPayslips = async (req, res) => {
 
         const results = [];
 
-        // ── Open ONE browser for the entire payslip batch ──
-        const browser = await createBrowser();
+        // ── Open ONE browser for the entire payslip batch (skipped when wkhtmltopdf is available) ──
+        const browser = WKHTMLTOPDF_BIN ? null : await createBrowser();
         try {
             for (const monthData of months) {
                 try {
@@ -310,7 +310,7 @@ exports.generateBulkPayslips = async (req, res) => {
                 }
             }
         } finally {
-            await browser.close();
+            if (browser) await browser.close();
         }
 
         // Create ZIP of all generated PDFs
