@@ -3,11 +3,12 @@ import {
   Users, Plus, Edit, Trash2, Shield, Building2,
   ToggleLeft, ToggleRight, Key, ChevronDown, ChevronUp,
   BarChart2, FileText, CreditCard, TrendingUp, GraduationCap,
-  Layers, Calculator, CheckCircle, XCircle, Eye, EyeOff,
-  UserCheck, AlertCircle
+  Layers, CheckCircle, XCircle, Eye, EyeOff,
+  UserCheck, AlertCircle, Lock
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
 
 const ROLES = ['super_admin', 'company_admin', 'hr', 'viewer'];
 
@@ -39,6 +40,7 @@ const blankForm = () => ({
 });
 
 export default function UsersPage() {
+  const { user: currentUser }     = useAuth();
   const [list, setList]           = useState([]);
   const [companies, setCompanies] = useState([]);
   const [stats, setStats]         = useState([]);
@@ -48,6 +50,18 @@ export default function UsersPage() {
   const [showPass, setShowPass]   = useState(false);
   const [expanded, setExpanded]   = useState(null);
   const [tab, setTab]             = useState('users'); // 'users' | 'activity'
+
+  // Restriction helpers
+  const superAdminCount = list.filter(u => u.role === 'super_admin').length;
+  const isSelf       = (u) => u.id === currentUser?.id;
+  const isLastAdmin  = (u) => u.role === 'super_admin' && superAdminCount <= 1;
+  const canDelete    = (u) => !isSelf(u) && !isLastAdmin(u);
+  const canEdit      = (u) => true; // can always open edit; role-change on self is restricted inside modal
+  const deleteTooltip = (u) => {
+    if (isSelf(u))      return 'Cannot delete your own account';
+    if (isLastAdmin(u)) return 'Cannot delete the only Super Admin';
+    return 'Delete user';
+  };
 
   const load = async () => {
     const [u, c, s] = await Promise.all([
@@ -247,18 +261,28 @@ export default function UsersPage() {
                             title="View permissions">
                             {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                           </button>
-                          <button onClick={() => toggleActive(u)}
-                            className={`p-1.5 rounded-lg transition ${u.is_active ? 'text-emerald-500 hover:bg-emerald-50' : 'text-gray-400 hover:bg-gray-100'}`}
-                            title={u.is_active ? 'Deactivate' : 'Activate'}>
+                          <button onClick={() => !isSelf(u) && toggleActive(u)}
+                            disabled={isSelf(u)}
+                            className={`p-1.5 rounded-lg transition ${
+                              isSelf(u) ? 'text-gray-300 cursor-not-allowed' :
+                              u.is_active ? 'text-emerald-500 hover:bg-emerald-50' : 'text-gray-400 hover:bg-gray-100'}`}
+                            title={isSelf(u) ? 'Cannot deactivate yourself' : u.is_active ? 'Deactivate' : 'Activate'}>
                             {u.is_active ? <ToggleRight size={16} /> : <ToggleLeft size={16} />}
                           </button>
                           <button onClick={() => openEdit(u)}
-                            className="p-1.5 rounded-lg text-blue-500 hover:bg-blue-50 transition">
+                            className="p-1.5 rounded-lg text-blue-500 hover:bg-blue-50 transition"
+                            title="Edit user">
                             <Edit size={14} />
                           </button>
-                          <button onClick={() => remove(u.id)}
-                            className="p-1.5 rounded-lg text-red-400 hover:bg-red-50 transition">
-                            <Trash2 size={14} />
+                          <button
+                            onClick={() => canDelete(u) && remove(u.id)}
+                            disabled={!canDelete(u)}
+                            title={deleteTooltip(u)}
+                            className={`p-1.5 rounded-lg transition ${
+                              canDelete(u)
+                                ? 'text-red-400 hover:bg-red-50 cursor-pointer'
+                                : 'text-gray-300 cursor-not-allowed'}`}>
+                            {canDelete(u) ? <Trash2 size={14} /> : <Lock size={14} />}
                           </button>
                         </div>
                       </div>
@@ -352,6 +376,9 @@ export default function UsersPage() {
               <h2 className="font-black text-gray-800 flex items-center gap-2">
                 {modal === 'create' ? <Plus size={16} className="text-purple-600" /> : <Edit size={16} className="text-blue-600" />}
                 {modal === 'create' ? 'Create New User' : `Edit: ${modal.name}`}
+                {modal !== 'create' && isSelf(modal) && (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">You</span>
+                )}
               </h2>
               <button onClick={() => setModal(null)} className="text-gray-400 hover:text-gray-600 text-xl leading-none">×</button>
             </div>
@@ -400,9 +427,16 @@ export default function UsersPage() {
               {/* Role + Company */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Role *</label>
-                  <select className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
+                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">
+                    Role *
+                    {modal !== 'create' && isSelf(modal) && (
+                      <span className="ml-1 text-[9px] font-bold text-amber-600 normal-case">(locked — cannot change own role)</span>
+                    )}
+                  </label>
+                  <select
+                    className={`w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 ${modal !== 'create' && isSelf(modal) ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : ''}`}
                     value={form.role}
+                    disabled={modal !== 'create' && isSelf(modal)}
                     onChange={e => handleRoleChange(e.target.value)}>
                     {ROLES.map(r => (
                       <option key={r} value={r}>{ROLE_STYLE[r]?.label || r}</option>

@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Global scale-down: 14px base shrinks all rem font sizes & spacing ~12% ── */
+html {
+  font-size: 14px;
+}
+
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, sans-serif;
   background: #f3f4f6;

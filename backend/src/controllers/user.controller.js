@@ -77,6 +77,11 @@ exports.update = async (req, res) => {
         const [existing] = await db.query('SELECT * FROM users WHERE id = ?', [req.params.id]);
         if (!existing.length) return res.status(404).json({ error: 'User not found' });
 
+        // Prevent changing your own role (safety lock)
+        if (parseInt(req.params.id) === req.user.id && role && role !== existing[0].role) {
+            return res.status(400).json({ error: 'Cannot change your own role' });
+        }
+
         const curr = existing[0];
         const newPerms = permissions
             ? { ...DEFAULT_PERMISSIONS, ...permissions }
@@ -110,11 +115,25 @@ exports.update = async (req, res) => {
 
 exports.remove = async (req, res) => {
     try {
+        const targetId = parseInt(req.params.id);
+
         // Prevent deleting yourself
-        if (parseInt(req.params.id) === req.user.id) {
+        if (targetId === req.user.id) {
             return res.status(400).json({ error: 'Cannot delete your own account' });
         }
-        await db.query('DELETE FROM users WHERE id = ?', [req.params.id]);
+
+        // Prevent deleting the last super_admin
+        const [target] = await db.query('SELECT role FROM users WHERE id = ?', [targetId]);
+        if (!target.length) return res.status(404).json({ error: 'User not found' });
+
+        if (target[0].role === 'super_admin') {
+            const [cnt] = await db.query("SELECT COUNT(*) as c FROM users WHERE role = 'super_admin'");
+            if (cnt[0].c <= 1) {
+                return res.status(400).json({ error: 'Cannot delete the only Super Admin account' });
+            }
+        }
+
+        await db.query('DELETE FROM users WHERE id = ?', [targetId]);
         res.json({ success: true });
     } catch (e) {
         res.status(500).json({ error: e.message });

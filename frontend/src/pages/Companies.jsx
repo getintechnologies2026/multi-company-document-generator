@@ -43,18 +43,18 @@ export default function Companies() {
     <div className="min-h-screen pb-10" style={{ background: 'linear-gradient(135deg, #f0f4ff 0%, #faf5ff 50%, #f0fdf4 100%)' }}>
 
       {/* Header */}
-      <div className="px-6 py-5 mb-6 shadow-lg"
+      <div className="px-5 py-3.5 mb-4 shadow-md"
         style={{ background: 'linear-gradient(135deg, #4f46e5, #7c3aed, #a855f7)' }}>
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div>
-            <h1 className="text-xl font-black text-white flex items-center gap-2">
-              <Building2 size={20} /> Companies
+            <h1 className="text-base font-black text-white flex items-center gap-2">
+              <Building2 size={17} /> Companies
             </h1>
-            <p className="text-indigo-200 text-xs mt-0.5">{list.length} registered {list.length === 1 ? 'company' : 'companies'}</p>
+            <p className="text-indigo-200 text-[11px] mt-0.5">{list.length} registered {list.length === 1 ? 'company' : 'companies'}</p>
           </div>
           <Link to="/companies/new"
-            className="flex items-center gap-2 bg-white text-indigo-700 hover:bg-indigo-50 px-4 py-2.5 rounded-xl font-bold text-sm shadow-lg transition">
-            <Plus size={16} /> Add Company
+            className="flex items-center gap-1.5 bg-white text-indigo-700 hover:bg-indigo-50 px-3 py-2 rounded-lg font-bold text-xs shadow-lg transition">
+            <Plus size={14} /> Add Company
           </Link>
         </div>
       </div>
@@ -77,7 +77,7 @@ export default function Companies() {
         )}
 
         {/* Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
           {list.map((c, i) => {
             const grad = GRADIENTS[i % GRADIENTS.length];
             const bgLight = BG_LIGHTS[i % BG_LIGHTS.length];
@@ -85,27 +85,27 @@ export default function Companies() {
 
             return (
               <div key={c.id}
-                className={`bg-white rounded-2xl shadow-md border overflow-hidden hover:shadow-xl transition-all hover:-translate-y-0.5`}>
+                className={`bg-white rounded-xl shadow-sm border overflow-hidden hover:shadow-md transition-all hover:-translate-y-0.5`}>
 
                 {/* Card top gradient bar */}
-                <div className={`bg-gradient-to-r ${grad} h-2`} />
+                <div className={`bg-gradient-to-r ${grad} h-1`} />
 
                 {/* Card Body */}
-                <div className="p-5">
+                <div className="p-3.5">
                   {/* Logo + Name row */}
-                  <div className="flex items-center gap-3 mb-4">
+                  <div className="flex items-center gap-2.5 mb-3">
                     {c.logo_path ? (
                       <img src={`/uploads/${c.logo_path}`}
-                        className="w-12 h-12 object-contain rounded-xl border border-gray-100 shadow-sm bg-white p-1" />
+                        className="w-9 h-9 object-contain rounded-lg border border-gray-100 shadow-sm bg-white p-0.5 shrink-0" />
                     ) : (
-                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${grad} flex items-center justify-center shadow-md`}>
-                        <span className="text-white text-lg font-black">{initial}</span>
+                      <div className={`w-9 h-9 rounded-lg bg-gradient-to-br ${grad} flex items-center justify-center shadow-sm shrink-0`}>
+                        <span className="text-white text-sm font-black">{initial}</span>
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-black text-gray-800 text-sm leading-tight truncate">{c.name}</h3>
+                      <h3 className="font-black text-gray-800 text-xs leading-tight truncate">{c.name}</h3>
                       {c.doc_number_prefix && (
-                        <span className={`inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-gradient-to-r ${grad} text-white`}>
+                        <span className={`inline-block mt-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-gradient-to-r ${grad} text-white`}>
                           {c.doc_number_prefix}
                         </span>
                       )}
@@ -113,58 +113,58 @@ export default function Companies() {
                   </div>
 
                   {/* Info rows */}
-                  <div className={`${bgLight} rounded-xl p-3 space-y-2 border text-xs mb-4`}>
+                  <div className={`${bgLight} rounded-lg px-2.5 py-2 space-y-1.5 border text-[11px] mb-3`}>
                     {c.city && (
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <MapPin size={11} className="text-gray-400 shrink-0" />
+                      <div className="flex items-center gap-1.5 text-gray-600">
+                        <MapPin size={10} className="text-gray-400 shrink-0" />
                         <span className="truncate">{[c.city, c.state].filter(Boolean).join(', ')}</span>
                       </div>
                     )}
                     {c.email && (
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <Mail size={11} className="text-gray-400 shrink-0" />
+                      <div className="flex items-center gap-1.5 text-gray-600">
+                        <Mail size={10} className="text-gray-400 shrink-0" />
                         <span className="truncate">{c.email}</span>
                       </div>
                     )}
                     {c.phone && (
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <Phone size={11} className="text-gray-400 shrink-0" />
+                      <div className="flex items-center gap-1.5 text-gray-600">
+                        <Phone size={10} className="text-gray-400 shrink-0" />
                         <span>{c.phone}</span>
                       </div>
                     )}
                     {c.website && (
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <Globe size={11} className="text-gray-400 shrink-0" />
+                      <div className="flex items-center gap-1.5 text-gray-600">
+                        <Globe size={10} className="text-gray-400 shrink-0" />
                         <span className="truncate">{c.website}</span>
                       </div>
                     )}
                     {!c.city && !c.email && !c.phone && (
-                      <p className="text-gray-400 text-center py-1">No contact info</p>
+                      <p className="text-gray-400 text-center py-0.5">No contact info</p>
                     )}
                   </div>
 
                   {/* Signatory */}
                   {c.signatory_name && (
-                    <div className="flex items-center gap-2 mb-4 px-1">
-                      <div className={`w-6 h-6 rounded-full bg-gradient-to-br ${grad} flex items-center justify-center`}>
-                        <span className="text-white text-[9px] font-bold">{c.signatory_name[0]}</span>
+                    <div className="flex items-center gap-1.5 mb-3 px-0.5">
+                      <div className={`w-5 h-5 rounded-full bg-gradient-to-br ${grad} flex items-center justify-center shrink-0`}>
+                        <span className="text-white text-[8px] font-bold">{c.signatory_name[0]}</span>
                       </div>
-                      <div>
-                        <p className="text-xs font-semibold text-gray-700">{c.signatory_name}</p>
-                        <p className="text-[10px] text-gray-400">{c.signatory_designation}</p>
+                      <div className="min-w-0">
+                        <p className="text-[11px] font-semibold text-gray-700 truncate">{c.signatory_name}</p>
+                        <p className="text-[9px] text-gray-400 truncate">{c.signatory_designation}</p>
                       </div>
                     </div>
                   )}
 
                   {/* Actions */}
-                  <div className="flex gap-2 pt-3 border-t border-gray-100">
+                  <div className="flex gap-1.5 pt-2.5 border-t border-gray-100">
                     <Link to={`/companies/${c.id}/edit`}
-                      className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold bg-gradient-to-r ${grad} text-white hover:opacity-90 transition shadow-sm`}>
-                      <Edit size={12} /> Edit
+                      className={`flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg text-[11px] font-bold bg-gradient-to-r ${grad} text-white hover:opacity-90 transition shadow-sm`}>
+                      <Edit size={11} /> Edit
                     </Link>
                     <button onClick={() => remove(c.id)}
-                      className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-red-50 text-red-600 hover:bg-red-100 border border-red-100 transition">
-                      <Trash2 size={12} /> Delete
+                      className="flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-bold bg-red-50 text-red-600 hover:bg-red-100 border border-red-100 transition">
+                      <Trash2 size={11} /> Delete
                     </button>
                   </div>
                 </div>
