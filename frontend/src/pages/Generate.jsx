@@ -166,19 +166,19 @@ export default function Generate() {
 
         {/* Doc Type Selector */}
         <div className="bg-white rounded-2xl shadow-md overflow-hidden">
-          <div className="bg-gradient-to-r from-gray-700 to-gray-900 px-5 py-3">
-            <h2 className="text-white font-bold flex items-center gap-2"><FileText size={16} /> Select Document Type</h2>
+          <div className="bg-gradient-to-r from-gray-700 to-gray-900 px-4 py-2.5">
+            <h2 className="text-white font-bold text-sm flex items-center gap-2"><FileText size={14} /> Select Document Type</h2>
           </div>
-          <div className="p-4 grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="p-3 grid grid-cols-3 md:grid-cols-5 gap-2">
             {TYPES.map(t => (
               <button key={t.id} onClick={() => { setDocType(t.id); setResult(null); }}
-                className={`relative p-4 rounded-xl border-2 transition text-left
-                  ${docType === t.id ? `bg-gradient-to-br ${t.gradient} text-white border-transparent shadow-lg scale-105` : 'bg-gray-50 border-gray-200 hover:border-gray-300'}`}>
-                <t.icon size={22} className={docType === t.id ? 'text-white mb-2' : 'text-gray-500 mb-2'} />
-                <div className={`font-bold text-sm ${docType === t.id ? 'text-white' : 'text-gray-700'}`}>{t.label}</div>
+                className={`relative p-2.5 rounded-xl border-2 transition text-left
+                  ${docType === t.id ? `bg-gradient-to-br ${t.gradient} text-white border-transparent shadow-md` : 'bg-gray-50 border-gray-200 hover:border-gray-300 hover:bg-gray-100'}`}>
+                <t.icon size={16} className={docType === t.id ? 'text-white mb-1' : 'text-gray-500 mb-1'} />
+                <div className={`font-semibold text-xs leading-tight ${docType === t.id ? 'text-white' : 'text-gray-700'}`}>{t.label}</div>
                 {docType === t.id && (
-                  <div className="absolute top-2 right-2 bg-white/30 rounded-full p-0.5">
-                    <CheckCircle size={14} className="text-white" />
+                  <div className="absolute top-1.5 right-1.5 bg-white/30 rounded-full p-0.5">
+                    <CheckCircle size={10} className="text-white" />
                   </div>
                 )}
               </button>

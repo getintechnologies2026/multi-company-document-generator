@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 import {
   GraduationCap, Building2, User, Briefcase, Award, Star,
   CheckCircle, Loader, Download, ChevronDown, ChevronUp,
-  X, Plus, Eye
+  X, Plus, Eye, CalendarCheck
 } from 'lucide-react';
 import api from '../services/api';
 
@@ -95,15 +95,16 @@ function SSelect({ ring, children, ...props }) {
 export default function InternshipCertificate() {
   const [companies, setCompanies]   = useState([]);
   const [companyId, setCompanyId]   = useState('');
-  const [open, setOpen]             = useState({ company: true, intern: true, internship: true, performance: true });
-  const [generating, setGenerating] = useState(false);
-  const [result, setResult]         = useState(null);
+  const [open, setOpen]             = useState({ company: true, intern: true, internship: true, performance: true, attendance: false });
+  const [generating, setGenerating] = useState(false); // false | 'internship' | 'attendance'
+  const [result, setResult]         = useState(null);  // { ...data, type }
 
   const [skillInput, setSkillInput] = useState('');
   const [skillsList, setSkillsList] = useState([]);
 
   const [form, setForm] = useState({
     intern_name: '',
+    roll_no: '',
     college: '',
     course: '',
     branch: '',
@@ -114,6 +115,9 @@ export default function InternshipCertificate() {
     mentor_name: '',
     performance: '',
     remarks: '',
+    // Attendance certificate fields
+    total_working_days: '',
+    days_present: '',
   });
 
   useEffect(() => {
@@ -136,20 +140,37 @@ export default function InternshipCertificate() {
     if (e.key === 'Enter') { e.preventDefault(); addSkill(); }
   };
 
-  const generate = async () => {
+  // Auto-compute attendance percentage
+  const attendancePct = form.total_working_days && form.days_present
+    ? Math.round((Number(form.days_present) / Number(form.total_working_days)) * 100)
+    : null;
+
+  const generate = async (type = 'internship') => {
     if (!companyId) return toast.error('Please select a company');
     if (!form.intern_name.trim()) return toast.error('Intern name is required');
     if (!form.from_date || !form.to_date) return toast.error('Please fill From Date and To Date');
+    if (type === 'attendance') {
+      if (!form.total_working_days || !form.days_present) return toast.error('Total working days and days present are required for Attendance Certificate');
+    }
 
-    setGenerating(true);
+    setGenerating(type);
     setResult(null);
     try {
-      const { data } = await api.post('/documents/generate-internship', {
+      const endpoint = type === 'attendance'
+        ? '/documents/generate-internship-attendance'
+        : '/documents/generate-internship';
+      const { data } = await api.post(endpoint, {
         company_id: companyId,
-        intern: { ...form, skills: skillsList.join(', ') },
+        intern: {
+          ...form,
+          skills: skillsList.join(', '),
+          attendance_pct: attendancePct,
+        },
       });
-      setResult(data);
-      toast.success('Internship Certificate generated!');
+      setResult({ ...data, type });
+      toast.success(type === 'attendance'
+        ? 'Attendance Certificate generated!'
+        : 'Internship Certificate generated!');
     } catch (err) {
       toast.error(err.response?.data?.error || 'Generation failed');
     } finally {
@@ -187,13 +208,22 @@ export default function InternshipCertificate() {
               Generate a professional certificate of completion for interns
             </p>
           </div>
-          <button onClick={generate} disabled={generating}
-            className="flex items-center gap-2 bg-white text-violet-700 hover:bg-violet-50 px-6 py-3 rounded-xl font-bold shadow-lg transition disabled:opacity-60 text-sm">
-            {generating
-              ? <Loader size={18} className="animate-spin text-violet-600" />
-              : <GraduationCap size={18} />}
-            {generating ? 'Generating...' : 'Generate Certificate'}
-          </button>
+          <div className="flex gap-2 flex-wrap">
+            <button onClick={() => generate('internship')} disabled={!!generating}
+              className="flex items-center gap-2 bg-white text-violet-700 hover:bg-violet-50 px-4 py-2.5 rounded-xl font-bold shadow-lg transition disabled:opacity-60 text-sm">
+              {generating === 'internship'
+                ? <Loader size={16} className="animate-spin text-violet-600" />
+                : <GraduationCap size={16} />}
+              {generating === 'internship' ? 'Generating...' : 'Completion Cert'}
+            </button>
+            <button onClick={() => generate('attendance')} disabled={!!generating}
+              className="flex items-center gap-2 bg-white/20 border border-white/50 text-white hover:bg-white/30 px-4 py-2.5 rounded-xl font-bold shadow-lg transition disabled:opacity-60 text-sm">
+              {generating === 'attendance'
+                ? <Loader size={16} className="animate-spin" />
+                : <CalendarCheck size={16} />}
+              {generating === 'attendance' ? 'Generating...' : 'Attendance Cert'}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -202,9 +232,11 @@ export default function InternshipCertificate() {
         {/* Result Banner */}
         {result && (
           <div className="mb-6 bg-white rounded-2xl shadow-lg border border-emerald-200 overflow-hidden">
-            <div className="bg-gradient-to-r from-emerald-500 to-teal-600 px-5 py-3 flex items-center gap-2">
+            <div className={`px-5 py-3 flex items-center gap-2 ${result?.type === 'attendance' ? 'bg-gradient-to-r from-blue-500 to-indigo-600' : 'bg-gradient-to-r from-emerald-500 to-teal-600'}`}>
               <CheckCircle size={20} className="text-white" />
-              <span className="font-bold text-white text-sm">Internship Certificate Generated!</span>
+              <span className="font-bold text-white text-sm">
+                {result?.type === 'attendance' ? 'Attendance Certificate Generated!' : 'Internship Certificate Generated!'}
+              </span>
             </div>
             <div className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
@@ -256,6 +288,10 @@ export default function InternshipCertificate() {
                       <Field label="Intern Full Name *" color={sec.text}>
                         <SInput ring={sec.ring} name="intern_name" value={form.intern_name}
                           onChange={ch} placeholder="e.g. Priya Sharma" />
+                      </Field>
+                      <Field label="Roll No / Register No" color={sec.text}>
+                        <SInput ring={sec.ring} name="roll_no" value={form.roll_no}
+                          onChange={ch} placeholder="e.g. 21CS045 / 2021AU045" />
                       </Field>
                       <Field label="College / University" color={sec.text}>
                         <SInput ring={sec.ring} name="college" value={form.college}
@@ -384,13 +420,65 @@ export default function InternshipCertificate() {
               </div>
             );})()}
 
-            {/* Generate Button */}
-            <button onClick={generate} disabled={generating}
-              className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-bold text-lg shadow-xl transition disabled:opacity-60 text-white"
-              style={{ background: 'linear-gradient(135deg, #5b21b6, #4f46e5, #0284c7)' }}>
-              {generating ? <Loader size={22} className="animate-spin" /> : <GraduationCap size={22} />}
-              {generating ? 'Generating Certificate...' : 'Generate Internship Certificate'}
-            </button>
+            {/* SECTION 5 – Attendance (for Attendance Certificate only) */}
+            <div className="rounded-2xl overflow-hidden shadow-md">
+              <button type="button"
+                onClick={() => toggle('attendance')}
+                className="w-full flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md">
+                <div className="flex items-center gap-3">
+                  <div className="bg-white/20 p-2 rounded-lg"><CalendarCheck size={18} /></div>
+                  <div className="text-left">
+                    <div className="font-bold text-base">Attendance Details</div>
+                    <div className="text-xs text-white/80">Required only for Attendance Certificate</div>
+                  </div>
+                </div>
+                {open.attendance ? <ChevronUp size={20} className="text-white/80" /> : <ChevronDown size={20} className="text-white/80" />}
+              </button>
+              {open.attendance && (
+                <div className="bg-blue-50 p-5 border border-blue-200 border-t-0 rounded-b-2xl">
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5 text-blue-700">Total Working Days *</label>
+                      <SInput ring="focus:ring-blue-400" type="number" name="total_working_days"
+                        value={form.total_working_days} onChange={ch} placeholder="e.g. 60" min="1" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5 text-blue-700">Days Present *</label>
+                      <SInput ring="focus:ring-blue-400" type="number" name="days_present"
+                        value={form.days_present} onChange={ch} placeholder="e.g. 57" min="0" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5 text-blue-700">Attendance %</label>
+                      <div className={`px-3 py-2.5 rounded-lg border text-sm font-bold text-center
+                        ${attendancePct !== null
+                          ? attendancePct >= 75 ? 'bg-emerald-50 border-emerald-300 text-emerald-700' : 'bg-red-50 border-red-300 text-red-600'
+                          : 'bg-gray-50 border-gray-200 text-gray-400'}`}>
+                        {attendancePct !== null ? `${attendancePct}%` : 'Auto-calculated'}
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-xs text-blue-500 mt-3 opacity-80">
+                    ℹ️ Fill these fields only when generating an Attendance Certificate. Completion Certificate does not require them.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Generate Buttons */}
+            <div className="grid md:grid-cols-2 gap-3">
+              <button onClick={() => generate('internship')} disabled={!!generating}
+                className="flex items-center justify-center gap-3 py-3.5 rounded-2xl font-bold text-base shadow-xl transition disabled:opacity-60 text-white"
+                style={{ background: 'linear-gradient(135deg, #5b21b6, #4f46e5)' }}>
+                {generating === 'internship' ? <Loader size={20} className="animate-spin" /> : <GraduationCap size={20} />}
+                {generating === 'internship' ? 'Generating...' : 'Generate Completion Cert'}
+              </button>
+              <button onClick={() => generate('attendance')} disabled={!!generating}
+                className="flex items-center justify-center gap-3 py-3.5 rounded-2xl font-bold text-base shadow-xl transition disabled:opacity-60 text-white"
+                style={{ background: 'linear-gradient(135deg, #2563eb, #4f46e5)' }}>
+                {generating === 'attendance' ? <Loader size={20} className="animate-spin" /> : <CalendarCheck size={20} />}
+                {generating === 'attendance' ? 'Generating...' : 'Generate Attendance Cert'}
+              </button>
+            </div>
           </div>
 
           {/* RIGHT PANEL */}
@@ -406,6 +494,7 @@ export default function InternshipCertificate() {
               </div>
               <div className="p-4 space-y-3">
                 <Row label="Intern Name"  value={form.intern_name  || '—'} />
+                {form.roll_no && <Row label="Roll No" value={form.roll_no} />}
                 <Row label="College"      value={form.college      || '—'} />
                 <Row label="Course"       value={[form.course, form.branch].filter(Boolean).join(' — ') || '—'} />
                 <Row label="Department"   value={form.department   || '—'} />
@@ -419,6 +508,12 @@ export default function InternshipCertificate() {
                         {form.performance}
                       </span>
                     : '—'} />
+                {attendancePct !== null && (
+                  <Row label="Attendance"
+                    value={<span className={`font-bold ${attendancePct >= 75 ? 'text-emerald-600' : 'text-red-500'}`}>
+                      {form.days_present}/{form.total_working_days} days ({attendancePct}%)
+                    </span>} />
+                )}
                 {skillsList.length > 0 && (
                   <div>
                     <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Skills</p>

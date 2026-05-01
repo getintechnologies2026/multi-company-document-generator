@@ -10,12 +10,13 @@ const TYPE_META = {
   experience_letter: { label: 'Experience Letter',    icon: Award,       bg: 'bg-amber-100',  text: 'text-amber-700',  dot: 'bg-amber-400' },
   relieving_letter:  { label: 'Relieving Letter',     icon: LogOut,      bg: 'bg-red-100',    text: 'text-red-700',    dot: 'bg-red-400' },
   salary_increment:        { label: 'Increment Letter',     icon: TrendingUp,    bg: 'bg-teal-100',   text: 'text-teal-700',   dot: 'bg-teal-400' },
-  internship_certificate:  { label: 'Internship Certificate', icon: GraduationCap, bg: 'bg-violet-100', text: 'text-violet-700', dot: 'bg-violet-400' },
+  internship_certificate:  { label: 'Internship Certificate',          icon: GraduationCap, bg: 'bg-violet-100', text: 'text-violet-700', dot: 'bg-violet-400' },
+  internship_attendance:   { label: 'Internship Attendance Certificate', icon: GraduationCap, bg: 'bg-cyan-100',   text: 'text-cyan-700',   dot: 'bg-cyan-400' },
 };
 
 const STATS_COLORS = {
   offer_letter: '#3b82f6', payslip: '#10b981', experience_letter: '#f59e0b',
-  relieving_letter: '#ef4444', salary_increment: '#0d9488', internship_certificate: '#7c3aed'
+  relieving_letter: '#ef4444', salary_increment: '#0d9488', internship_certificate: '#7c3aed', internship_attendance: '#0891b2'
 };
 
 export default function Documents() {
