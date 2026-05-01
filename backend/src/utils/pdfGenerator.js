@@ -48,17 +48,46 @@ const BROWSER_ARGS = [
     '--disable-setuid-sandbox',
     '--disable-gpu',
     '--disable-dev-shm-usage',
+    '--no-zygote',
     '--disable-extensions',
-    '--no-first-run',
+    '--disable-background-networking',
     '--disable-default-apps',
+    '--disable-sync',
+    '--disable-translate',
+    '--hide-scrollbars',
+    '--metrics-recording-only',
+    '--mute-audio',
+    '--no-first-run',
+    '--safebrowsing-disable-auto-update',
+    '--disable-software-rasterizer',
+    '--disable-background-timer-throttling',
+    '--disable-renderer-backgrounding',
+    '--disable-backgrounding-occluded-windows',
 ];
 
 /**
  * Launch a Puppeteer browser instance.
- * Call this once for a batch; pass the result to generatePDF as sharedBrowser.
+ * Uses 'shell' headless mode (chrome-headless-shell) which is lighter and
+ * more reliable on headless Linux VPS servers than the full Chrome headless mode.
+ * Falls back to 'new' mode if shell is unavailable.
  */
 async function createBrowser() {
-    return puppeteer.launch({ headless: 'new', args: BROWSER_ARGS });
+    // 'shell' = chrome-headless-shell binary — faster startup, stable on VPS
+    // If it fails, fall back to 'new' (full headless Chrome)
+    try {
+        return await puppeteer.launch({
+            headless: 'shell',
+            args: BROWSER_ARGS,
+            timeout: 60000,
+        });
+    } catch (e) {
+        console.warn('[pdfGenerator] shell headless failed, trying new mode:', e.message);
+        return await puppeteer.launch({
+            headless: true,
+            args: BROWSER_ARGS,
+            timeout: 60000,
+        });
+    }
 }
 
 /**
@@ -76,7 +105,8 @@ async function generatePDF(docType, ctx, outputPath, sharedBrowser = null) {
     let page;
     try {
         page = await browser.newPage();
-        await page.setContent(html, { waitUntil: 'networkidle0' });
+        // networkidle2 (≤2 active connections) is more forgiving than networkidle0 on VPS
+        await page.setContent(html, { waitUntil: 'networkidle2', timeout: 30000 });
         await page.pdf({
             path: outputPath,
             format: 'A4',
