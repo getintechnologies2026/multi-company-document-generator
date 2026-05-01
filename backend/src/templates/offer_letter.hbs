@@ -4,7 +4,6 @@
 <head>
   <meta charset="utf-8">
   <style>
-    /* ── Reset & base ─────────────────────────────────────────── */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Segoe UI', Arial, sans-serif;
@@ -13,66 +12,51 @@
       line-height: 1.65;
       background: #fff;
     }
-
-    /* ── Page wrapper (0mm PDF margins — all spacing here) ──── */
     .page { padding: 0; }
 
-    /* ── Top accent bar ──────────────────────────────────────── */
-    .top-bar {
-      height: 8px;
-      width: 100%;
-      background: linear-gradient(90deg, #1e3a8a, #3b82f6);
-    }
+    /* ── Top accent bar ── */
+    .top-bar { height: 8px; width: 100%; background: linear-gradient(90deg, #1e3a8a, #3b82f6); }
 
-    /* ── Header ─────────────────────────────────────────────── */
+    /* ── Header — float layout (wkhtmltopdf safe) ── */
     .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
       background: #eff6ff;
       padding: 16px 30px;
       border-bottom: 2px solid #bfdbfe;
+      overflow: hidden;
     }
-    .header-logo img {
-      max-height: 62px;
-      max-width: 190px;
-    }
+    .header-logo { float: left; }
+    .header-logo img { max-height: 62px; max-width: 190px; display: block; }
     .header-logo .logo-text {
-      font-size: 22px;
-      font-weight: 700;
-      color: #1e40af;
-      letter-spacing: 0.5px;
+      font-size: 22px; font-weight: 700; color: #1e40af; letter-spacing: 0.5px;
     }
     .header-company {
+      float: right;
       text-align: right;
       font-size: 11px;
       color: #475569;
       line-height: 1.55;
     }
     .header-company .company-name {
-      font-size: 15px;
-      font-weight: 700;
-      color: #1e40af;
-      margin-bottom: 2px;
+      font-size: 15px; font-weight: 700; color: #1e40af; margin-bottom: 2px;
     }
 
-    /* ── Body content ────────────────────────────────────────── */
-    .body {
-      padding: 20px 30px;
-    }
+    /* ── Body ── */
+    .body { padding: 20px 30px; }
 
-    /* ── Meta row ────────────────────────────────────────────── */
-    .meta-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 11.5px;
-      color: #475569;
+    /* ── Meta row — table layout ── */
+    table.meta-table {
+      width: 100%;
+      border-collapse: collapse;
       margin-bottom: 16px;
       padding-bottom: 8px;
       border-bottom: 1px dashed #bfdbfe;
+      font-size: 11.5px;
+      color: #475569;
     }
+    table.meta-table td { padding: 0 0 8px 0; border: none; background: none; }
+    table.meta-table td:last-child { text-align: right; }
 
-    /* ── Document title pill ─────────────────────────────────── */
+    /* ── Document title ── */
     .doc-title {
       text-align: center;
       background: #1e40af;
@@ -82,189 +66,90 @@
       letter-spacing: 2px;
       padding: 9px 24px;
       border-radius: 30px;
-      display: inline-block;
+      display: block;
       width: 100%;
       margin-bottom: 20px;
     }
 
-    /* ── Salutation & paragraphs ─────────────────────────────── */
-    .salutation {
-      font-size: 13px;
-      margin-bottom: 10px;
-    }
-    p {
-      margin: 8px 0;
-      text-align: justify;
-      font-size: 13px;
-    }
+    /* ── Text ── */
+    .salutation { font-size: 13px; margin-bottom: 10px; }
+    p { margin: 8px 0; text-align: justify; font-size: 13px; }
 
-    /* ── Section heading ─────────────────────────────────────── */
+    /* ── Section heading ── */
     .section-label {
-      font-size: 12px;
-      font-weight: 700;
-      color: #1e40af;
-      margin: 18px 0 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      font-size: 12px; font-weight: 700; color: #1e40af;
+      margin: 18px 0 6px; text-transform: uppercase; letter-spacing: 0.5px;
     }
 
-    /* ── Employment details table ────────────────────────────── */
+    /* ── Employment details table ── */
     table.details-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 16px;
-      font-size: 12.5px;
+      width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 12.5px;
     }
     table.details-table th {
-      background: #1e40af;
-      color: #fff;
-      padding: 8px 10px;
-      text-align: left;
-      font-weight: 600;
-      font-size: 12px;
+      background: #1e40af; color: #fff; padding: 8px 10px;
+      text-align: left; font-weight: 600; font-size: 12px;
     }
-    table.details-table td {
-      border: 1px solid #bfdbfe;
-      padding: 7px 10px;
-      vertical-align: top;
-    }
+    table.details-table td { border: 1px solid #bfdbfe; padding: 7px 10px; vertical-align: top; }
     table.details-table td:first-child {
-      width: 38%;
-      background: #eff6ff;
-      font-weight: 600;
-      color: #1e3a8a;
+      width: 38%; background: #eff6ff; font-weight: 600; color: #1e3a8a;
     }
-    table.details-table tr:nth-child(even) td:last-child {
-      background: #f8fafc;
-    }
+    table.details-table tr:nth-child(even) td:last-child { background: #f8fafc; }
 
-    /* ── Salary breakdown table ──────────────────────────────── */
+    /* ── Salary breakdown table ── */
     table.salary-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 16px;
-      font-size: 12px;
+      width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 12px;
     }
     table.salary-table th {
-      background: #dbeafe;
-      color: #1e3a8a;
-      padding: 7px 10px;
-      text-align: left;
-      font-weight: 700;
-      border: 1px solid #bfdbfe;
-      font-size: 11.5px;
+      background: #dbeafe; color: #1e3a8a; padding: 7px 10px;
+      text-align: left; font-weight: 700; border: 1px solid #bfdbfe; font-size: 11.5px;
     }
-    table.salary-table td {
-      border: 1px solid #bfdbfe;
-      padding: 6px 10px;
-      vertical-align: middle;
-    }
+    table.salary-table th:last-child { text-align: right; }
+    table.salary-table td { border: 1px solid #bfdbfe; padding: 6px 10px; vertical-align: middle; }
     table.salary-table td:first-child {
-      background: #f8faff;
-      font-weight: 500;
-      color: #334155;
-      width: 55%;
+      background: #f8faff; font-weight: 500; color: #334155; width: 55%;
     }
-    table.salary-table td.amount {
-      text-align: right;
-      font-variant-numeric: tabular-nums;
-      color: #1e293b;
-    }
-    table.salary-table tr:nth-child(even) td:first-child {
-      background: #eff6ff;
-    }
+    table.salary-table td.amount { text-align: right; color: #1e293b; }
+    table.salary-table tr:nth-child(even) td:first-child { background: #eff6ff; }
     table.salary-table tr.gross-row td {
-      background: #dbeafe;
-      font-weight: 700;
-      color: #1e3a8a;
-      border-top: 2px solid #3b82f6;
+      background: #dbeafe; font-weight: 700; color: #1e3a8a; border-top: 2px solid #3b82f6;
     }
-    table.salary-table tr.deduction-row td:first-child {
-      color: #dc2626;
-    }
+    table.salary-table tr.deduction-row td:first-child { color: #dc2626; }
     table.salary-table tr.net-row td {
-      background: #1e40af;
-      color: #fff;
-      font-weight: 700;
-      font-size: 13px;
-      border-top: 2px solid #1e3a8a;
+      background: #1e40af; color: #fff; font-weight: 700; font-size: 13px; border-top: 2px solid #1e3a8a;
     }
-    table.salary-table tr.net-row td.amount {
-      color: #fff;
-    }
+    table.salary-table tr.net-row td.amount { color: #fff; }
 
-    /* ── Terms box ───────────────────────────────────────────── */
+    /* ── Terms box ── */
     .terms-box {
-      background: #eff6ff;
-      border-left: 4px solid #3b82f6;
-      border-radius: 0 6px 6px 0;
-      padding: 12px 16px;
-      margin: 16px 0;
-      font-size: 12.5px;
+      background: #eff6ff; border-left: 4px solid #3b82f6;
+      border-radius: 0 6px 6px 0; padding: 12px 16px; margin: 16px 0; font-size: 12.5px;
     }
-    .terms-box .terms-heading {
-      font-weight: 700;
-      color: #1e40af;
-      font-size: 12.5px;
-      margin-bottom: 8px;
-    }
-    .terms-box ol {
-      padding-left: 18px;
-      margin: 0;
-    }
-    .terms-box ol li {
-      margin-bottom: 5px;
-      color: #334155;
-      line-height: 1.6;
-    }
+    .terms-box .terms-heading { font-weight: 700; color: #1e40af; font-size: 12.5px; margin-bottom: 8px; }
+    .terms-box ol { padding-left: 18px; margin: 0; }
+    .terms-box ol li { margin-bottom: 5px; color: #334155; line-height: 1.6; }
 
-    /* ── Signature block ─────────────────────────────────────── */
-    .signature-block {
-      margin-top: 36px;
-      text-align: right;
-    }
+    /* ── Signature block ── */
+    .signature-block { margin-top: 36px; text-align: right; }
     .signature-block img {
-      max-height: 56px;
-      max-width: 160px;
-      display: block;
-      margin-left: auto;
-      margin-bottom: 4px;
+      max-height: 56px; max-width: 160px; display: block; margin-left: auto; margin-bottom: 4px;
     }
-    .signature-block .sig-name {
-      font-weight: 700;
-      font-size: 13px;
-      color: #1e293b;
-    }
-    .signature-block .sig-designation {
-      font-size: 11.5px;
-      color: #475569;
-    }
-    .signature-block .sig-company {
-      font-size: 11.5px;
-      color: #1e40af;
-      font-weight: 600;
-    }
+    .signature-block .sig-name { font-weight: 700; font-size: 13px; color: #1e293b; }
+    .signature-block .sig-designation { font-size: 11.5px; color: #475569; }
+    .signature-block .sig-company { font-size: 11.5px; color: #1e40af; font-weight: 600; }
 
-    /* ── Footer ──────────────────────────────────────────────── */
+    /* ── Footer ── */
     .footer {
-      margin-top: 28px;
-      border-top: 1px solid #bfdbfe;
-      padding: 7px 30px;
-      text-align: center;
-      font-size: 10px;
-      color: #64748b;
-      background: #f8faff;
-      line-height: 1.5;
+      margin-top: 28px; border-top: 1px solid #bfdbfe; padding: 7px 30px;
+      text-align: center; font-size: 10px; color: #64748b; background: #f8faff; line-height: 1.5;
     }
   </style>
 </head>
 <body>
 <div class="page">
 
-  <!-- Top accent bar -->
   <div class="top-bar"></div>
 
-  <!-- Header -->
+  <!-- Header: logo left, company info right via float -->
   <div class="header">
     <div class="header-logo">
       {{#if company.logo_url}}
@@ -283,58 +168,43 @@
     </div>
   </div>
 
-  <!-- Body -->
   <div class="body">
 
-    <!-- Meta row -->
-    <div class="meta-row">
-      <span><strong>Ref No:</strong> {{doc_number}}</span>
-      <span><strong>Date:</strong> {{today}}</span>
-    </div>
+    <!-- Meta row: ref left, date right via table -->
+    <table class="meta-table">
+      <tr>
+        <td><strong>Ref No:</strong> {{doc_number}}</td>
+        <td><strong>Date:</strong> {{today}}</td>
+      </tr>
+    </table>
 
-    <!-- Document title -->
     <div class="doc-title">OFFER OF EMPLOYMENT</div>
 
-    <!-- Salutation -->
     <p class="salutation">Dear <strong>{{employee.full_name}}</strong>,</p>
-
-    <!-- Opening paragraph -->
     <p>
       We are delighted to extend this offer of employment to you for the position of
       <strong>{{#if employee.offered_designation}}{{employee.offered_designation}}{{else}}{{employee.designation}}{{/if}}</strong>
       at <strong>{{company.name}}</strong>. After careful consideration of your qualifications and experience,
       we are confident that you will be a valuable addition to our growing team.
     </p>
-    <p>
-      The details of your appointment and the terms of your employment are outlined below:
-    </p>
+    <p>The details of your appointment and the terms of your employment are outlined below:</p>
 
-    <!-- Employment details table -->
     <div class="section-label">Employment Details</div>
     <table class="details-table">
-      <tr>
-        <th>Particulars</th>
-        <th>Details</th>
-      </tr>
+      <tr><th>Particulars</th><th>Details</th></tr>
       <tr>
         <td>Offered Designation</td>
         <td>{{#if employee.offered_designation}}{{employee.offered_designation}}{{else}}{{employee.designation}}{{/if}}</td>
       </tr>
-      <tr>
-        <td>Department</td>
-        <td>{{employee.department}}</td>
-      </tr>
+      <tr><td>Department</td><td>{{employee.department}}</td></tr>
       <tr>
         <td>Date of Joining</td>
         <td>{{#if employee.joining_date}}{{formatDate employee.joining_date "DD-MMM-YYYY"}}{{else}}{{formatDate employee.date_of_joining "DD-MMM-YYYY"}}{{/if}}</td>
       </tr>
-      <tr>
-        <td>Employment Type</td>
-        <td>{{employee.employment_type}}</td>
-      </tr>
+      <tr><td>Employment Type</td><td>{{employee.employment_type}}</td></tr>
       <tr>
         <td>Annual CTC</td>
-        <td><strong>₹ {{#if employee.offered_ctc}}{{inr employee.offered_ctc}}{{else}}{{inr employee.ctc}}{{/if}} /-</strong></td>
+        <td><strong>&#8377; {{#if employee.offered_ctc}}{{inr employee.offered_ctc}}{{else}}{{inr employee.ctc}}{{/if}} /-</strong></td>
       </tr>
       <tr>
         <td>Work Location</td>
@@ -342,48 +212,29 @@
       </tr>
     </table>
 
-    <!-- Salary breakdown -->
     <div class="section-label">Salary Breakdown</div>
     <table class="salary-table">
       <tr>
         <th>Component</th>
-        <th style="text-align:right">Monthly Amount (₹)</th>
+        <th>Monthly Amount (&#8377;)</th>
       </tr>
       {{#if employee.basic}}
-      <tr>
-        <td>Basic Salary</td>
-        <td class="amount">{{inr employee.basic}}</td>
-      </tr>
+      <tr><td>Basic Salary</td><td class="amount">{{inr employee.basic}}</td></tr>
       {{/if}}
       {{#if employee.hra}}
-      <tr>
-        <td>House Rent Allowance (HRA)</td>
-        <td class="amount">{{inr employee.hra}}</td>
-      </tr>
+      <tr><td>House Rent Allowance (HRA)</td><td class="amount">{{inr employee.hra}}</td></tr>
       {{/if}}
       {{#if employee.da}}
-      <tr>
-        <td>Dearness Allowance (DA)</td>
-        <td class="amount">{{inr employee.da}}</td>
-      </tr>
+      <tr><td>Dearness Allowance (DA)</td><td class="amount">{{inr employee.da}}</td></tr>
       {{/if}}
       {{#if employee.conveyance}}
-      <tr>
-        <td>Conveyance Allowance</td>
-        <td class="amount">{{inr employee.conveyance}}</td>
-      </tr>
+      <tr><td>Conveyance Allowance</td><td class="amount">{{inr employee.conveyance}}</td></tr>
       {{/if}}
       {{#if employee.medical}}
-      <tr>
-        <td>Medical Allowance</td>
-        <td class="amount">{{inr employee.medical}}</td>
-      </tr>
+      <tr><td>Medical Allowance</td><td class="amount">{{inr employee.medical}}</td></tr>
       {{/if}}
       {{#if employee.special_allowance}}
-      <tr>
-        <td>Special Allowance</td>
-        <td class="amount">{{inr employee.special_allowance}}</td>
-      </tr>
+      <tr><td>Special Allowance</td><td class="amount">{{inr employee.special_allowance}}</td></tr>
       {{/if}}
       <tr class="gross-row">
         <td>Gross Monthly Earnings</td>
@@ -401,7 +252,6 @@
       </tr>
     </table>
 
-    <!-- Terms & Conditions -->
     <div class="terms-box">
       <div class="terms-heading">Terms &amp; Conditions</div>
       <ol>
@@ -413,7 +263,6 @@
       </ol>
     </div>
 
-    <!-- Closing paragraphs -->
     <p>
       Please sign and return a copy of this offer letter as your formal acceptance of the terms stated herein.
       This offer will remain valid for <strong>7 days</strong> from the date of issuance.
@@ -422,7 +271,6 @@
       We look forward to welcoming you to the <strong>{{company.name}}</strong> family and wish you a rewarding and successful career with us.
     </p>
 
-    <!-- Signature block -->
     <div class="signature-block">
       <p style="font-size:12px; color:#475569; margin-bottom:16px;">Yours sincerely,</p>
       {{#if company.signature_url}}
@@ -436,9 +284,8 @@
       <div class="sig-company">{{company.name}}</div>
     </div>
 
-  </div><!-- /.body -->
+  </div>
 
-  <!-- Footer -->
   <div class="footer">
     {{company.name}} &nbsp;|&nbsp; {{company.address}}{{#if company.city}}, {{company.city}}{{/if}}{{#if company.state}}, {{company.state}}{{/if}}
     &nbsp;|&nbsp; {{company.email}}
@@ -446,6 +293,6 @@
     &nbsp;|&nbsp; Doc No: {{doc_number}}
   </div>
 
-</div><!-- /.page -->
+</div>
 </body>
 </html>

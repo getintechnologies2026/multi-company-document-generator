@@ -1,279 +1,177 @@
+<!-- salary_increment.hbs -->
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
 <style>
-  * { box-sizing: border-box; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: 'Segoe UI', Arial, sans-serif;
     color: #1c1917;
     font-size: 13px;
     line-height: 1.7;
-    margin: 0;
-    padding: 0;
   }
 
   /* ── Top gradient bar ── */
-  .top-bar {
-    height: 8px;
-    background: linear-gradient(90deg, #022c22, #10b981);
-  }
+  .top-bar { height: 8px; background: linear-gradient(90deg, #022c22, #10b981); }
 
-  /* ── Header ── */
+  /* ── Header — float layout ── */
   .header {
     background: #ecfdf5;
     padding: 16px 30px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     border-bottom: 2px solid #a7f3d0;
+    overflow: hidden;
   }
-  .header .logo img { max-height: 65px; max-width: 200px; }
-  .header .logo .logo-text {
-    font-size: 22px;
-    font-weight: 800;
-    color: #065f46;
-  }
+  .header .logo { float: left; }
+  .header .logo img { max-height: 65px; max-width: 200px; display: block; }
+  .header .logo .logo-text { font-size: 22px; font-weight: 800; color: #065f46; }
   .header .company-info {
+    float: right;
     text-align: right;
     font-size: 11px;
     color: #374151;
   }
-  .header .company-info .cname {
-    font-size: 16px;
-    font-weight: 700;
-    color: #065f46;
-    margin-bottom: 2px;
-  }
+  .header .company-info .cname { font-size: 16px; font-weight: 700; color: #065f46; margin-bottom: 2px; }
 
   /* ── Body ── */
   .body { padding: 20px 30px; }
 
   /* Confidential label */
   .confidential {
-    text-align: center;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 3px;
-    color: #dc2626;
-    text-transform: uppercase;
-    margin-bottom: 10px;
+    text-align: center; font-size: 10px; font-weight: 700;
+    letter-spacing: 3px; color: #dc2626; text-transform: uppercase; margin-bottom: 10px;
   }
 
-  /* Meta row */
-  .meta {
-    display: flex;
-    justify-content: space-between;
-    font-size: 12px;
-    color: #44403c;
-    margin-bottom: 16px;
+  /* ── Meta row — table layout ── */
+  table.meta-table {
+    width: 100%; border-collapse: collapse;
+    margin-bottom: 16px; font-size: 12px; color: #44403c;
   }
+  table.meta-table td { padding: 0; border: none; background: none; }
+  table.meta-table td:last-child { text-align: right; }
 
-  /* Emerald pill title */
-  .title-pill {
-    text-align: center;
-    margin: 0 0 20px;
-  }
+  /* ── Emerald pill title ── */
+  .title-pill { text-align: center; margin: 0 0 20px; }
   .title-pill span {
     display: inline-block;
     background: linear-gradient(90deg, #065f46, #059669);
     color: #fff;
-    font-size: 15px;
-    font-weight: 800;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    padding: 8px 36px;
-    border-radius: 50px;
+    font-size: 15px; font-weight: 800; letter-spacing: 3px;
+    text-transform: uppercase; padding: 8px 36px; border-radius: 50px;
   }
 
-  /* To block */
+  /* ── To block ── */
   .to-block {
-    background: #ecfdf5;
-    border-left: 4px solid #059669;
-    border-radius: 0 6px 6px 0;
-    padding: 12px 16px;
-    margin-bottom: 16px;
-    font-size: 12px;
+    background: #ecfdf5; border-left: 4px solid #059669;
+    border-radius: 0 6px 6px 0; padding: 12px 16px; margin-bottom: 16px; font-size: 12px;
   }
   .to-block .to-label {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: #6b7280;
-    margin-bottom: 4px;
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; color: #6b7280; margin-bottom: 4px;
   }
-  .to-block .to-name {
-    font-size: 14px;
-    font-weight: 700;
-    color: #065f46;
-  }
+  .to-block .to-name { font-size: 14px; font-weight: 700; color: #065f46; }
   .to-block .to-meta { color: #374151; margin-top: 2px; }
 
-  /* Subject line */
-  .subject-line {
-    font-size: 13px;
-    font-weight: 700;
-    margin: 12px 0;
-    color: #1c1917;
-  }
+  /* ── Subject line ── */
+  .subject-line { font-size: 13px; font-weight: 700; margin: 12px 0; color: #1c1917; }
 
-  /* Paragraphs */
+  /* ── Paragraphs ── */
   p { margin: 10px 0; text-align: justify; }
 
-  /* Summary cards — using display:table trick for wkhtmltopdf flex fallback */
-  .summary-row {
-    display: table;
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 10px;
-    margin: 16px 0;
-  }
+  /* ── Summary cards — display:table for wkhtmltopdf ── */
+  .summary-row { display: table; width: 100%; border-collapse: separate; border-spacing: 10px; margin: 16px 0; }
   .summary-card {
-    display: table-cell;
-    width: 33.33%;
-    border-radius: 8px;
-    padding: 12px 10px;
-    text-align: center;
-    vertical-align: middle;
+    display: table-cell; width: 33.33%;
+    border-radius: 8px; padding: 12px 10px; text-align: center; vertical-align: middle;
   }
   .summary-card .s-label {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    opacity: 0.8;
-    margin-bottom: 6px;
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.5px; opacity: 0.8; margin-bottom: 6px;
   }
-  .summary-card .s-value {
-    font-size: 15px;
-    font-weight: 800;
-  }
-  .s-current  { background: #f3f4f6; color: #374151; }
+  .summary-card .s-value { font-size: 15px; font-weight: 800; }
+  .s-current   { background: #f3f4f6; color: #374151; }
   .s-increment { background: #dbeafe; color: #1e40af; }
-  .s-revised  { background: #d1fae5; color: #065f46; }
+  .s-revised   { background: #d1fae5; color: #065f46; }
 
-  /* CTC Comparison table */
+  /* ── CTC Comparison table ── */
   .section-title {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: #374151;
-    margin: 18px 0 8px;
-    border-bottom: 1px solid #a7f3d0;
-    padding-bottom: 4px;
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; color: #374151; margin: 18px 0 8px;
+    border-bottom: 1px solid #a7f3d0; padding-bottom: 4px;
   }
   table.compare-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 0 0 16px;
-    font-size: 12px;
+    width: 100%; border-collapse: collapse; margin: 0 0 16px; font-size: 12px;
   }
   table.compare-table th,
-  table.compare-table td {
-    border: 1px solid #d1d5db;
-    padding: 7px 10px;
-    vertical-align: middle;
-  }
+  table.compare-table td { border: 1px solid #d1d5db; padding: 7px 10px; vertical-align: middle; }
   table.compare-table thead tr th:first-child {
-    background: #f9fafb;
-    color: #374151;
-    text-align: left;
-    font-size: 11px;
+    background: #f9fafb; color: #374151; text-align: left; font-size: 11px;
   }
   table.compare-table thead tr th.th-current {
-    background: #6b7280;
-    color: #fff;
-    text-align: right;
-    font-size: 11px;
+    background: #6b7280; color: #fff; text-align: right; font-size: 11px;
   }
   table.compare-table thead tr th.th-revised {
-    background: #059669;
-    color: #fff;
-    text-align: right;
-    font-size: 11px;
+    background: #059669; color: #fff; text-align: right; font-size: 11px;
   }
   table.compare-table tbody td { color: #374151; }
   table.compare-table tbody td:not(:first-child) { text-align: right; }
   table.compare-table tbody tr:nth-child(even) td { background: #f0fdf4; }
-  table.compare-table tbody tr.bold-row td {
-    font-weight: 700;
-    background: #ecfdf5;
-  }
-  table.compare-table tbody tr.bold-row td:not(:first-child) {
-    color: #065f46;
-  }
+  table.compare-table tbody tr.bold-row td { font-weight: 700; background: #ecfdf5; }
+  table.compare-table tbody tr.bold-row td:not(:first-child) { color: #065f46; }
   table.compare-table tbody tr.net-row td {
-    font-weight: 800;
-    background: #d1fae5;
-    border-top: 2px solid #6ee7b7;
+    font-weight: 800; background: #d1fae5; border-top: 2px solid #6ee7b7;
   }
   table.compare-table tbody tr.net-row td:not(:first-child) { color: #065f46; }
 
-  /* Signature block */
-  .signature-block {
-    margin-top: 36px;
-    display: flex;
-    justify-content: flex-end;
-  }
-  .sig-inner { text-align: center; min-width: 200px; }
-  .sig-inner .sig-imgs { display: flex; justify-content: center; align-items: flex-end; gap: 8px; margin-bottom: 6px; }
-  .sig-inner .sig-imgs img.sig-img   { max-height: 55px; }
-  .sig-inner .sig-imgs img.stamp-img { max-height: 60px; opacity: 0.85; }
+  /* ── Signature block — right-aligned ── */
+  .signature-block { margin-top: 36px; text-align: right; }
+  .sig-inner { display: inline-block; text-align: center; min-width: 200px; }
+  .sig-inner .sig-imgs { text-align: center; margin-bottom: 6px; }
+  .sig-inner .sig-imgs img.sig-img   { max-height: 55px; display: inline-block; vertical-align: bottom; margin: 0 3px; }
+  .sig-inner .sig-imgs img.stamp-img { max-height: 60px; opacity: 0.85; display: inline-block; vertical-align: bottom; margin: 0 3px; }
   .sig-inner .sig-line {
-    border-top: 1.5px solid #374151;
-    padding-top: 6px;
-    margin-top: 4px;
+    border-top: 1.5px solid #374151; padding-top: 6px; margin-top: 4px;
   }
   .sig-inner .sig-name  { font-weight: 700; font-size: 13px; color: #1c1917; }
   .sig-inner .sig-title { font-size: 11px; color: #6b7280; }
 
-  /* Acknowledgement box */
+  /* ── Acknowledgement box ── */
   .ack-box {
-    margin-top: 36px;
-    border: 1.5px dashed #6ee7b7;
-    border-radius: 8px;
-    padding: 14px 18px;
-    background: #f0fdf4;
+    margin-top: 36px; border: 1.5px dashed #6ee7b7;
+    border-radius: 8px; padding: 14px 18px; background: #f0fdf4;
   }
   .ack-box .ack-heading {
-    font-size: 11px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: #065f46;
-    margin-bottom: 8px;
+    font-size: 11px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 1px; color: #065f46; margin-bottom: 8px;
   }
   .ack-box .ack-text { font-size: 11.5px; color: #374151; margin: 0; text-align: justify; }
-  .ack-box .ack-fields {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 22px;
-    font-size: 11px;
-    color: #374151;
-  }
 
-  /* Footer */
-  .footer {
-    margin-top: 24px;
-    border-top: 2px solid #a7f3d0;
-    padding: 7px 30px;
-    display: flex;
-    justify-content: space-between;
-    font-size: 10px;
-    color: #9ca3af;
-    background: #ecfdf5;
+  /* ── Ack fields — table layout ── */
+  table.ack-fields-table {
+    width: 100%; border-collapse: collapse; margin-top: 22px;
+    font-size: 11px; color: #374151;
   }
+  table.ack-fields-table td { border: none; background: none; padding: 0; }
+  table.ack-fields-table td:last-child { text-align: right; }
+
+  /* ── Footer — table layout ── */
+  .footer {
+    margin-top: 24px; border-top: 2px solid #a7f3d0;
+    padding: 7px 30px; background: #ecfdf5;
+  }
+  table.footer-table {
+    width: 100%; border-collapse: collapse; font-size: 10px; color: #9ca3af;
+  }
+  table.footer-table td { border: none; background: none; padding: 0; }
+  table.footer-table td:last-child { text-align: right; }
   .footer .f-left { color: #065f46; font-weight: 700; }
 </style>
 </head>
 <body>
 
-<!-- Top gradient bar -->
 <div class="top-bar"></div>
 
-<!-- Header -->
+<!-- Header: logo left, company info right via float -->
 <div class="header">
   <div class="logo">
     {{#if company.logo_url}}
@@ -284,31 +182,29 @@
   </div>
   <div class="company-info">
     <div class="cname">{{company.name}}</div>
-    <div>{{company.address}}{{#if company.city}}, {{company.city}}{{/if}}{{#if company.state}}, {{company.state}}{{/if}}{{#if company.pincode}} — {{company.pincode}}{{/if}}</div>
+    <div>{{company.address}}{{#if company.city}}, {{company.city}}{{/if}}{{#if company.state}}, {{company.state}}{{/if}}{{#if company.pincode}} &mdash; {{company.pincode}}{{/if}}</div>
     {{#if company.email}}<div>{{company.email}}{{#if company.phone}} | {{company.phone}}{{/if}}</div>{{/if}}
     {{#if company.website}}<div>{{company.website}}</div>{{/if}}
     {{#if company.gstin}}<div>GSTIN: {{company.gstin}}</div>{{/if}}
   </div>
 </div>
 
-<!-- Body -->
 <div class="body">
 
-  <!-- Confidential label -->
   <div class="confidential">— Confidential —</div>
 
-  <!-- Meta: Ref + Date -->
-  <div class="meta">
-    <div><strong>Ref No:</strong> {{doc_number}}</div>
-    <div><strong>Date:</strong> {{data.issue_date}}</div>
-  </div>
+  <!-- Meta row: ref left, date right via table -->
+  <table class="meta-table">
+    <tr>
+      <td><strong>Ref No:</strong> {{doc_number}}</td>
+      <td><strong>Date:</strong> {{data.issue_date}}</td>
+    </tr>
+  </table>
 
-  <!-- Emerald pill title -->
   <div class="title-pill">
     <span>Salary Revision Letter</span>
   </div>
 
-  <!-- To block -->
   <div class="to-block">
     <div class="to-label">To</div>
     <div class="to-name">{{employee.full_name}}</div>
@@ -320,13 +216,10 @@
     {{/if}}
   </div>
 
-  <!-- Subject -->
   <p class="subject-line">Subject: Salary Revision effective <span style="color:#065f46;">{{data.increment_date}}</span></p>
 
-  <!-- Salutation -->
   <p>Dear <strong>{{employee.full_name}}</strong>,</p>
 
-  <!-- Opening para -->
   <p>
     We are pleased to inform you that the management has decided to revise your salary package
     with effect from <strong>{{data.increment_date}}</strong>, in recognition of your valuable
@@ -334,7 +227,7 @@
     This revision reflects our appreciation of your efforts and our commitment to rewarding talent.
   </p>
 
-  <!-- Summary cards -->
+  <!-- Summary cards: display:table layout -->
   <div class="summary-row">
     <div class="summary-card s-current">
       <div class="s-label">Current Annual CTC</div>
@@ -350,8 +243,7 @@
     </div>
   </div>
 
-  <!-- CTC Comparison table -->
-  <div class="section-title">CTC Comparison — Monthly Breakup</div>
+  <div class="section-title">CTC Comparison &mdash; Monthly Breakup</div>
   <table class="compare-table">
     <thead>
       <tr>
@@ -361,55 +253,18 @@
       </tr>
     </thead>
     <tbody>
-      <tr>
-        <td>Basic Salary</td>
-        <td>{{data.cur_basic_fmt}}</td>
-        <td>{{data.new_basic_fmt}}</td>
-      </tr>
-      <tr>
-        <td>House Rent Allowance (HRA)</td>
-        <td>{{data.cur_hra_fmt}}</td>
-        <td>{{data.new_hra_fmt}}</td>
-      </tr>
-      <tr>
-        <td>Dearness Allowance (DA)</td>
-        <td>{{data.cur_da_fmt}}</td>
-        <td>{{data.new_da_fmt}}</td>
-      </tr>
-      <tr>
-        <td>Conveyance Allowance</td>
-        <td>{{data.cur_conv_fmt}}</td>
-        <td>{{data.new_conv_fmt}}</td>
-      </tr>
-      <tr>
-        <td>Medical Allowance</td>
-        <td>{{data.cur_med_fmt}}</td>
-        <td>{{data.new_med_fmt}}</td>
-      </tr>
-      <tr>
-        <td>Special Allowance</td>
-        <td>{{data.cur_special_fmt}}</td>
-        <td>{{data.new_special_fmt}}</td>
-      </tr>
-      <tr class="bold-row">
-        <td>Gross Monthly Salary</td>
-        <td>{{data.cur_gross_fmt}}</td>
-        <td>{{data.new_gross_fmt}}</td>
-      </tr>
-      <tr>
-        <td>PF Deduction (Employee — 12% of Basic)</td>
-        <td>{{data.cur_pf_fmt}}</td>
-        <td>{{data.new_pf_fmt}}</td>
-      </tr>
-      <tr class="net-row">
-        <td>Net Monthly Take-home</td>
-        <td>{{data.cur_net_fmt}}</td>
-        <td>{{data.new_net_fmt}}</td>
-      </tr>
+      <tr><td>Basic Salary</td><td>{{data.cur_basic_fmt}}</td><td>{{data.new_basic_fmt}}</td></tr>
+      <tr><td>House Rent Allowance (HRA)</td><td>{{data.cur_hra_fmt}}</td><td>{{data.new_hra_fmt}}</td></tr>
+      <tr><td>Dearness Allowance (DA)</td><td>{{data.cur_da_fmt}}</td><td>{{data.new_da_fmt}}</td></tr>
+      <tr><td>Conveyance Allowance</td><td>{{data.cur_conv_fmt}}</td><td>{{data.new_conv_fmt}}</td></tr>
+      <tr><td>Medical Allowance</td><td>{{data.cur_med_fmt}}</td><td>{{data.new_med_fmt}}</td></tr>
+      <tr><td>Special Allowance</td><td>{{data.cur_special_fmt}}</td><td>{{data.new_special_fmt}}</td></tr>
+      <tr class="bold-row"><td>Gross Monthly Salary</td><td>{{data.cur_gross_fmt}}</td><td>{{data.new_gross_fmt}}</td></tr>
+      <tr><td>PF Deduction (Employee &mdash; 12% of Basic)</td><td>{{data.cur_pf_fmt}}</td><td>{{data.new_pf_fmt}}</td></tr>
+      <tr class="net-row"><td>Net Monthly Take-home</td><td>{{data.cur_net_fmt}}</td><td>{{data.new_net_fmt}}</td></tr>
     </tbody>
   </table>
 
-  <!-- Closing paras -->
   <p>
     Your revised salary structure will be effective from <strong>{{data.increment_date}}</strong>.
     This letter is strictly <strong>confidential</strong> and you are requested not to disclose
@@ -424,7 +279,7 @@
 
   <p>Please sign and return a copy of this letter as your acknowledgement of the revised terms.</p>
 
-  <!-- Signature (right-aligned) -->
+  <!-- Signature: right-aligned via inline-block -->
   <div class="signature-block">
     <div class="sig-inner">
       <div class="sig-imgs">
@@ -451,19 +306,25 @@
       Letter dated <strong>{{data.issue_date}}</strong> and confirm my acceptance of the revised
       compensation terms effective <strong>{{data.increment_date}}</strong>.
     </p>
-    <div class="ack-fields">
-      <div>Employee Signature: _____________________________</div>
-      <div>Date: _____________________</div>
-    </div>
+    <table class="ack-fields-table">
+      <tr>
+        <td>Employee Signature: _____________________________</td>
+        <td>Date: _____________________</td>
+      </tr>
+    </table>
   </div>
 
 </div>
 
-<!-- Footer -->
+<!-- Footer: three columns via table -->
 <div class="footer">
-  <div class="f-left">{{company.name}}</div>
-  <div>{{company.address}}{{#if company.city}}, {{company.city}}{{/if}} | {{company.email}}{{#if company.phone}} | {{company.phone}}{{/if}}</div>
-  <div>Ref: {{doc_number}}</div>
+  <table class="footer-table">
+    <tr>
+      <td class="f-left">{{company.name}}</td>
+      <td style="text-align:center">{{company.address}}{{#if company.city}}, {{company.city}}{{/if}} | {{company.email}}{{#if company.phone}} | {{company.phone}}{{/if}}</td>
+      <td>Ref: {{doc_number}}</td>
+    </tr>
+  </table>
 </div>
 
 </body>

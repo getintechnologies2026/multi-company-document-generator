@@ -1,23 +1,26 @@
+<!-- internship_attendance.hbs -->
 <!DOCTYPE html>
 <html><head><meta charset="utf-8">
 <style>
-  * { box-sizing: border-box; }
-  body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a1a; font-size: 13px; line-height: 1.7; margin: 0; padding: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a1a; font-size: 13px; line-height: 1.7; }
 
   /* ── Top colour bar ── */
   .top-bar { height: 8px; background: linear-gradient(90deg, #0c4a6e, #38bdf8); }
 
   /* ── Outer double-border frame ── */
-  .frame { border: 3px double #0369a1; margin: 8px; padding: 4px; min-height: calc(100vh - 24px); display: -webkit-box; display: flex; -webkit-box-orient: vertical; -webkit-box-direction: normal; flex-direction: column; }
+  .frame { border: 3px double #0369a1; margin: 8px; padding: 4px; }
+  .inner { border: 1px solid #bae6fd; padding: 20px 28px; }
 
-  /* ── Inner single-border ── */
-  .inner { border: 1px solid #bae6fd; padding: 20px 28px; -webkit-box-flex: 1; flex: 1; display: -webkit-box; display: flex; -webkit-box-orient: vertical; -webkit-box-direction: normal; flex-direction: column; }
-
-  /* ── Header ── */
-  .header { display: -webkit-box; display: flex; -webkit-box-pack: justify; justify-content: space-between; -webkit-box-align: center; align-items: center; background: #f0f9ff; border-bottom: 2px solid #bae6fd; padding: 12px 0 14px; margin-bottom: 20px; }
-  .header .logo img { max-height: 65px; max-width: 200px; }
+  /* ── Header — float layout ── */
+  .header {
+    background: #f0f9ff; border-bottom: 2px solid #bae6fd;
+    padding: 12px 0 14px; margin-bottom: 20px; overflow: hidden;
+  }
+  .header .logo { float: left; }
+  .header .logo img { max-height: 65px; max-width: 200px; display: block; }
   .header .logo .logo-text { font-size: 20px; font-weight: 700; color: #0369a1; }
-  .header .company-info { text-align: right; font-size: 11px; color: #4b5563; }
+  .header .company-info { float: right; text-align: right; font-size: 11px; color: #4b5563; }
   .header .company-info .cname { font-size: 16px; font-weight: 800; color: #0369a1; }
 
   /* ── Title band ── */
@@ -25,8 +28,13 @@
   .title-band .t-main { font-size: 22px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; }
   .title-band .t-sub  { font-size: 11px; letter-spacing: 2px; opacity: 0.88; margin-top: 4px; }
 
-  /* ── Ref row ── */
-  .ref-row { display: -webkit-box; display: flex; -webkit-box-pack: justify; justify-content: space-between; font-size: 11px; color: #6b7280; margin-bottom: 18px; }
+  /* ── Ref row — table layout ── */
+  table.ref-table {
+    width: 100%; border-collapse: collapse;
+    margin-bottom: 18px; font-size: 11px; color: #6b7280;
+  }
+  table.ref-table td { border: none; background: none; padding: 0; }
+  table.ref-table td:last-child { text-align: right; }
 
   /* ── Body text ── */
   .body-text { font-size: 13.5px; line-height: 1.9; text-align: justify; margin-bottom: 14px; }
@@ -39,7 +47,7 @@
   .detail-table tr:nth-child(even) td { background: #f0f9ff; }
   .detail-table td:first-child { font-weight: 700; color: #0369a1; width: 38%; background: #e0f2fe; }
 
-  /* ── Attendance summary cards — display:table layout for wkhtmltopdf ── */
+  /* ── Attendance summary cards — display:table for wkhtmltopdf ── */
   .att-cards-wrap { display: table; width: 100%; border-collapse: separate; border-spacing: 10px; margin: 16px 0 6px; }
   .att-cards-row  { display: table-row; }
   .att-card       { display: table-cell; text-align: center; padding: 14px 8px; border-radius: 10px; vertical-align: middle; }
@@ -52,11 +60,15 @@
 
   /* ── Progress bar ── */
   .bar-label { font-size: 11px; font-weight: 700; color: #0369a1; margin-bottom: 4px; }
-  .bar-wrap { background: #e2e8f0; border-radius: 999px; height: 14px; margin-bottom: 18px; overflow: hidden; }
-  .bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #0369a1, #38bdf8); }
+  .bar-wrap  { background: #e2e8f0; border-radius: 999px; height: 14px; margin-bottom: 18px; overflow: hidden; }
+  .bar-fill  { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #0369a1, #38bdf8); }
 
   /* ── Attendance section title ── */
-  .section-title { font-size: 12px; font-weight: 800; color: #0369a1; letter-spacing: 1.5px; text-align: center; text-transform: uppercase; margin: 18px 0 8px; border-bottom: 1.5px solid #bae6fd; padding-bottom: 6px; }
+  .section-title {
+    font-size: 12px; font-weight: 800; color: #0369a1; letter-spacing: 1.5px;
+    text-align: center; text-transform: uppercase;
+    margin: 18px 0 8px; border-bottom: 1.5px solid #bae6fd; padding-bottom: 6px;
+  }
 
   /* ── Attendance log table ── */
   .att-log { width: 100%; border-collapse: collapse; font-size: 11.5px; }
@@ -80,26 +92,35 @@
   .perf-wrap { text-align: center; margin: 10px 0 14px; }
   .perf-label { font-size: 11px; font-weight: 700; color: #0369a1; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
   .perf-badge { display: inline-block; padding: 7px 28px; border-radius: 30px; font-weight: 800; font-size: 13px; letter-spacing: 1px; }
-  .perf-Excellent      { background: #dcfce7; color: #166534; border: 2px solid #86efac; }
-  .perf-Good           { background: #dbeafe; color: #1e40af; border: 2px solid #93c5fd; }
-  .perf-Satisfactory   { background: #fef3c7; color: #92400e; border: 2px solid #fcd34d; }
+  .perf-Excellent        { background: #dcfce7; color: #166534; border: 2px solid #86efac; }
+  .perf-Good             { background: #dbeafe; color: #1e40af; border: 2px solid #93c5fd; }
+  .perf-Satisfactory     { background: #fef3c7; color: #92400e; border: 2px solid #fcd34d; }
   .perf-NeedsImprovement { background: #fee2e2; color: #991b1b; border: 2px solid #fca5a5; }
 
-  /* ── Topics pill tags (flex-wrap) ── */
-  .topics-wrap { display: -webkit-box; display: flex; -webkit-flex-wrap: wrap; flex-wrap: wrap; gap: 6px; margin: 8px 0 14px; }
-  .topic-pill { background: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc; border-radius: 20px; padding: 3px 12px; font-size: 11px; font-weight: 600; }
+  /* ── Topics pill tags — inline-block (no flex) ── */
+  .topics-wrap { margin: 8px 0 14px; }
+  .topic-pill {
+    display: inline-block;
+    background: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc;
+    border-radius: 20px; padding: 3px 12px; font-size: 11px; font-weight: 600;
+    margin: 3px 5px 3px 0;
+  }
 
-  /* ── Signature ── */
-  .sig-section { margin-top: auto; padding-top: 28px; display: -webkit-box; display: flex; -webkit-box-pack: justify; justify-content: space-between; -webkit-box-align: end; align-items: flex-end; }
-  .sig-block { text-align: center; min-width: 180px; }
-  .sig-block img { max-height: 55px; margin-bottom: 4px; }
+  /* ── Signature section — float layout ── */
+  .sig-section { margin-top: 40px; padding-top: 28px; overflow: hidden; }
+  .seal-block { float: left; text-align: center; }
+  .seal-block img { max-height: 70px; display: block; }
+  .seal-text { font-size: 10px; color: #9ca3af; margin-top: 4px; }
+  .seal-placeholder {
+    width: 80px; height: 80px; border: 2px dashed #bae6fd; border-radius: 50%;
+    text-align: center; padding-top: 24px;
+    font-size: 9px; color: #38bdf8; display: inline-block;
+  }
+  .sig-block { float: right; text-align: center; min-width: 180px; }
+  .sig-block img { max-height: 55px; margin-bottom: 4px; display: block; margin-left: auto; margin-right: auto; }
   .sig-line { border-top: 1.5px solid #374151; padding-top: 6px; margin-top: 6px; }
   .sig-name  { font-weight: 700; font-size: 13px; }
   .sig-title { font-size: 11px; color: #6b7280; }
-  .seal-block { text-align: center; }
-  .seal-block img { max-height: 70px; }
-  .seal-text { font-size: 10px; color: #9ca3af; margin-top: 4px; }
-  .seal-placeholder { width: 80px; height: 80px; border: 2px dashed #bae6fd; border-radius: 50%; display: -webkit-box; display: flex; -webkit-box-align: center; align-items: center; -webkit-box-pack: center; justify-content: center; font-size: 9px; color: #38bdf8; text-align: center; padding: 8px; }
 
   /* ── Footer ── */
   .footer { margin-top: 20px; border-top: 2px solid #bae6fd; padding-top: 8px; text-align: center; font-size: 10px; color: #9ca3af; }
@@ -113,7 +134,7 @@
 <div class="frame">
 <div class="inner">
 
-  <!-- Header -->
+  <!-- Header: logo left, company info right via float -->
   <div class="header">
     <div class="logo">
       {{#if company.logo_url}}
@@ -136,11 +157,13 @@
     <div class="t-sub">Official Attendance Record</div>
   </div>
 
-  <!-- Ref Row -->
-  <div class="ref-row">
-    <span>Ref No: <strong>{{doc_number}}</strong></span>
-    <span>Date: <strong>{{data.issue_date}}</strong></span>
-  </div>
+  <!-- Ref Row: ref left, date right via table -->
+  <table class="ref-table">
+    <tr>
+      <td>Ref No: <strong>{{doc_number}}</strong></td>
+      <td>Date: <strong>{{data.issue_date}}</strong></td>
+    </tr>
+  </table>
 
   <!-- Body Certification Text -->
   <div class="body-text">
@@ -240,7 +263,7 @@
   </div>
   {{/if}}
 
-  <!-- Topics Covered -->
+  <!-- Topics Covered (inline-block, no flex) -->
   {{#if data.topics_arr}}
   <div style="font-size:12px; font-weight:700; color:#0369a1; margin: 10px 0 6px;">Topics Covered During Internship</div>
   <div class="topics-wrap">
@@ -260,7 +283,7 @@
     </p>
   </div>
 
-  <!-- Signature Section -->
+  <!-- Signature Section: seal left, sig right via float -->
   <div class="sig-section">
     <div class="seal-block">
       {{#if company.stamp_url}}
@@ -286,7 +309,7 @@
     {{company.email}} &nbsp;|&nbsp; {{company.phone}}
   </div>
 
-</div><!-- /.inner -->
-</div><!-- /.frame -->
+</div>
+</div>
 
 </body></html>

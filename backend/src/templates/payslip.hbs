@@ -4,7 +4,6 @@
 <head>
   <meta charset="utf-8">
   <style>
-    /* ── Reset & base ─────────────────────────────────────────── */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Segoe UI', Arial, sans-serif;
@@ -13,55 +12,34 @@
       line-height: 1.6;
       background: #fff;
     }
-
-    /* ── Page wrapper ────────────────────────────────────────── */
     .page { padding: 0; }
 
-    /* ── Top accent bar ──────────────────────────────────────── */
-    .top-bar {
-      height: 8px;
-      width: 100%;
-      background: linear-gradient(90deg, #134e4a, #14b8a6);
-    }
+    /* ── Top accent bar ── */
+    .top-bar { height: 8px; width: 100%; background: linear-gradient(90deg, #134e4a, #14b8a6); }
 
-    /* ── Header ─────────────────────────────────────────────── */
+    /* ── Header — float layout ── */
     .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
       background: #f0fdfa;
       padding: 16px 30px;
       border-bottom: 2px solid #99f6e4;
+      overflow: hidden;
     }
-    .header-logo img {
-      max-height: 62px;
-      max-width: 190px;
-    }
-    .header-logo .logo-text {
-      font-size: 22px;
-      font-weight: 700;
-      color: #0f766e;
-      letter-spacing: 0.5px;
-    }
+    .header-logo { float: left; }
+    .header-logo img { max-height: 62px; max-width: 190px; display: block; }
+    .header-logo .logo-text { font-size: 22px; font-weight: 700; color: #0f766e; letter-spacing: 0.5px; }
     .header-company {
+      float: right;
       text-align: right;
       font-size: 11px;
       color: #475569;
       line-height: 1.55;
     }
-    .header-company .company-name {
-      font-size: 15px;
-      font-weight: 700;
-      color: #0f766e;
-      margin-bottom: 2px;
-    }
+    .header-company .company-name { font-size: 15px; font-weight: 700; color: #0f766e; margin-bottom: 2px; }
 
-    /* ── Body ────────────────────────────────────────────────── */
-    .body {
-      padding: 20px 30px;
-    }
+    /* ── Body ── */
+    .body { padding: 20px 30px; }
 
-    /* ── Document title banner ───────────────────────────────── */
+    /* ── Document title banner ── */
     .doc-title {
       text-align: center;
       background: #0f766e;
@@ -71,171 +49,77 @@
       letter-spacing: 2px;
       padding: 9px 24px;
       border-radius: 30px;
-      display: inline-block;
+      display: block;
       width: 100%;
       margin-bottom: 18px;
     }
 
-    /* ── Employee info table ─────────────────────────────────── */
+    /* ── Employee info table ── */
     table.emp-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 16px;
-      font-size: 11.5px;
-      border: 1px solid #99f6e4;
+      width: 100%; border-collapse: collapse; margin-bottom: 16px;
+      font-size: 11.5px; border: 1px solid #99f6e4;
     }
-    table.emp-table td {
-      border: 1px solid #99f6e4;
-      padding: 6px 9px;
-      vertical-align: middle;
-    }
+    table.emp-table td { border: 1px solid #99f6e4; padding: 6px 9px; vertical-align: middle; }
     table.emp-table td.lbl {
-      background: #f0fdfa;
-      font-weight: 600;
-      color: #134e4a;
-      font-size: 11px;
-      width: 16%;
+      background: #f0fdfa; font-weight: 600; color: #134e4a; font-size: 11px; width: 16%;
     }
-    table.emp-table td.val {
-      color: #1e293b;
-      width: 34%;
-    }
-    /* Every other row gets a faint tint on value cells */
-    table.emp-table tr:nth-child(even) td.val {
-      background: #f9fffe;
-    }
+    table.emp-table td.val { color: #1e293b; width: 34%; }
+    table.emp-table tr:nth-child(even) td.val { background: #f9fffe; }
 
-    /* ── Salary table ────────────────────────────────────────── */
+    /* ── Salary table ── */
     table.salary {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 6px;
-      font-size: 12px;
+      width: 100%; border-collapse: collapse; margin-bottom: 6px; font-size: 12px;
     }
     table.salary th {
-      background: #0f766e;
-      color: #fff;
-      padding: 8px 10px;
-      font-weight: 700;
-      font-size: 11.5px;
-      border: 1px solid #0d6b63;
+      background: #0f766e; color: #fff; padding: 8px 10px;
+      font-weight: 700; font-size: 11.5px; border: 1px solid #0d6b63;
     }
-    table.salary th.right {
-      text-align: right;
-    }
-    table.salary td {
-      border: 1px solid #99f6e4;
-      padding: 6px 10px;
-      vertical-align: middle;
-      font-size: 12px;
-    }
-    table.salary td.label {
-      background: #f0fdfa;
-      color: #134e4a;
-      font-weight: 500;
-    }
-    table.salary td.amount {
-      text-align: right;
-      font-variant-numeric: tabular-nums;
-      color: #1e293b;
-    }
-    table.salary td.ded-label {
-      background: #fefcff;
-      color: #334155;
-      font-weight: 500;
-    }
-    table.salary td.ded-amount {
-      text-align: right;
-      font-variant-numeric: tabular-nums;
-      color: #1e293b;
-    }
-    /* Blank cells for uneven rows */
-    table.salary td.blank {
-      background: #fafafa;
-      color: #ccc;
-    }
-    table.salary tr:nth-child(even) td.label {
-      background: #e6fffe;
-    }
+    table.salary th.right { text-align: right; }
+    table.salary td { border: 1px solid #99f6e4; padding: 6px 10px; vertical-align: middle; font-size: 12px; }
+    table.salary td.label { background: #f0fdfa; color: #134e4a; font-weight: 500; }
+    table.salary td.amount { text-align: right; color: #1e293b; }
+    table.salary td.ded-label { background: #fefcff; color: #334155; font-weight: 500; }
+    table.salary td.ded-amount { text-align: right; color: #1e293b; }
+    table.salary td.blank { background: #fafafa; color: #ccc; }
+    table.salary tr:nth-child(even) td.label { background: #e6fffe; }
     table.salary tr.total-row td {
-      background: #ccfbf1;
-      font-weight: 700;
-      color: #134e4a;
-      border-top: 2px solid #14b8a6;
+      background: #ccfbf1; font-weight: 700; color: #134e4a; border-top: 2px solid #14b8a6;
     }
     table.salary tr.total-row td.amount,
-    table.salary tr.total-row td.ded-amount {
-      color: #134e4a;
-    }
+    table.salary tr.total-row td.ded-amount { color: #134e4a; }
     table.salary tr.net-row td {
-      background: #0f766e;
-      color: #fff;
-      font-weight: 700;
-      font-size: 13.5px;
-      border-top: 2px solid #134e4a;
-      padding: 9px 10px;
+      background: #0f766e; color: #fff; font-weight: 700;
+      font-size: 13.5px; border-top: 2px solid #134e4a; padding: 9px 10px;
     }
-    table.salary tr.net-row td.amount {
-      color: #fff;
-      font-size: 14px;
-    }
+    table.salary tr.net-row td.amount { color: #fff; font-size: 14px; }
 
-    /* ── Amount in words ─────────────────────────────────────── */
+    /* ── Amount in words ── */
     .amount-words {
-      background: #f0fdfa;
-      border-left: 4px solid #14b8a6;
-      border-radius: 0 4px 4px 0;
-      padding: 8px 14px;
-      font-size: 12px;
-      color: #134e4a;
-      margin-bottom: 8px;
+      background: #f0fdfa; border-left: 4px solid #14b8a6;
+      border-radius: 0 4px 4px 0; padding: 8px 14px;
+      font-size: 12px; color: #134e4a; margin-bottom: 8px;
     }
-    .amount-words strong {
-      color: #0f766e;
-    }
+    .amount-words strong { color: #0f766e; }
 
-    /* ── Signature block ─────────────────────────────────────── */
-    .signature-block {
-      margin-top: 28px;
-      text-align: right;
-    }
-    .signature-block img {
-      max-height: 54px;
-      max-width: 160px;
-      display: block;
-      margin-left: auto;
-      margin-bottom: 3px;
-    }
-    .signature-block .sig-name {
-      font-weight: 700;
-      font-size: 13px;
-      color: #1e293b;
-    }
-    .signature-block .sig-designation {
-      font-size: 11.5px;
-      color: #475569;
-    }
+    /* ── Signature block ── */
+    .signature-block { margin-top: 28px; text-align: right; }
+    .signature-block img { max-height: 54px; max-width: 160px; display: block; margin-left: auto; margin-bottom: 3px; }
+    .signature-block .sig-name { font-weight: 700; font-size: 13px; color: #1e293b; }
+    .signature-block .sig-designation { font-size: 11.5px; color: #475569; }
 
-    /* ── Footer ──────────────────────────────────────────────── */
+    /* ── Footer ── */
     .footer {
-      margin-top: 22px;
-      border-top: 1px solid #99f6e4;
-      padding: 7px 30px;
-      text-align: center;
-      font-size: 10px;
-      color: #64748b;
-      background: #f0fdfa;
-      line-height: 1.5;
+      margin-top: 22px; border-top: 1px solid #99f6e4; padding: 7px 30px;
+      text-align: center; font-size: 10px; color: #64748b; background: #f0fdfa; line-height: 1.5;
     }
   </style>
 </head>
 <body>
 <div class="page">
 
-  <!-- Top accent bar -->
   <div class="top-bar"></div>
 
-  <!-- Header -->
+  <!-- Header: logo left, company info right via float -->
   <div class="header">
     <div class="header-logo">
       {{#if company.logo_url}}
@@ -253,10 +137,8 @@
     </div>
   </div>
 
-  <!-- Body -->
   <div class="body">
 
-    <!-- Title banner -->
     <div class="doc-title">PAYSLIP FOR {{upper data.pay_month}} {{data.pay_year}}</div>
 
     <!-- Employee info table -->
@@ -295,7 +177,7 @@
         <td class="lbl">Working Days</td>
         <td class="val">{{data.working_days}}</td>
         <td class="lbl">Paid Days</td>
-        <td class="val">{{data.paid_days}}{{#if data.lop_days}} &nbsp;&nbsp; <span style="color:#dc2626; font-size:11px;">(LOP: {{data.lop_days}})</span>{{/if}}</td>
+        <td class="val">{{data.paid_days}}{{#if data.lop_days}} &nbsp;&nbsp;<span style="color:#dc2626; font-size:11px;">(LOP: {{data.lop_days}})</span>{{/if}}</td>
       </tr>
     </table>
 
@@ -303,9 +185,9 @@
     <table class="salary">
       <tr>
         <th style="width:37%">Earnings</th>
-        <th class="right" style="width:13%">Amount (₹)</th>
+        <th class="right" style="width:13%">Amount (&#8377;)</th>
         <th style="width:37%">Deductions</th>
-        <th class="right" style="width:13%">Amount (₹)</th>
+        <th class="right" style="width:13%">Amount (&#8377;)</th>
       </tr>
       <tr>
         <td class="label">Basic Salary</td>
@@ -345,24 +227,22 @@
       </tr>
       <tr class="total-row">
         <td>Total Earnings</td>
-        <td class="amount">₹ {{inr data.gross_earnings}}</td>
+        <td class="amount">&#8377; {{inr data.gross_earnings}}</td>
         <td>Total Deductions</td>
-        <td class="ded-amount">₹ {{inr data.total_deductions}}</td>
+        <td class="ded-amount">&#8377; {{inr data.total_deductions}}</td>
       </tr>
       <tr class="net-row">
         <td colspan="3">NET PAY FOR {{upper data.pay_month}} {{data.pay_year}}</td>
-        <td class="amount">₹ {{inr data.net_pay}}</td>
+        <td class="amount">&#8377; {{inr data.net_pay}}</td>
       </tr>
     </table>
 
-    <!-- Amount in words -->
     {{#if data.amount_in_words}}
     <div class="amount-words">
       <strong>Amount in Words:</strong> {{data.amount_in_words}} Only
     </div>
     {{/if}}
 
-    <!-- Signature -->
     <div class="signature-block">
       <p style="font-size:11.5px; color:#475569; margin-bottom:14px;">For <strong>{{company.name}}</strong></p>
       {{#if company.signature_url}}
@@ -372,15 +252,14 @@
       <div class="sig-designation">{{company.signatory_designation}}</div>
     </div>
 
-  </div><!-- /.body -->
+  </div>
 
-  <!-- Footer -->
   <div class="footer">
     This is a computer-generated payslip and does not require a physical signature.
     &nbsp;|&nbsp; {{company.name}} &nbsp;|&nbsp; {{company.email}}
     &nbsp;|&nbsp; Doc No: {{doc_number}}
   </div>
 
-</div><!-- /.page -->
+</div>
 </body>
 </html>

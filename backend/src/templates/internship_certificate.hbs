@@ -1,275 +1,151 @@
+<!-- internship_certificate.hbs -->
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
 <style>
-  * { box-sizing: border-box; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: 'Segoe UI', Arial, sans-serif;
     color: #1e1b4b;
     font-size: 13px;
     line-height: 1.75;
-    margin: 0;
-    padding: 0;
   }
 
   /* ── Top gradient bar ── */
-  .top-bar {
-    height: 8px;
-    background: linear-gradient(90deg, #4c1d95, #8b5cf6);
-  }
+  .top-bar { height: 8px; background: linear-gradient(90deg, #4c1d95, #8b5cf6); }
 
   /* ── Outer decorative frame ── */
-  .outer-frame {
-    border: 3px double #5b21b6;
-    margin: 8px;
-    padding: 4px;
-  }
+  .outer-frame { border: 3px double #5b21b6; margin: 8px; padding: 4px; }
+  .inner-frame  { border: 1px solid #c4b5fd; padding: 20px 28px; }
 
-  /* ── Inner border ── */
-  .inner-frame {
-    border: 1px solid #c4b5fd;
-    padding: 20px 28px;
-  }
-
-  /* ── Header ── */
+  /* ── Header — float layout (inset to inner-frame edges) ── */
   .header {
     background: #f5f3ff;
     padding: 14px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     border-bottom: 2px solid #c4b5fd;
     margin: -20px -28px 20px;
+    overflow: hidden;
   }
-  .header .logo img { max-height: 65px; max-width: 200px; }
-  .header .logo .logo-text {
-    font-size: 22px;
-    font-weight: 800;
-    color: #5b21b6;
-  }
+  .header .logo { float: left; }
+  .header .logo img { max-height: 65px; max-width: 200px; display: block; }
+  .header .logo .logo-text { font-size: 22px; font-weight: 800; color: #5b21b6; }
   .header .company-info {
+    float: right;
     text-align: right;
     font-size: 11px;
     color: #4b5563;
   }
-  .header .company-info .cname {
-    font-size: 16px;
-    font-weight: 700;
-    color: #5b21b6;
-    margin-bottom: 2px;
-  }
+  .header .company-info .cname { font-size: 16px; font-weight: 700; color: #5b21b6; margin-bottom: 2px; }
 
   /* ── Certificate title band ── */
   .cert-band {
     background: linear-gradient(90deg, #4c1d95, #8b5cf6);
-    color: #fff;
-    text-align: center;
-    padding: 16px 20px;
-    border-radius: 10px;
-    margin-bottom: 18px;
+    color: #fff; text-align: center; padding: 16px 20px;
+    border-radius: 10px; margin-bottom: 18px;
   }
   .cert-band .cert-title {
-    font-size: 22px;
-    font-weight: 800;
-    letter-spacing: 4px;
-    text-transform: uppercase;
+    font-size: 22px; font-weight: 800; letter-spacing: 4px; text-transform: uppercase;
   }
   .cert-band .cert-sub {
-    font-size: 11px;
-    letter-spacing: 2px;
-    opacity: 0.88;
-    margin-top: 4px;
-    text-transform: uppercase;
+    font-size: 11px; letter-spacing: 2px; opacity: 0.88; margin-top: 4px; text-transform: uppercase;
   }
 
-  /* Ref row */
-  .ref-row {
-    display: flex;
-    justify-content: space-between;
-    font-size: 11px;
-    color: #6b7280;
-    margin-bottom: 18px;
+  /* ── Ref row — table layout ── */
+  table.ref-table {
+    width: 100%; border-collapse: collapse;
+    margin-bottom: 18px; font-size: 11px; color: #6b7280;
   }
+  table.ref-table td { border: none; background: none; padding: 0; }
+  table.ref-table td:last-child { text-align: right; }
 
-  /* Body text */
-  .body-text {
-    font-size: 13.5px;
-    line-height: 1.85;
-    text-align: justify;
-    margin-bottom: 14px;
-  }
+  /* ── Body text ── */
+  .body-text { font-size: 13.5px; line-height: 1.85; text-align: justify; margin-bottom: 14px; }
   .body-text p { margin: 6px 0; }
-
-  /* Certify intro */
-  .certify-intro {
-    text-align: center;
-    font-size: 13px;
-    color: #4b5563;
-    font-style: italic;
-    margin: 12px 0 4px;
-  }
-
-  /* Intern name highlight */
+  .certify-intro { text-align: center; font-size: 13px; color: #4b5563; font-style: italic; margin: 12px 0 4px; }
   .intern-name {
-    text-align: center;
-    font-size: 20px;
-    font-weight: 800;
-    color: #5b21b6;
-    letter-spacing: 1px;
-    margin: 6px 0 10px;
+    text-align: center; font-size: 20px; font-weight: 800;
+    color: #5b21b6; letter-spacing: 1px; margin: 6px 0 10px;
   }
 
-  /* Details table */
-  .detail-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 14px 0;
-    font-size: 12px;
-  }
-  .detail-table tr td {
-    padding: 7px 12px;
-    border: 1px solid #ede9fe;
-    vertical-align: top;
-  }
+  /* ── Details table ── */
+  .detail-table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 12px; }
+  .detail-table tr td { padding: 7px 12px; border: 1px solid #ede9fe; vertical-align: top; }
   .detail-table tr:nth-child(even) td { background: #f5f3ff; }
   .detail-table tr td:first-child {
-    font-weight: 700;
-    color: #5b21b6;
-    background: #ede9fe;
-    width: 34%;
-    white-space: nowrap;
+    font-weight: 700; color: #5b21b6; background: #ede9fe; width: 34%; white-space: nowrap;
   }
   .detail-table tr td:last-child { color: #374151; }
 
-  /* Performance badge */
-  .perf-section {
-    text-align: center;
-    margin: 14px 0 10px;
-  }
-  .perf-label {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: #7c3aed;
-    margin-bottom: 6px;
-  }
+  /* ── Performance badge ── */
+  .perf-section { text-align: center; margin: 14px 0 10px; }
+  .perf-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #7c3aed; margin-bottom: 6px; }
   .perf-badge {
-    display: inline-block;
-    padding: 8px 32px;
-    border-radius: 50px;
-    font-weight: 800;
-    font-size: 14px;
-    letter-spacing: 1px;
+    display: inline-block; padding: 8px 32px; border-radius: 50px;
+    font-weight: 800; font-size: 14px; letter-spacing: 1px;
   }
   .perf-Excellent    { background: #d1fae5; color: #065f46; border: 2px solid #6ee7b7; }
   .perf-Good         { background: #dbeafe; color: #1e40af; border: 2px solid #93c5fd; }
   .perf-Satisfactory { background: #fef3c7; color: #92400e; border: 2px solid #fcd34d; }
 
-  /* Skills tags */
+  /* ── Skills tags — inline-block (no flex) ── */
   .skills-section { margin: 10px 0 14px; }
   .skills-heading {
-    font-size: 11px;
-    font-weight: 700;
-    color: #5b21b6;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 8px;
+    font-size: 11px; font-weight: 700; color: #5b21b6;
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;
   }
-  .skills-wrap { display: flex; flex-wrap: wrap; gap: 7px; }
+  .skills-wrap { /* block, no flex */ }
   .skill-tag {
-    background: #ede9fe;
-    color: #5b21b6;
-    border: 1px solid #c4b5fd;
-    border-radius: 20px;
-    padding: 3px 13px;
-    font-size: 11px;
-    font-weight: 600;
+    display: inline-block;
+    background: #ede9fe; color: #5b21b6; border: 1px solid #c4b5fd;
+    border-radius: 20px; padding: 3px 13px; font-size: 11px; font-weight: 600;
+    margin: 3px 5px 3px 0;
   }
 
-  /* Remarks box */
+  /* ── Remarks box ── */
   .remarks-box {
-    background: #f5f3ff;
-    border-left: 4px solid #8b5cf6;
-    border-radius: 0 6px 6px 0;
-    padding: 10px 14px;
-    margin: 10px 0;
-    font-size: 12px;
-    color: #374151;
+    background: #f5f3ff; border-left: 4px solid #8b5cf6;
+    border-radius: 0 6px 6px 0; padding: 10px 14px;
+    margin: 10px 0; font-size: 12px; color: #374151;
   }
 
-  /* Closing text */
-  .closing-text {
-    font-size: 13px;
-    line-height: 1.8;
-    text-align: justify;
-    margin: 14px 0;
-  }
+  /* ── Closing text ── */
+  .closing-text { font-size: 13px; line-height: 1.8; text-align: justify; margin: 14px 0; }
 
-  /* Signature section */
-  .sig-section {
-    margin-top: 34px;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-  }
-
-  /* Seal block (left) */
-  .seal-block { text-align: center; }
-  .seal-block img { max-height: 75px; }
+  /* ── Signature section — float layout ── */
+  .sig-section { margin-top: 34px; overflow: hidden; }
+  .seal-block { float: left; text-align: center; }
+  .seal-block img { max-height: 75px; display: block; }
   .seal-placeholder {
-    width: 80px;
-    height: 80px;
-    border: 2px dashed #c4b5fd;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 9px;
-    color: #a5b4fc;
-    text-align: center;
-    padding: 8px;
+    width: 80px; height: 80px;
+    border: 2px dashed #c4b5fd; border-radius: 50%;
+    text-align: center; padding-top: 24px;
+    font-size: 9px; color: #a5b4fc; display: inline-block;
   }
-  .seal-text {
-    font-size: 10px;
-    color: #9ca3af;
-    margin-top: 5px;
-  }
+  .seal-text { font-size: 10px; color: #9ca3af; margin-top: 5px; }
 
-  /* Signature block (right) */
-  .sig-block { text-align: center; min-width: 200px; }
+  .sig-block { float: right; text-align: center; min-width: 200px; }
   .sig-block img.sig-img { max-height: 55px; display: block; margin: 0 auto 4px; }
-  .sig-line {
-    border-top: 1.5px solid #5b21b6;
-    padding-top: 6px;
-    margin-top: 6px;
-  }
+  .sig-line { border-top: 1.5px solid #5b21b6; padding-top: 6px; margin-top: 6px; }
   .sig-name  { font-weight: 700; font-size: 13px; color: #1e1b4b; }
   .sig-title { font-size: 11px; color: #6b7280; }
 
-  /* Footer */
+  /* ── Footer ── */
   .footer {
-    margin-top: 20px;
-    border-top: 2px solid #c4b5fd;
-    padding: 8px 0 0;
-    text-align: center;
-    font-size: 10px;
-    color: #9ca3af;
+    margin-top: 20px; border-top: 2px solid #c4b5fd;
+    padding: 8px 0 0; text-align: center; font-size: 10px; color: #9ca3af;
   }
   .footer strong { color: #7c3aed; }
 </style>
 </head>
 <body>
 
-<!-- Top gradient bar -->
 <div class="top-bar"></div>
 
-<!-- Outer decorative frame -->
 <div class="outer-frame">
 <div class="inner-frame">
 
-  <!-- Header (inset to bleed edge of inner-frame) -->
+  <!-- Header: logo left, company info right via float -->
   <div class="header">
     <div class="logo">
       {{#if company.logo_url}}
@@ -280,7 +156,7 @@
     </div>
     <div class="company-info">
       <div class="cname">{{company.name}}</div>
-      <div>{{company.address}}{{#if company.city}}, {{company.city}}{{/if}}{{#if company.state}}, {{company.state}}{{/if}}{{#if company.pincode}} — {{company.pincode}}{{/if}}</div>
+      <div>{{company.address}}{{#if company.city}}, {{company.city}}{{/if}}{{#if company.state}}, {{company.state}}{{/if}}{{#if company.pincode}} &mdash; {{company.pincode}}{{/if}}</div>
       {{#if company.email}}<div>{{company.email}}{{#if company.phone}} | {{company.phone}}{{/if}}</div>{{/if}}
       {{#if company.website}}<div>{{company.website}}</div>{{/if}}
     </div>
@@ -292,15 +168,15 @@
     <div class="cert-sub">Certificate of Successful Completion</div>
   </div>
 
-  <!-- Ref row -->
-  <div class="ref-row">
-    <span>Ref: <strong style="color:#5b21b6;">{{doc_number}}</strong></span>
-    <span>Date: <strong style="color:#5b21b6;">{{data.issue_date}}</strong></span>
-  </div>
+  <!-- Ref row: ref left, date right via table -->
+  <table class="ref-table">
+    <tr>
+      <td>Ref: <strong style="color:#5b21b6;">{{doc_number}}</strong></td>
+      <td>Date: <strong style="color:#5b21b6;">{{data.issue_date}}</strong></td>
+    </tr>
+  </table>
 
-  <!-- Body: certify statement -->
   <p class="certify-intro">This is to certify that</p>
-
   <div class="intern-name">{{data.intern_name}}</div>
 
   <div class="body-text">
@@ -312,49 +188,29 @@
     </p>
   </div>
 
-  <!-- Details table -->
   <table class="detail-table">
     <tr>
       <td>Internship Period</td>
       <td><strong>{{data.from_date}}</strong> to <strong>{{data.to_date}}</strong>{{#if data.duration_text}} &nbsp;({{data.duration_text}}){{/if}}</td>
     </tr>
-    <tr>
-      <td>Department / Domain</td>
-      <td>{{data.department}}</td>
-    </tr>
+    <tr><td>Department / Domain</td><td>{{data.department}}</td></tr>
     {{#if data.roll_no}}
-    <tr>
-      <td>Roll No / Register No</td>
-      <td>{{data.roll_no}}</td>
-    </tr>
+    <tr><td>Roll No / Register No</td><td>{{data.roll_no}}</td></tr>
     {{/if}}
     {{#if data.project_title}}
-    <tr>
-      <td>Project / Role</td>
-      <td>{{data.project_title}}</td>
-    </tr>
+    <tr><td>Project / Role</td><td>{{data.project_title}}</td></tr>
     {{/if}}
     {{#if data.college}}
-    <tr>
-      <td>Institution</td>
-      <td>{{data.college}}</td>
-    </tr>
+    <tr><td>Institution</td><td>{{data.college}}</td></tr>
     {{/if}}
     {{#if data.course}}
-    <tr>
-      <td>Course / Degree</td>
-      <td>{{data.course}}{{#if data.branch}} &mdash; {{data.branch}}{{/if}}</td>
-    </tr>
+    <tr><td>Course / Degree</td><td>{{data.course}}{{#if data.branch}} &mdash; {{data.branch}}{{/if}}</td></tr>
     {{/if}}
     {{#if data.mentor_name}}
-    <tr>
-      <td>Internship Mentor</td>
-      <td>{{data.mentor_name}}</td>
-    </tr>
+    <tr><td>Internship Mentor</td><td>{{data.mentor_name}}</td></tr>
     {{/if}}
   </table>
 
-  <!-- Performance badge -->
   {{#if data.performance}}
   <div class="perf-section">
     <div class="perf-label">Performance Rating</div>
@@ -362,7 +218,6 @@
   </div>
   {{/if}}
 
-  <!-- Skills tags -->
   {{#if data.skills_arr}}
   <div class="skills-section">
     <div class="skills-heading">Skills &amp; Technologies</div>
@@ -372,14 +227,10 @@
   </div>
   {{/if}}
 
-  <!-- Remarks -->
   {{#if data.remarks}}
-  <div class="remarks-box">
-    <strong>Remarks:</strong> {{data.remarks}}
-  </div>
+  <div class="remarks-box"><strong>Remarks:</strong> {{data.remarks}}</div>
   {{/if}}
 
-  <!-- Closing paragraph (performance-based) -->
   <div class="closing-text">
     <p>
       During the internship tenure, <strong>{{data.intern_name}}</strong> demonstrated
@@ -393,7 +244,7 @@
     </p>
   </div>
 
-  <!-- Signature section: seal left + signature right -->
+  <!-- Signature section: seal left, sig right via float -->
   <div class="sig-section">
     <div class="seal-block">
       {{#if company.stamp_url}}
@@ -404,7 +255,6 @@
         <div class="seal-text">Company Seal</div>
       {{/if}}
     </div>
-
     <div class="sig-block">
       {{#if company.signature_url}}
         <img class="sig-img" src="{{company.signature_url}}" alt="Signature" />
@@ -417,7 +267,6 @@
     </div>
   </div>
 
-  <!-- Footer -->
   <div class="footer">
     <strong>{{company.name}}</strong> |
     {{company.address}}{{#if company.city}}, {{company.city}}{{/if}} |

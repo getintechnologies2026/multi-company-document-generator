@@ -1,23 +1,26 @@
+<!-- internship_offer.hbs -->
 <!DOCTYPE html>
 <html><head><meta charset="utf-8">
 <style>
-  * { box-sizing: border-box; }
-  body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a1a; font-size: 13px; line-height: 1.7; margin: 0; padding: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a1a; font-size: 13px; line-height: 1.7; }
 
   /* ── Top colour bar ── */
   .top-bar { height: 8px; background: linear-gradient(90deg, #7c2d12, #f97316); }
 
   /* ── Outer double-border frame ── */
-  .frame { border: 3px double #c2410c; margin: 8px; padding: 4px; min-height: calc(100vh - 24px); display: -webkit-box; display: flex; -webkit-box-orient: vertical; -webkit-box-direction: normal; flex-direction: column; }
+  .frame { border: 3px double #c2410c; margin: 8px; padding: 4px; }
+  .inner { border: 1px solid #fed7aa; padding: 20px 28px; }
 
-  /* ── Inner single-border ── */
-  .inner { border: 1px solid #fed7aa; padding: 20px 28px; -webkit-box-flex: 1; flex: 1; display: -webkit-box; display: flex; -webkit-box-orient: vertical; -webkit-box-direction: normal; flex-direction: column; }
-
-  /* ── Header ── */
-  .header { display: -webkit-box; display: flex; -webkit-box-pack: justify; justify-content: space-between; -webkit-box-align: center; align-items: center; background: #fff7ed; border-bottom: 2px solid #fed7aa; padding: 12px 0 14px; margin-bottom: 20px; }
-  .header .logo img { max-height: 65px; max-width: 200px; }
+  /* ── Header — float layout ── */
+  .header {
+    background: #fff7ed; border-bottom: 2px solid #fed7aa;
+    padding: 12px 0 14px; margin-bottom: 20px; overflow: hidden;
+  }
+  .header .logo { float: left; }
+  .header .logo img { max-height: 65px; max-width: 200px; display: block; }
   .header .logo .logo-text { font-size: 20px; font-weight: 700; color: #c2410c; }
-  .header .company-info { text-align: right; font-size: 11px; color: #4b5563; }
+  .header .company-info { float: right; text-align: right; font-size: 11px; color: #4b5563; }
   .header .company-info .cname { font-size: 16px; font-weight: 800; color: #c2410c; }
 
   /* ── Title band ── */
@@ -25,8 +28,13 @@
   .title-band .t-main { font-size: 22px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; }
   .title-band .t-sub  { font-size: 11px; letter-spacing: 2px; opacity: 0.88; margin-top: 4px; }
 
-  /* ── Ref row ── */
-  .ref-row { display: -webkit-box; display: flex; -webkit-box-pack: justify; justify-content: space-between; font-size: 11px; color: #6b7280; margin-bottom: 18px; }
+  /* ── Ref row — table layout ── */
+  table.ref-table {
+    width: 100%; border-collapse: collapse;
+    margin-bottom: 18px; font-size: 11px; color: #6b7280;
+  }
+  table.ref-table td { border: none; background: none; padding: 0; }
+  table.ref-table td:last-child { text-align: right; }
 
   /* ── Addressee block ── */
   .addr-block { font-size: 12.5px; color: #374151; margin-bottom: 16px; line-height: 1.75; }
@@ -48,23 +56,34 @@
   .terms-box ul { margin: 6px 0 2px; padding-left: 18px; }
   .terms-box li { margin-bottom: 4px; line-height: 1.6; }
 
-  /* ── Signature ── */
-  .sig-section { margin-top: auto; padding-top: 32px; display: -webkit-box; display: flex; -webkit-box-pack: justify; justify-content: space-between; -webkit-box-align: end; align-items: flex-end; }
-  .sig-block { text-align: center; min-width: 180px; }
-  .sig-block img { max-height: 55px; margin-bottom: 4px; }
+  /* ── Signature section — float layout ── */
+  .sig-section { margin-top: 40px; padding-top: 32px; overflow: hidden; }
+  .seal-block { float: left; text-align: center; }
+  .seal-block img { max-height: 70px; display: block; }
+  .seal-text { font-size: 10px; color: #9ca3af; margin-top: 4px; }
+  .seal-placeholder {
+    width: 80px; height: 80px; border: 2px dashed #fed7aa; border-radius: 50%;
+    text-align: center; padding-top: 24px;
+    font-size: 9px; color: #f97316; display: inline-block;
+  }
+  .sig-block { float: right; text-align: center; min-width: 180px; }
+  .sig-block img { max-height: 55px; margin-bottom: 4px; display: block; margin-left: auto; margin-right: auto; }
   .sig-line { border-top: 1.5px solid #374151; padding-top: 6px; margin-top: 6px; }
   .sig-name  { font-weight: 700; font-size: 13px; }
   .sig-title { font-size: 11px; color: #6b7280; }
-  .seal-block { text-align: center; }
-  .seal-block img { max-height: 70px; }
-  .seal-text { font-size: 10px; color: #9ca3af; margin-top: 4px; }
-  .seal-placeholder { width: 80px; height: 80px; border: 2px dashed #fed7aa; border-radius: 50%; display: -webkit-box; display: flex; -webkit-box-align: center; align-items: center; -webkit-box-pack: center; justify-content: center; font-size: 9px; color: #f97316; text-align: center; padding: 8px; }
 
   /* ── Acceptance block ── */
   .accept-block { margin-top: 22px; border: 1.5px dashed #f97316; border-radius: 8px; padding: 14px 18px; font-size: 12px; color: #374151; background: #fff7ed; }
   .accept-title { font-weight: 800; color: #c2410c; font-size: 12.5px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-  .sign-row { margin-top: 28px; display: -webkit-box; display: flex; gap: 48px; }
-  .sign-field { -webkit-box-flex: 1; flex: 1; border-top: 1px solid #9ca3af; padding-top: 4px; font-size: 10px; color: #6b7280; }
+
+  /* ── Sign row — table layout ── */
+  table.sign-table {
+    width: 100%; border-collapse: collapse; margin-top: 28px; font-size: 10px; color: #6b7280;
+  }
+  table.sign-table td {
+    border: none; background: none; padding-top: 4px;
+    border-top: 1px solid #9ca3af; text-align: center;
+  }
 
   /* ── Footer ── */
   .footer { margin-top: 20px; border-top: 2px solid #fed7aa; padding-top: 8px; text-align: center; font-size: 10px; color: #9ca3af; }
@@ -78,7 +97,7 @@
 <div class="frame">
 <div class="inner">
 
-  <!-- Header -->
+  <!-- Header: logo left, company info right via float -->
   <div class="header">
     <div class="logo">
       {{#if company.logo_url}}
@@ -101,11 +120,13 @@
     <div class="t-sub">Official Offer for Internship Programme</div>
   </div>
 
-  <!-- Ref Row -->
-  <div class="ref-row">
-    <span>Ref No: <strong>{{doc_number}}</strong></span>
-    <span>Date: <strong>{{data.issue_date}}</strong></span>
-  </div>
+  <!-- Ref Row: ref left, date right via table -->
+  <table class="ref-table">
+    <tr>
+      <td>Ref No: <strong>{{doc_number}}</strong></td>
+      <td>Date: <strong>{{data.issue_date}}</strong></td>
+    </tr>
+  </table>
 
   <!-- Addressee Block -->
   <div class="addr-block">
@@ -168,7 +189,7 @@
     </p>
   </div>
 
-  <!-- Signature Section -->
+  <!-- Signature Section: seal left, sig right via float -->
   <div class="sig-section">
     <div class="seal-block">
       {{#if company.stamp_url}}
@@ -195,11 +216,14 @@
       I, <strong>{{data.intern_name}}</strong>, hereby accept the internship offer extended by
       <strong>{{company.name}}</strong> and agree to abide by all the terms and conditions mentioned above.
     </p>
-    <div class="sign-row">
-      <div class="sign-field">Intern Signature</div>
-      <div class="sign-field">Place</div>
-      <div class="sign-field">Date</div>
-    </div>
+    <!-- Sign row: three equal columns via table -->
+    <table class="sign-table">
+      <tr>
+        <td>Intern Signature</td>
+        <td>Place</td>
+        <td>Date</td>
+      </tr>
+    </table>
   </div>
 
   <!-- Footer -->
@@ -208,7 +232,7 @@
     {{company.email}} &nbsp;|&nbsp; {{company.phone}}
   </div>
 
-</div><!-- /.inner -->
-</div><!-- /.frame -->
+</div>
+</div>
 
 </body></html>

@@ -4,7 +4,6 @@
 <head>
   <meta charset="utf-8">
   <style>
-    /* ── Reset & base ─────────────────────────────────────────── */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Segoe UI', Arial, sans-serif;
@@ -13,66 +12,43 @@
       line-height: 1.7;
       background: #fff;
     }
-
-    /* ── Page wrapper ────────────────────────────────────────── */
     .page { padding: 0; }
 
-    /* ── Top accent bar ──────────────────────────────────────── */
-    .top-bar {
-      height: 8px;
-      width: 100%;
-      background: linear-gradient(90deg, #78350f, #f59e0b);
-    }
+    /* ── Top accent bar ── */
+    .top-bar { height: 8px; width: 100%; background: linear-gradient(90deg, #78350f, #f59e0b); }
 
-    /* ── Header ─────────────────────────────────────────────── */
+    /* ── Header — float layout ── */
     .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
       background: #fffbeb;
       padding: 16px 30px;
       border-bottom: 2px solid #fde68a;
+      overflow: hidden;
     }
-    .header-logo img {
-      max-height: 62px;
-      max-width: 190px;
-    }
-    .header-logo .logo-text {
-      font-size: 22px;
-      font-weight: 700;
-      color: #92400e;
-      letter-spacing: 0.5px;
-    }
+    .header-logo { float: left; }
+    .header-logo img { max-height: 62px; max-width: 190px; display: block; }
+    .header-logo .logo-text { font-size: 22px; font-weight: 700; color: #92400e; letter-spacing: 0.5px; }
     .header-company {
+      float: right;
       text-align: right;
       font-size: 11px;
       color: #78716c;
       line-height: 1.55;
     }
-    .header-company .company-name {
-      font-size: 15px;
-      font-weight: 700;
-      color: #92400e;
-      margin-bottom: 2px;
-    }
+    .header-company .company-name { font-size: 15px; font-weight: 700; color: #92400e; margin-bottom: 2px; }
 
-    /* ── Body ────────────────────────────────────────────────── */
-    .body {
-      padding: 20px 30px;
-    }
+    /* ── Body ── */
+    .body { padding: 20px 30px; }
 
-    /* ── Meta row ────────────────────────────────────────────── */
-    .meta-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 11.5px;
-      color: #78716c;
-      margin-bottom: 16px;
-      padding-bottom: 8px;
-      border-bottom: 1px dashed #fde68a;
+    /* ── Meta row — table layout ── */
+    table.meta-table {
+      width: 100%; border-collapse: collapse;
+      margin-bottom: 16px; border-bottom: 1px dashed #fde68a;
+      font-size: 11.5px; color: #78716c;
     }
+    table.meta-table td { padding: 0 0 8px 0; border: none; background: none; }
+    table.meta-table td:last-child { text-align: right; }
 
-    /* ── Document title pill ─────────────────────────────────── */
+    /* ── Document title ── */
     .doc-title {
       text-align: center;
       background: #92400e;
@@ -82,113 +58,56 @@
       letter-spacing: 2px;
       padding: 9px 24px;
       border-radius: 30px;
-      display: inline-block;
+      display: block;
       width: 100%;
       margin-bottom: 20px;
     }
 
-    /* ── Paragraphs ──────────────────────────────────────────── */
+    /* ── Text ── */
     .concern-line {
-      font-weight: 700;
-      font-size: 13.5px;
-      color: #1c1917;
-      margin-bottom: 14px;
-      letter-spacing: 0.3px;
+      font-weight: 700; font-size: 13.5px; color: #1c1917; margin-bottom: 14px; letter-spacing: 0.3px;
     }
-    p {
-      margin: 10px 0;
-      text-align: justify;
-      font-size: 13px;
-      color: #1c1917;
-    }
+    p { margin: 10px 0; text-align: justify; font-size: 13px; color: #1c1917; }
 
-    /* ── Employment summary box ──────────────────────────────── */
+    /* ── Employment summary box ── */
     .summary-box {
-      background: #fffbeb;
-      border-left: 4px solid #d97706;
-      border-radius: 0 6px 6px 0;
-      padding: 14px 18px;
-      margin: 22px 0;
+      background: #fffbeb; border-left: 4px solid #d97706;
+      border-radius: 0 6px 6px 0; padding: 14px 18px; margin: 22px 0;
     }
     .summary-box .box-heading {
-      font-weight: 700;
-      color: #92400e;
-      font-size: 12.5px;
-      margin-bottom: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      font-weight: 700; color: #92400e; font-size: 12.5px;
+      margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px;
     }
     table.summary-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 12px;
+      width: 100%; border-collapse: collapse; font-size: 12px;
     }
-    table.summary-table td {
-      padding: 5px 8px;
-      vertical-align: top;
-      border: 1px solid #fde68a;
-    }
+    table.summary-table td { padding: 5px 8px; vertical-align: top; border: 1px solid #fde68a; }
     table.summary-table td.key {
-      background: #fef3c7;
-      font-weight: 600;
-      color: #78350f;
-      width: 36%;
+      background: #fef3c7; font-weight: 600; color: #78350f; width: 36%;
     }
-    table.summary-table td.val {
-      color: #1c1917;
-      background: #fffdf5;
-    }
-    table.summary-table tr:nth-child(even) td.val {
-      background: #fffbeb;
-    }
+    table.summary-table td.val { color: #1c1917; background: #fffdf5; }
+    table.summary-table tr:nth-child(even) td.val { background: #fffbeb; }
 
-    /* ── Signature block ─────────────────────────────────────── */
-    .signature-block {
-      margin-top: 36px;
-      text-align: right;
-    }
-    .signature-block img {
-      max-height: 56px;
-      max-width: 160px;
-      display: block;
-      margin-left: auto;
-      margin-bottom: 4px;
-    }
-    .signature-block .sig-name {
-      font-weight: 700;
-      font-size: 13px;
-      color: #1c1917;
-    }
-    .signature-block .sig-designation {
-      font-size: 11.5px;
-      color: #78716c;
-    }
-    .signature-block .sig-company {
-      font-size: 11.5px;
-      color: #92400e;
-      font-weight: 600;
-    }
+    /* ── Signature block ── */
+    .signature-block { margin-top: 36px; text-align: right; }
+    .signature-block img { max-height: 56px; max-width: 160px; display: block; margin-left: auto; margin-bottom: 4px; }
+    .signature-block .sig-name { font-weight: 700; font-size: 13px; color: #1c1917; }
+    .signature-block .sig-designation { font-size: 11.5px; color: #78716c; }
+    .signature-block .sig-company { font-size: 11.5px; color: #92400e; font-weight: 600; }
 
-    /* ── Footer ──────────────────────────────────────────────── */
+    /* ── Footer ── */
     .footer {
-      margin-top: 28px;
-      border-top: 1px solid #fde68a;
-      padding: 7px 30px;
-      text-align: center;
-      font-size: 10px;
-      color: #92400e;
-      background: #fffbeb;
-      line-height: 1.5;
+      margin-top: 28px; border-top: 1px solid #fde68a; padding: 7px 30px;
+      text-align: center; font-size: 10px; color: #92400e; background: #fffbeb; line-height: 1.5;
     }
   </style>
 </head>
 <body>
 <div class="page">
 
-  <!-- Top accent bar -->
   <div class="top-bar"></div>
 
-  <!-- Header -->
+  <!-- Header: logo left, company info right via float -->
   <div class="header">
     <div class="header-logo">
       {{#if company.logo_url}}
@@ -207,37 +126,31 @@
     </div>
   </div>
 
-  <!-- Body -->
   <div class="body">
 
-    <!-- Meta row -->
-    <div class="meta-row">
-      <span><strong>Ref No:</strong> {{doc_number}}</span>
-      <span><strong>Date:</strong> {{today}}</span>
-    </div>
+    <!-- Meta row: ref left, date right via table -->
+    <table class="meta-table">
+      <tr>
+        <td><strong>Ref No:</strong> {{doc_number}}</td>
+        <td><strong>Date:</strong> {{today}}</td>
+      </tr>
+    </table>
 
-    <!-- Document title -->
     <div class="doc-title">EXPERIENCE CERTIFICATE</div>
 
-    <!-- To whomsoever -->
     <div class="concern-line">TO WHOMSOEVER IT MAY CONCERN</div>
 
-    <!-- Para 1: tenure -->
     <p>
       This is to certify that <strong>{{employee.full_name}}</strong> was employed with
       <strong>{{company.name}}</strong> from
       <strong>{{formatDate employee.date_of_joining "DD-MMM-YYYY"}}</strong> to
       <strong>{{formatDate employee.date_of_leaving "DD-MMM-YYYY"}}</strong>.
     </p>
-
-    <!-- Para 2: role -->
     <p>
       During the tenure of his/her service with us, he/she held the position of
       <strong>{{employee.designation}}</strong> in the <strong>{{employee.department}}</strong> department,
       demonstrating competence and professionalism in carrying out the assigned responsibilities.
     </p>
-
-    <!-- Para 3: performance — custom or default -->
     <p>
       {{#if data.summary}}
         {{data.summary}}
@@ -248,8 +161,6 @@
         were consistently satisfactory during the entire period of employment.
       {{/if}}
     </p>
-
-    <!-- Para 4: good wishes -->
     <p>
       We wish him/her the very best in all future endeavours and have no hesitation in
       recommending him/her to prospective employers.
@@ -290,7 +201,6 @@
       </table>
     </div>
 
-    <!-- Signature block -->
     <div class="signature-block">
       <p style="font-size:12px; color:#78716c; margin-bottom:16px;">For <strong>{{company.name}}</strong>,</p>
       {{#if company.signature_url}}
@@ -304,9 +214,8 @@
       <div class="sig-company">{{company.name}}</div>
     </div>
 
-  </div><!-- /.body -->
+  </div>
 
-  <!-- Footer -->
   <div class="footer">
     {{company.name}} &nbsp;|&nbsp; {{company.address}}{{#if company.city}}, {{company.city}}{{/if}}{{#if company.state}}, {{company.state}}{{/if}}
     &nbsp;|&nbsp; {{company.email}}
@@ -314,6 +223,6 @@
     &nbsp;|&nbsp; Doc No: {{doc_number}}
   </div>
 
-</div><!-- /.page -->
+</div>
 </body>
 </html>
