@@ -28,31 +28,41 @@
   .highlight-name { font-size: 16px; font-weight: 700; color: #0891b2; }
 
   /* Details table */
-  .detail-table { width: 100%; border-collapse: collapse; margin: 16px 0; }
-  .detail-table tr td { padding: 7px 12px; font-size: 12px; border: 1px solid #cffafe; }
+  .detail-table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+  .detail-table tr td { padding: 6px 12px; font-size: 12px; border: 1px solid #cffafe; }
   .detail-table tr:nth-child(even) td { background: #f0fdfe; }
   .detail-table td:first-child { font-weight: 700; color: #0e7490; width: 38%; background: #e0f2fe; }
 
-  /* Attendance summary box */
-  .att-box { display: flex; justify-content: center; gap: 24px; margin: 20px 0; flex-wrap: wrap; }
-  .att-card { text-align: center; padding: 16px 24px; border-radius: 14px; min-width: 120px; }
-  .att-card .att-val  { font-size: 28px; font-weight: 800; }
-  .att-card .att-lbl  { font-size: 11px; font-weight: 600; letter-spacing: 0.5px; margin-top: 2px; }
+  /* Attendance summary cards */
+  .att-box { display: flex; justify-content: center; gap: 20px; margin: 16px 0; flex-wrap: wrap; }
+  .att-card { text-align: center; padding: 14px 20px; border-radius: 14px; min-width: 110px; }
+  .att-card .att-val  { font-size: 26px; font-weight: 800; }
+  .att-card .att-lbl  { font-size: 10px; font-weight: 600; letter-spacing: 0.5px; margin-top: 2px; }
   .att-total   { background: #e0f2fe; color: #0369a1; border: 2px solid #7dd3fc; }
   .att-present { background: #d1fae5; color: #065f46; border: 2px solid #6ee7b7; }
+  .att-absent  { background: #fee2e2; color: #991b1b; border: 2px solid #fca5a5; }
   .att-pct     { background: #fef3c7; color: #92400e; border: 2px solid #fcd34d; }
 
-  /* Percentage bar */
-  .bar-wrap { background: #e2e8f0; border-radius: 999px; height: 14px; margin: 6px 0 16px; overflow: hidden; }
-  .bar-fill  { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #0891b2, #38bdf8); transition: width 0.3s; }
+  /* Progress bar */
+  .bar-wrap { background: #e2e8f0; border-radius: 999px; height: 12px; margin: 6px 0 16px; overflow: hidden; }
+  .bar-fill  { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #0891b2, #38bdf8); }
 
-  /* Signature */
-  .sig-section { margin-top: 40px; display: flex; justify-content: space-between; align-items: flex-end; }
-  .sig-block { text-align: center; min-width: 180px; }
-  .sig-block img { max-height: 55px; margin-bottom: 4px; }
-  .sig-line { border-top: 1.5px solid #374151; padding-top: 6px; margin-top: 6px; }
-  .sig-name  { font-weight: 700; font-size: 13px; }
-  .sig-title { font-size: 11px; color: #6b7280; }
+  /* Date-wise attendance table */
+  .att-section-title { font-size: 12px; font-weight: 700; color: #0e7490; letter-spacing: 1px; text-align: center; text-transform: uppercase; margin: 16px 0 8px; }
+  .att-log-table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+  .att-log-table thead tr { background: linear-gradient(135deg, #0891b2, #0369a1); color: white; }
+  .att-log-table thead th { padding: 7px 10px; font-weight: 700; text-align: center; border: 1px solid #0369a1; letter-spacing: 0.3px; }
+  .att-log-table thead th:last-child { text-align: left; }
+  .att-log-table tbody tr { border-bottom: 1px solid #e0f2fe; }
+  .att-log-table tbody tr:nth-child(even) { background: #f0fdfe; }
+  .att-log-table tbody tr.weekend-row { background: #fafafa; color: #9ca3af; }
+  .att-log-table tbody tr.absent-row { background: #fff5f5; }
+  .att-log-table tbody td { padding: 5px 10px; border: 1px solid #e2e8f0; text-align: center; }
+  .att-log-table tbody td:last-child { text-align: left; }
+  .badge-P { display:inline-block; background:#d1fae5; color:#065f46; border:1px solid #6ee7b7; border-radius:20px; padding:1px 10px; font-weight:700; font-size:10.5px; }
+  .badge-A { display:inline-block; background:#fee2e2; color:#991b1b; border:1px solid #fca5a5; border-radius:20px; padding:1px 10px; font-weight:700; font-size:10.5px; }
+  .badge-H { display:inline-block; background:#fef3c7; color:#92400e; border:1px solid #fcd34d; border-radius:20px; padding:1px 10px; font-weight:700; font-size:10.5px; }
+  .badge-W { display:inline-block; background:#f3f4f6; color:#6b7280; border:1px solid #d1d5db; border-radius:20px; padding:1px 10px; font-weight:700; font-size:10.5px; }
 
   /* Performance badge */
   .perf-block { display: flex; justify-content: center; margin: 10px 0; }
@@ -66,17 +76,22 @@
   .topics-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
   .topic-tag { background: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc; border-radius: 20px; padding: 3px 12px; font-size: 11px; font-weight: 600; }
 
+  /* Signature */
+  .sig-section { margin-top: 30px; display: flex; justify-content: space-between; align-items: flex-end; }
+  .sig-block { text-align: center; min-width: 180px; }
+  .sig-block img { max-height: 55px; margin-bottom: 4px; }
+  .sig-line { border-top: 1.5px solid #374151; padding-top: 6px; margin-top: 6px; }
+  .sig-name  { font-weight: 700; font-size: 13px; }
+  .sig-title { font-size: 11px; color: #6b7280; }
+
   /* Seal area */
   .seal-block { text-align: center; }
   .seal-block img { max-height: 70px; }
   .seal-block .seal-text { font-size: 10px; color: #9ca3af; margin-top: 4px; }
 
   /* Footer */
-  .footer { margin-top: 24px; border-top: 2px solid #67e8f9; padding-top: 8px; text-align: center; font-size: 10px; color: #9ca3af; }
+  .footer { margin-top: 20px; border-top: 2px solid #67e8f9; padding-top: 8px; text-align: center; font-size: 10px; color: #9ca3af; }
   .footer strong { color: #0891b2; }
-
-  /* Remarks box */
-  .remarks-box { background: #f0fdfe; border-left: 4px solid #0891b2; border-radius: 6px; padding: 10px 14px; margin: 12px 0; font-size: 12px; color: #374151; }
 </style>
 </head><body>
 
@@ -111,7 +126,7 @@
   <!-- Body -->
   <div class="body-text">
     <p>This is to certify that</p>
-    <p style="text-align:center; margin: 10px 0;">
+    <p style="text-align:center; margin: 8px 0;">
       <span class="highlight-name">{{data.intern_name}}</span>
     </p>
     <p>
@@ -134,15 +149,19 @@
   </table>
 
   <!-- Attendance Summary Cards -->
-  <p style="text-align:center; font-size:12px; font-weight:700; color:#0e7490; letter-spacing:1px; margin-bottom:10px;">ATTENDANCE SUMMARY</p>
+  <p class="att-section-title">Attendance Summary</p>
   <div class="att-box">
     <div class="att-card att-total">
       <div class="att-val">{{data.total_working_days}}</div>
-      <div class="att-lbl">Total Working Days</div>
+      <div class="att-lbl">Working Days</div>
     </div>
     <div class="att-card att-present">
       <div class="att-val">{{data.days_present}}</div>
       <div class="att-lbl">Days Present</div>
+    </div>
+    <div class="att-card att-absent">
+      <div class="att-val">{{data.days_absent}}</div>
+      <div class="att-lbl">Days Absent</div>
     </div>
     <div class="att-card att-pct">
       <div class="att-val">{{data.attendance_pct}}%</div>
@@ -150,20 +169,52 @@
     </div>
   </div>
 
-  <!-- Attendance bar -->
+  <!-- Progress bar -->
   <div class="bar-wrap">
     <div class="bar-fill" style="width: {{data.attendance_pct}}%;"></div>
   </div>
 
+  <!-- Date-wise Attendance Log -->
+  {{#if data.attendance_records}}
+  <p class="att-section-title">Day-wise Attendance Register</p>
+  <table class="att-log-table">
+    <thead>
+      <tr>
+        <th style="width:6%">S.No</th>
+        <th style="width:20%">Date</th>
+        <th style="width:14%">Day</th>
+        <th style="width:12%">Status</th>
+        <th>Topics Covered</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each data.attendance_records}}
+      <tr class="{{#if (eq this.status 'A')}}absent-row{{/if}}{{#if (eq this.status 'W')}}weekend-row{{/if}}{{#if (eq this.status 'H')}}weekend-row{{/if}}">
+        <td>{{inc @index}}</td>
+        <td>{{this.display_date}}</td>
+        <td>{{this.day}}</td>
+        <td>
+          {{#if (eq this.status 'P')}}<span class="badge-P">Present</span>{{/if}}
+          {{#if (eq this.status 'A')}}<span class="badge-A">Absent</span>{{/if}}
+          {{#if (eq this.status 'H')}}<span class="badge-H">Holiday</span>{{/if}}
+          {{#if (eq this.status 'W')}}<span class="badge-W">Weekend</span>{{/if}}
+        </td>
+        <td>{{this.topics}}</td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+  {{/if}}
+
   <!-- Performance Rating -->
   {{#if data.performance}}
-  <p style="text-align:center; font-size:11px; font-weight:700; color:#0e7490; letter-spacing:1px; margin: 12px 0 4px;">PERFORMANCE RATING</p>
+  <p style="text-align:center; font-size:11px; font-weight:700; color:#0e7490; letter-spacing:1px; margin: 14px 0 4px;">PERFORMANCE RATING</p>
   <div class="perf-block">
     <span class="perf-badge perf-{{data.performance}}">★ {{data.performance}}</span>
   </div>
   {{/if}}
 
-  <!-- Covered Topics -->
+  <!-- Topics Covered (summary) -->
   {{#if data.topics_arr}}
   <p style="font-size:12px; font-weight:700; color:#0e7490; margin: 12px 0 6px;">Topics Covered During Internship</p>
   <div class="topics-wrap">
@@ -172,11 +223,12 @@
   {{/if}}
 
   <!-- Closing -->
-  <div class="body-text" style="margin-top:16px;">
+  <div class="body-text" style="margin-top:14px;">
     <p>
       During the internship period, <strong>{{data.intern_name}}</strong> maintained an attendance of
-      <strong>{{data.attendance_pct}}%</strong> (<strong>{{data.days_present}}</strong> out of
-      <strong>{{data.total_working_days}}</strong> working days).
+      <strong>{{data.attendance_pct}}%</strong> (<strong>{{data.days_present}}</strong> present out of
+      <strong>{{data.total_working_days}}</strong> working days{{#if data.days_absent}},
+      <strong>{{data.days_absent}}</strong> absent{{/if}}).
       {{#if data.remarks}}{{data.remarks}}{{/if}}
     </p>
     <p>This certificate is issued upon request for official purposes.</p>

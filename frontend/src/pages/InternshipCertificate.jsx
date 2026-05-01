@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import {
   GraduationCap, Building2, User, Briefcase, Award, Star,
@@ -148,6 +148,9 @@ export default function InternshipCertificate() {
   const [topicInput, setTopicInput]   = useState('');
   const [topicsList, setTopicsList]   = useState([]);
 
+  // Date-wise attendance records
+  const [attRecords, setAttRecords]   = useState([]);
+
   // Section open/close
   const [open, setOpen] = useState({ company: true, intern: true, internship: true, extra: true });
   const toggle = k => setOpen(o => ({ ...o, [k]: !o[k] }));
@@ -177,10 +180,26 @@ export default function InternshipCertificate() {
     api.get('/companies').then(({ data }) => setCompanies(data));
   }, []);
 
-  // Reset result whenever cert type changes
-  useEffect(() => { setResult(null); }, [certType]);
+  // Reset result and regenerate records when cert type changes
+  useEffect(() => {
+    setResult(null);
+    if (certType === 'attendance' && form.from_date && form.to_date) {
+      generateRecords(form.from_date, form.to_date);
+    }
+  }, [certType]); // eslint-disable-line
 
-  const ch = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+  const ch = e => {
+    const { name, value } = e.target;
+    setForm(f => {
+      const updated = { ...f, [name]: value };
+      if (certType === 'attendance' && (name === 'from_date' || name === 'to_date')) {
+        const from = name === 'from_date' ? value : f.from_date;
+        const to   = name === 'to_date'   ? value : f.to_date;
+        if (from && to) generateRecords(from, to);
+      }
+      return updated;
+    });
+  };
 
   // Skills
   const addSkill = () => {
@@ -200,9 +219,43 @@ export default function InternshipCertificate() {
   };
   const removeTopic = s => setTopicsList(l => l.filter(x => x !== s));
 
-  const attendancePct = form.total_working_days && form.days_present
-    ? Math.round((Number(form.days_present) / Number(form.total_working_days)) * 100)
+  // Auto-generate date-wise records when date range changes (attendance cert)
+  const generateRecords = useCallback((from, to) => {
+    if (!from || !to) return;
+    const start = new Date(from);
+    const end   = new Date(to);
+    if (end < start) return;
+    const diff = Math.round((end - start) / (1000 * 60 * 60 * 24)) + 1;
+    if (diff > 180) { toast.error('Date range too large (max 180 days)'); return; }
+    const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const records = [];
+    const d = new Date(from);
+    while (d <= end) {
+      const isWeekend = d.getDay() === 0 || d.getDay() === 6;
+      records.push({
+        date:         d.toISOString().split('T')[0],
+        display_date: d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
+        day:          days[d.getDay()],
+        status:       isWeekend ? 'W' : 'P',
+        topics:       '',
+      });
+      d.setDate(d.getDate() + 1);
+    }
+    setAttRecords(records);
+  }, []);
+
+  // Derive totals from attRecords
+  const workingRecords  = attRecords.filter(r => r.status !== 'W');
+  const totalWorkingDays = workingRecords.length;
+  const daysPresent      = workingRecords.filter(r => r.status === 'P').length;
+  const daysAbsent       = workingRecords.filter(r => r.status === 'A').length;
+  const attendancePct    = totalWorkingDays > 0
+    ? Math.round((daysPresent / totalWorkingDays) * 100)
     : null;
+
+  const updateRecord = (idx, field, value) => {
+    setAttRecords(prev => prev.map((r, i) => i === idx ? { ...r, [field]: value } : r));
+  };
 
   const ct = CERT_TYPES.find(t => t.id === certType);
 
@@ -211,9 +264,8 @@ export default function InternshipCertificate() {
     if (!companyId) return toast.error('Please select a company');
     if (!form.intern_name.trim()) return toast.error('Intern name is required');
     if (!form.from_date || !form.to_date) return toast.error('From Date and To Date are required');
-    if (certType === 'attendance') {
-      if (!form.total_working_days || !form.days_present)
-        return toast.error('Total working days and days present are required');
+    if (certType === 'attendance' && attRecords.length === 0) {
+      return toast.error('Please enter From Date and To Date to generate attendance records');
     }
 
     setGenerating(true);
@@ -223,9 +275,13 @@ export default function InternshipCertificate() {
         company_id: companyId,
         intern: {
           ...form,
-          skills: skillsList.join(', '),
-          covered_topics: topicsList.join(', '),
-          attendance_pct: attendancePct,
+          skills:              skillsList.join(', '),
+          covered_topics:      topicsList.join(', '),
+          attendance_records:  attRecords,
+          attendance_pct:      attendancePct,
+          total_working_days:  totalWorkingDays,
+          days_present:        daysPresent,
+          days_absent:         daysAbsent,
         },
       };
       const { data } = await api.post(ct.endpoint, payload);
@@ -461,25 +517,104 @@ export default function InternshipCertificate() {
                 gradient={ct.gradient} light={ct.light} border={ct.border}
                 open={open.extra} onToggle={() => toggle('extra')}>
                 <div className="space-y-4">
-                  {/* Days */}
-                  <div className="grid md:grid-cols-3 gap-4">
-                    <Field label="Total Working Days *" color={ct.text}>
-                      <SInput ring={ct.ring} type="number" name="total_working_days"
-                        value={form.total_working_days} onChange={ch} placeholder="e.g. 60" min="1" />
-                    </Field>
-                    <Field label="Days Present *" color={ct.text}>
-                      <SInput ring={ct.ring} type="number" name="days_present"
-                        value={form.days_present} onChange={ch} placeholder="e.g. 57" min="0" />
-                    </Field>
-                    <Field label="Attendance %" color={ct.text}>
-                      <div className={`px-3 py-2.5 rounded-lg border text-sm font-bold text-center
-                        ${attendancePct !== null
-                          ? attendancePct >= 75 ? 'bg-emerald-50 border-emerald-300 text-emerald-700' : 'bg-red-50 border-red-300 text-red-600'
-                          : 'bg-gray-50 border-gray-200 text-gray-400'}`}>
-                        {attendancePct !== null ? `${attendancePct}%` : 'Auto-calculated'}
+
+                  {/* Summary strip */}
+                  {attRecords.length > 0 && (
+                    <div className="grid grid-cols-4 gap-2 text-center">
+                      <div className="bg-blue-50 border border-blue-200 rounded-xl py-2">
+                        <div className="text-lg font-bold text-blue-700">{totalWorkingDays}</div>
+                        <div className="text-xs text-blue-500 font-semibold">Working</div>
                       </div>
-                    </Field>
-                  </div>
+                      <div className="bg-emerald-50 border border-emerald-200 rounded-xl py-2">
+                        <div className="text-lg font-bold text-emerald-700">{daysPresent}</div>
+                        <div className="text-xs text-emerald-500 font-semibold">Present</div>
+                      </div>
+                      <div className="bg-red-50 border border-red-200 rounded-xl py-2">
+                        <div className="text-lg font-bold text-red-600">{daysAbsent}</div>
+                        <div className="text-xs text-red-400 font-semibold">Absent</div>
+                      </div>
+                      <div className={`border rounded-xl py-2 ${attendancePct !== null && attendancePct >= 75 ? 'bg-emerald-50 border-emerald-200' : 'bg-amber-50 border-amber-200'}`}>
+                        <div className={`text-lg font-bold ${attendancePct !== null && attendancePct >= 75 ? 'text-emerald-700' : 'text-amber-700'}`}>
+                          {attendancePct !== null ? `${attendancePct}%` : '—'}
+                        </div>
+                        <div className="text-xs text-gray-500 font-semibold">Attendance</div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Hint when no dates yet */}
+                  {attRecords.length === 0 && (
+                    <div className="text-center py-6 text-sm text-blue-400 bg-blue-50 rounded-xl border border-dashed border-blue-200">
+                      Fill <strong>From Date</strong> and <strong>To Date</strong> above to auto-generate the day-wise register
+                    </div>
+                  )}
+
+                  {/* Date-wise register */}
+                  {attRecords.length > 0 && (
+                    <div>
+                      <div className="flex justify-between items-center mb-2">
+                        <label className={`text-xs font-bold uppercase tracking-wide ${ct.text}`}>
+                          Day-wise Attendance Register ({attRecords.length} days)
+                        </label>
+                        <div className="flex gap-1 text-xs">
+                          <button type="button" onClick={() => setAttRecords(r => r.map(x => x.status === 'W' ? x : { ...x, status: 'P' }))}
+                            className="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-lg font-semibold hover:bg-emerald-200 transition">All P</button>
+                          <button type="button" onClick={() => setAttRecords(r => r.map(x => x.status === 'W' ? x : { ...x, status: 'A' }))}
+                            className="bg-red-100 text-red-600 px-2.5 py-1 rounded-lg font-semibold hover:bg-red-200 transition">All A</button>
+                        </div>
+                      </div>
+                      <div className="border border-gray-200 rounded-xl overflow-hidden">
+                        <div className="max-h-72 overflow-y-auto">
+                          <table className="w-full text-xs">
+                            <thead className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white sticky top-0 z-10">
+                              <tr>
+                                <th className="py-2 px-2 text-center font-bold w-8">#</th>
+                                <th className="py-2 px-2 text-left font-bold w-24">Date</th>
+                                <th className="py-2 px-2 text-left font-bold w-20">Day</th>
+                                <th className="py-2 px-2 text-center font-bold w-20">Status</th>
+                                <th className="py-2 px-2 text-left font-bold">Topics Covered</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {attRecords.map((r, i) => (
+                                <tr key={r.date}
+                                  className={`border-b border-gray-100 ${r.status === 'W' ? 'bg-gray-50 text-gray-400' : r.status === 'A' ? 'bg-red-50' : r.status === 'H' ? 'bg-yellow-50' : 'bg-white'}`}>
+                                  <td className="py-1.5 px-2 text-center text-gray-400">{i + 1}</td>
+                                  <td className="py-1.5 px-2 font-medium whitespace-nowrap">{r.display_date}</td>
+                                  <td className={`py-1.5 px-2 ${r.status === 'W' ? 'text-gray-400' : 'text-gray-600'}`}>{r.day.slice(0, 3)}</td>
+                                  <td className="py-1.5 px-2 text-center">
+                                    <select value={r.status}
+                                      onChange={e => updateRecord(i, 'status', e.target.value)}
+                                      className={`text-xs font-bold rounded-lg px-1.5 py-1 border focus:outline-none cursor-pointer
+                                        ${r.status === 'P' ? 'bg-emerald-100 text-emerald-700 border-emerald-300' :
+                                          r.status === 'A' ? 'bg-red-100 text-red-600 border-red-300' :
+                                          r.status === 'H' ? 'bg-yellow-100 text-yellow-700 border-yellow-300' :
+                                          'bg-gray-100 text-gray-500 border-gray-300'}`}>
+                                      <option value="P">Present</option>
+                                      <option value="A">Absent</option>
+                                      <option value="H">Holiday</option>
+                                      <option value="W">Weekend</option>
+                                    </select>
+                                  </td>
+                                  <td className="py-1 px-2">
+                                    {r.status !== 'W' ? (
+                                      <input value={r.topics}
+                                        onChange={e => updateRecord(i, 'topics', e.target.value)}
+                                        placeholder="Topics covered…"
+                                        className="w-full text-xs px-2 py-1 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-400 bg-white" />
+                                    ) : (
+                                      <span className="text-gray-300 text-xs italic">—</span>
+                                    )}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Performance Rating */}
                   <div>
                     <label className={`block text-xs font-semibold uppercase tracking-wide mb-2 ${ct.text}`}>Performance Rating</label>
@@ -496,31 +631,7 @@ export default function InternshipCertificate() {
                       ))}
                     </div>
                   </div>
-                  {/* Covered Topics */}
-                  <div>
-                    <label className={`block text-xs font-semibold uppercase tracking-wide mb-2 ${ct.text}`}>Topics Covered</label>
-                    <div className="flex gap-2 mb-2">
-                      <input value={topicInput} onChange={e => setTopicInput(e.target.value)}
-                        onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addTopic(); }}}
-                        placeholder="e.g. React.js, REST APIs, Database Design..."
-                        className={`flex-1 px-3 py-2.5 border border-gray-200 rounded-lg text-sm bg-white shadow-sm
-                          focus:outline-none focus:ring-2 ${ct.ring} focus:border-transparent transition`} />
-                      <button type="button" onClick={addTopic}
-                        className={`bg-gradient-to-r ${ct.gradient} text-white px-4 rounded-lg font-bold transition`}>
-                        <Plus size={16} />
-                      </button>
-                    </div>
-                    {topicsList.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mt-1">
-                        {topicsList.map(s => (
-                          <span key={s} className={`inline-flex items-center gap-1.5 ${ct.light} ${ct.text} border ${ct.border} rounded-full px-3 py-1 text-xs font-semibold`}>
-                            {s}
-                            <button type="button" onClick={() => removeTopic(s)} className="opacity-60 hover:opacity-100"><X size={11} /></button>
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+
                   {/* Remarks */}
                   <Field label="Remarks" color={ct.text}>
                     <textarea name="remarks" value={form.remarks} onChange={ch} rows={2}
@@ -588,7 +699,7 @@ export default function InternshipCertificate() {
                 {certType === 'attendance' && attendancePct !== null && (
                   <Row label="Attendance"
                     value={<span className={`font-bold ${attendancePct >= 75 ? 'text-emerald-600' : 'text-red-500'}`}>
-                      {form.days_present}/{form.total_working_days} days ({attendancePct}%)
+                      {daysPresent}P / {daysAbsent}A / {totalWorkingDays} days ({attendancePct}%)
                     </span>} />
                 )}
                 {certType === 'completion' && skillsList.length > 0 && (
@@ -636,9 +747,10 @@ export default function InternshipCertificate() {
                   <li>• Company logo & signature auto-appear</li>
                 </>}
                 {certType === 'attendance' && <>
-                  <li>• Attendance % is auto-calculated</li>
-                  <li>• Press Enter after each topic to add it</li>
-                  <li>• Performance rating is optional</li>
+                  <li>• Set dates → day-wise register auto-generates</li>
+                  <li>• Toggle each day: Present / Absent / Holiday</li>
+                  <li>• Enter topics per day for detailed cert</li>
+                  <li>• Attendance % auto-calculated from records</li>
                 </>}
               </ul>
             </div>

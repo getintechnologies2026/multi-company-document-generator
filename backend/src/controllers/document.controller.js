@@ -759,13 +759,39 @@ exports.generateInternshipAttendance = async (req, res) => {
         const today    = new Date();
         const issueDate = fmtDate(today.toISOString().split('T')[0]);
 
-        const totalDays  = Number(intern.total_working_days) || 0;
-        const daysPresent = Number(intern.days_present) || 0;
+        // Attendance records (date-wise)
+        const attendanceRecords = Array.isArray(intern.attendance_records)
+            ? intern.attendance_records.map((r, i) => ({
+                index:        i + 1,
+                date:         r.date         || '',
+                display_date: r.display_date || (r.date ? new Date(r.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : ''),
+                day:          r.day          || '',
+                status:       r.status       || 'P',   // P / A / H / W
+                topics:       r.topics       || '',
+            }))
+            : [];
+
+        // Derive totals from records if provided, else use manual inputs
+        let totalDays, daysPresent, daysAbsent;
+        if (attendanceRecords.length > 0) {
+            const working = attendanceRecords.filter(r => r.status !== 'W');
+            totalDays  = working.length;
+            daysPresent = working.filter(r => r.status === 'P').length;
+            daysAbsent  = working.filter(r => r.status === 'A').length;
+        } else {
+            totalDays   = Number(intern.total_working_days) || 0;
+            daysPresent = Number(intern.days_present) || 0;
+            daysAbsent  = totalDays - daysPresent;
+        }
         const attendancePct = totalDays > 0 ? Math.round((daysPresent / totalDays) * 100) : 0;
 
-        // Covered topics array
-        const topicsArr = intern.covered_topics
-            ? intern.covered_topics.split(',').map(s => s.trim()).filter(Boolean)
+        // Covered topics — collect unique non-empty topics from daily records + manual input
+        const topicsFromRecords = attendanceRecords
+            .map(r => r.topics).filter(Boolean)
+            .join(', ');
+        const topicsSource = intern.covered_topics || topicsFromRecords;
+        const topicsArr = topicsSource
+            ? [...new Set(topicsSource.split(',').map(s => s.trim()).filter(Boolean))]
             : [];
 
         const data = {
@@ -781,10 +807,12 @@ exports.generateInternshipAttendance = async (req, res) => {
             mentor_name:         intern.mentor_name    || (empRecord ? empRecord.full_name : ''),
             total_working_days:  totalDays,
             days_present:        daysPresent,
+            days_absent:         daysAbsent,
             attendance_pct:      attendancePct,
             performance:         intern.performance    || '',
-            covered_topics:      intern.covered_topics || '',
+            covered_topics:      topicsSource,
             topics_arr:          topicsArr,
+            attendance_records:  attendanceRecords,
             remarks:             intern.remarks        || '',
             issue_date:          issueDate,
         };
