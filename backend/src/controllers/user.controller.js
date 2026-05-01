@@ -9,7 +9,6 @@ const DEFAULT_PERMISSIONS = {
     generate_all:        true,
     salary_increment:    true,
     bulk_payslips:       true,
-    tn_salary:           true,
     internship_cert:     true,
     view_documents:      true,
 };

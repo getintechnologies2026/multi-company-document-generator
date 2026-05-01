@@ -40,7 +40,7 @@ export default function App() {
         <Route path="employees/:id/edit" element={<EmployeeForm />} />
         <Route path="generate-all" element={<GenerateAll />} />
         <Route path="bulk-payslips" element={<BulkPayslips />} />
-<Route path="generate" element={<Generate />} />
+        <Route path="generate" element={<Generate />} />
         <Route path="generate/:type" element={<Generate />} />
         <Route path="documents" element={<Documents />} />
         <Route path="internship-certificate" element={<InternshipCertificate />} />

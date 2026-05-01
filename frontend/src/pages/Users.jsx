@@ -27,7 +27,6 @@ const FEATURES = [
   { key: 'generate_all',       label: 'Generate All',      icon: Layers,         color: 'text-pink-500' },
   { key: 'salary_increment',   label: 'Increment Letter',  icon: TrendingUp,     color: 'text-teal-500' },
   { key: 'bulk_payslips',      label: 'Bulk Payslips',     icon: CreditCard,     color: 'text-amber-500' },
-  { key: 'tn_salary',          label: 'TN Salary Calc',    icon: Calculator,     color: 'text-cyan-500' },
   { key: 'internship_cert',    label: 'Internship Cert',   icon: GraduationCap,  color: 'text-purple-500' },
   { key: 'view_documents',     label: 'View Documents',    icon: Eye,            color: 'text-rose-500' },
 ];
@@ -99,7 +98,7 @@ export default function UsersPage() {
       : role === 'viewer'
         ? { ...DEFAULT_PERMS, manage_companies: false, manage_employees: false,
             generate_documents: false, generate_all: false, salary_increment: false,
-            bulk_payslips: false, tn_salary: false, internship_cert: false }
+            bulk_payslips: false, internship_cert: false }
         : { ...form.permissions };
     setForm(f => ({ ...f, role, permissions: newPerms }));
   };

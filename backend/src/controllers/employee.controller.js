@@ -1,7 +1,9 @@
 const db = require('../db');
 
 const FIELDS = ['company_id', 'emp_code', 'full_name', 'father_name', 'dob', 'gender', 'email', 'phone',
-    'address', 'designation', 'department', 'date_of_joining', 'date_of_leaving', 'employment_type',
+    'address', 'blood_group', 'nationality', 'marital_status', 'emergency_contact_name', 'emergency_contact_phone',
+    'designation', 'department', 'date_of_joining', 'date_of_leaving', 'employment_type',
+    'reporting_manager', 'location', 'notice_period_days',
     'ctc', 'basic', 'hra', 'da', 'conveyance', 'medical', 'special_allowance',
     'pf', 'esi', 'professional_tax', 'tds',
     'bank_name', 'bank_account', 'ifsc_code', 'pan', 'aadhaar', 'uan', 'pf_no', 'status'];

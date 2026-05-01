@@ -21,7 +21,8 @@ exports.create = async (req, res) => {
             stamp_path: f.stamp ? f.stamp[0].filename : null
         };
         const fields = ['name', 'address', 'city', 'state', 'pincode', 'email', 'phone', 'website',
-            'gst_no', 'pan_no', 'logo_path', 'signature_path', 'stamp_path',
+            'gst_no', 'pan_no', 'cin_no', 'tan_no', 'esic_code', 'pf_reg_no', 'industry', 'founded_year',
+            'logo_path', 'signature_path', 'stamp_path',
             'signatory_name', 'signatory_designation', 'doc_number_prefix'];
         const cols = fields.join(', ');
         const placeholders = fields.map(() => '?').join(', ');
@@ -43,7 +44,8 @@ exports.update = async (req, res) => {
         if (f.stamp) data.stamp_path = f.stamp[0].filename;
 
         const allowed = ['name', 'address', 'city', 'state', 'pincode', 'email', 'phone', 'website',
-            'gst_no', 'pan_no', 'logo_path', 'signature_path', 'stamp_path',
+            'gst_no', 'pan_no', 'cin_no', 'tan_no', 'esic_code', 'pf_reg_no', 'industry', 'founded_year',
+            'logo_path', 'signature_path', 'stamp_path',
             'signatory_name', 'signatory_designation', 'doc_number_prefix'];
         const entries = Object.entries(data).filter(([k]) => allowed.includes(k));
         const setClause = entries.map(([k]) => `${k} = ?`).join(', ');
