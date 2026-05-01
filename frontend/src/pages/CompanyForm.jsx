@@ -4,13 +4,15 @@ import toast from 'react-hot-toast';
 import {
   Building2, MapPin, Phone, FileText, PenTool,
   Image, Save, ArrowLeft, CheckCircle, Hash, Globe,
-  Mail, Loader, Upload, X
+  Mail, Loader, Upload, X, Calendar
 } from 'lucide-react';
 import api from '../services/api';
 
 const initial = {
   name: '', address: '', city: '', state: '', pincode: '',
   email: '', phone: '', website: '', gst_no: '', pan_no: '',
+  cin_no: '', tan_no: '', esic_code: '', pf_reg_no: '',
+  industry: '', founded_year: '',
   signatory_name: '', signatory_designation: '', doc_number_prefix: ''
 };
 
@@ -285,6 +287,50 @@ export default function CompanyForm() {
           </div>
         </div>
 
+        {/* ── SECTION 3b: Company Registration ── */}
+        <div className="bg-white rounded-2xl shadow-md overflow-hidden">
+          <SectionHeader
+            gradient="from-cyan-500 to-teal-700"
+            icon={Hash}
+            title="Company Registration Details"
+            subtitle="CIN, TAN, ESIC, PF Registration and incorporation info"
+          />
+          <div className="bg-cyan-50 p-5 space-y-4">
+            <div className="grid md:grid-cols-2 gap-4">
+              <Field label="CIN Number" color="text-cyan-700">
+                <SInput ring="focus:ring-cyan-400" icon={Hash} name="cin_no" value={form.cin_no} onChange={onChange} placeholder="U72900KA2020PTC123456" />
+              </Field>
+              <Field label="TAN Number" color="text-cyan-700">
+                <SInput ring="focus:ring-cyan-400" icon={Hash} name="tan_no" value={form.tan_no} onChange={onChange} placeholder="BLRX12345B" />
+              </Field>
+              <Field label="ESIC Registration Number" color="text-cyan-700">
+                <SInput ring="focus:ring-cyan-400" icon={FileText} name="esic_code" value={form.esic_code} onChange={onChange} placeholder="53000000000000000" />
+              </Field>
+              <Field label="PF Registration Number" color="text-cyan-700">
+                <SInput ring="focus:ring-cyan-400" icon={FileText} name="pf_reg_no" value={form.pf_reg_no} onChange={onChange} placeholder="KN/BAN/0000000/000/0000000" />
+              </Field>
+              <Field label="Industry / Sector" color="text-cyan-700">
+                <SInput ring="focus:ring-cyan-400" name="industry" value={form.industry} onChange={onChange} placeholder="Information Technology, Manufacturing…" />
+              </Field>
+              <Field label="Year of Establishment" color="text-cyan-700">
+                <SInput ring="focus:ring-cyan-400" icon={Calendar} type="number" name="founded_year" value={form.founded_year} onChange={onChange} placeholder="2015" min="1900" max="2099" />
+              </Field>
+            </div>
+            <div className="grid md:grid-cols-2 gap-3 mt-2">
+              <div className="bg-cyan-100 border border-cyan-200 rounded-xl p-3">
+                <p className="text-xs font-bold text-cyan-700 mb-1">CIN Format</p>
+                <p className="text-xs text-cyan-600 font-mono">U/L + 5-digit NIC + State code + Year + PVT/PUB + 6 digits</p>
+                <p className="text-xs text-cyan-600">e.g. <span className="font-bold">U72900KA2020PTC123456</span></p>
+              </div>
+              <div className="bg-cyan-100 border border-cyan-200 rounded-xl p-3">
+                <p className="text-xs font-bold text-cyan-700 mb-1">TAN Format</p>
+                <p className="text-xs text-cyan-600 font-mono">4 letters + 5 digits + 1 letter (10 chars)</p>
+                <p className="text-xs text-cyan-600">e.g. <span className="font-bold">BLRX12345B</span></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* ── SECTION 4: Signatory ── */}
         <div className="bg-white rounded-2xl shadow-md overflow-hidden">
           <SectionHeader
@@ -373,11 +419,12 @@ export default function CompanyForm() {
           <h3 className="text-sm font-bold text-gray-700 mb-4 flex items-center gap-2">
             <CheckCircle size={16} className="text-green-500" /> Summary Preview
           </h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
             {[
-              { label: 'Company', value: form.name || '—', color: 'bg-blue-50 text-blue-700 border-blue-200' },
-              { label: 'City', value: [form.city, form.state].filter(Boolean).join(', ') || '—', color: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-              { label: 'GST', value: form.gst_no || '—', color: 'bg-amber-50 text-amber-700 border-amber-200' },
+              { label: 'Company',    value: form.name || '—',                                           color: 'bg-blue-50 text-blue-700 border-blue-200' },
+              { label: 'City',       value: [form.city, form.state].filter(Boolean).join(', ') || '—',  color: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+              { label: 'GST',        value: form.gst_no || '—',                                         color: 'bg-amber-50 text-amber-700 border-amber-200' },
+              { label: 'CIN',        value: form.cin_no || '—',                                         color: 'bg-cyan-50 text-cyan-700 border-cyan-200' },
               { label: 'Doc Prefix', value: form.doc_number_prefix ? `${form.doc_number_prefix}/OFR/2026/0001` : '—', color: 'bg-violet-50 text-violet-700 border-violet-200' },
             ].map(({ label, value, color }) => (
               <div key={label} className={`${color} border rounded-xl p-3`}>

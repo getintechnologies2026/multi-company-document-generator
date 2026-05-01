@@ -9,7 +9,6 @@ import EmployeeForm from './pages/EmployeeForm';
 import Generate from './pages/Generate';
 import GenerateAll from './pages/GenerateAll';
 import BulkPayslips from './pages/BulkPayslips';
-import TNSalaryCalculator from './pages/TNSalaryCalculator';
 import Documents from './pages/Documents';
 import InternshipCertificate from './pages/InternshipCertificate';
 import UsersPage from './pages/Users';
@@ -41,8 +40,7 @@ export default function App() {
         <Route path="employees/:id/edit" element={<EmployeeForm />} />
         <Route path="generate-all" element={<GenerateAll />} />
         <Route path="bulk-payslips" element={<BulkPayslips />} />
-        <Route path="tn-salary" element={<TNSalaryCalculator />} />
-        <Route path="generate" element={<Generate />} />
+<Route path="generate" element={<Generate />} />
         <Route path="generate/:type" element={<Generate />} />
         <Route path="documents" element={<Documents />} />
         <Route path="internship-certificate" element={<InternshipCertificate />} />

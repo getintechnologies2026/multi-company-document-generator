@@ -1,0 +1,21 @@
+-- Migration 002: Add missing fields to companies and employees tables
+
+-- Companies: registration and business details
+ALTER TABLE companies
+  ADD COLUMN IF NOT EXISTS cin_no VARCHAR(30) DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS tan_no VARCHAR(20) DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS esic_code VARCHAR(30) DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS pf_reg_no VARCHAR(40) DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS industry VARCHAR(100) DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS founded_year VARCHAR(10) DEFAULT NULL;
+
+-- Employees: personal, emergency contact, and job details
+ALTER TABLE employees
+  ADD COLUMN IF NOT EXISTS blood_group VARCHAR(10) DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS nationality VARCHAR(50) DEFAULT 'Indian',
+  ADD COLUMN IF NOT EXISTS marital_status VARCHAR(20) DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS emergency_contact_name VARCHAR(150) DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS emergency_contact_phone VARCHAR(20) DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS reporting_manager VARCHAR(150) DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS location VARCHAR(100) DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS notice_period_days INT DEFAULT 30;

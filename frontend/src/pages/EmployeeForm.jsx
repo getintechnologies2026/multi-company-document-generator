@@ -60,8 +60,11 @@ function calcBreakdown(annualCtc, tpl) {
 const initial = {
   company_id: '', emp_code: '', full_name: '', father_name: '', dob: '', gender: '',
   email: '', phone: '', address: '',
+  blood_group: '', nationality: 'Indian', marital_status: '',
+  emergency_contact_name: '', emergency_contact_phone: '',
   designation: '', department: '', date_of_joining: '', date_of_leaving: '',
   employment_type: 'Full-Time', status: 'Active',
+  reporting_manager: '', location: '', notice_period_days: '',
   ctc: '', basic: '', hra: '', da: '', conveyance: '', medical: '', special_allowance: '',
   pf: '', esi: '', professional_tax: '', tds: '',
   bank_name: '', bank_account: '', ifsc_code: '', pan: '', aadhaar: '', uan: '', pf_no: ''
@@ -352,6 +355,29 @@ export default function EmployeeForm() {
                 </div>
               </Field>
             </div>
+            <Field label="Blood Group" color="text-violet-700">
+              <SSelect ring="focus:ring-violet-400" name="blood_group" value={form.blood_group} onChange={oc}>
+                <option value="">Select</option>
+                {['A+','A-','B+','B-','AB+','AB-','O+','O-'].map(g => <option key={g}>{g}</option>)}
+              </SSelect>
+            </Field>
+            <Field label="Nationality" color="text-violet-700">
+              <SInput ring="focus:ring-violet-400" name="nationality" value={form.nationality} onChange={oc} placeholder="Indian" />
+            </Field>
+            <Field label="Marital Status" color="text-violet-700">
+              <SSelect ring="focus:ring-violet-400" name="marital_status" value={form.marital_status} onChange={oc}>
+                <option value="">Select</option>
+                <option>Single</option><option>Married</option><option>Divorced</option><option>Widowed</option>
+              </SSelect>
+            </Field>
+            <Field label="Emergency Contact Name" color="text-violet-700">
+              <SInput ring="focus:ring-violet-400" icon={User} name="emergency_contact_name" value={form.emergency_contact_name} onChange={oc} placeholder="Parent / Spouse name" />
+            </Field>
+            <div className="md:col-span-2">
+              <Field label="Emergency Contact Phone" color="text-violet-700">
+                <SInput ring="focus:ring-violet-400" icon={Phone} name="emergency_contact_phone" value={form.emergency_contact_phone} onChange={oc} placeholder="+91-XXXXX XXXXX" />
+              </Field>
+            </div>
           </div>
         </Section>
 
@@ -381,6 +407,15 @@ export default function EmployeeForm() {
               <SSelect ring="focus:ring-emerald-400" name="status" value={form.status} onChange={oc}>
                 <option>Active</option><option>Resigned</option><option>Terminated</option>
               </SSelect>
+            </Field>
+            <Field label="Reporting Manager" color="text-emerald-700">
+              <SInput ring="focus:ring-emerald-400" icon={User} name="reporting_manager" value={form.reporting_manager} onChange={oc} placeholder="Manager Name" />
+            </Field>
+            <Field label="Work Location / Branch" color="text-emerald-700">
+              <SInput ring="focus:ring-emerald-400" icon={MapPin} name="location" value={form.location} onChange={oc} placeholder="Bangalore HQ, Chennai Branch…" />
+            </Field>
+            <Field label="Notice Period (Days)" color="text-emerald-700">
+              <SInput ring="focus:ring-emerald-400" type="number" name="notice_period_days" value={form.notice_period_days} onChange={oc} placeholder="30" min="0" />
             </Field>
           </div>
           {form.status && (

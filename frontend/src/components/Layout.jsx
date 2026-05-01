@@ -1,7 +1,7 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Building2, Users, FileText, FilePlus,
-  Layers, CreditCard, Calculator, LogOut, TrendingUp, GraduationCap, Shield
+  Layers, CreditCard, LogOut, TrendingUp, GraduationCap, Shield
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -13,7 +13,6 @@ const ALL_LINKS = [
   { to: '/generate-all',               label: 'Generate All',        icon: Layers,                      color: 'text-pink-300',   permKey: 'generate_all' },
   { to: '/generate/salary_increment',  label: 'Increment Letter',    icon: TrendingUp,                  color: 'text-teal-300',   permKey: 'salary_increment' },
   { to: '/bulk-payslips',              label: 'Bulk Payslips',       icon: CreditCard,                  color: 'text-amber-300',  permKey: 'bulk_payslips' },
-  { to: '/tn-salary',                  label: 'TN Salary Calc',      icon: Calculator,                  color: 'text-cyan-300',   permKey: 'tn_salary' },
   { to: '/internship-certificate',     label: 'Internship Cert',     icon: GraduationCap,               color: 'text-purple-300', permKey: 'internship_cert' },
   { to: '/generate',                   label: 'Single Document',     icon: FilePlus,                    color: 'text-orange-300', permKey: 'generate_documents' },
   { to: '/documents',                  label: 'Documents',           icon: FileText,                    color: 'text-rose-300',   permKey: 'view_documents' },
