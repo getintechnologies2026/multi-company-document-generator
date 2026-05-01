@@ -1,138 +1,374 @@
 <!DOCTYPE html>
-<html><head><meta charset="utf-8">
+<html>
+<head>
+<meta charset="utf-8">
 <style>
   * { box-sizing: border-box; }
-  body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a2e; font-size: 13px; line-height: 1.7; margin: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    color: #1e1b4b;
+    font-size: 13px;
+    line-height: 1.75;
+    margin: 0;
+    padding: 0;
+  }
 
-  /* Outer border frame */
-  .frame { border: 6px double #6366f1; padding: 6px; min-height: 96vh; display: flex; flex-direction: column; }
-  .inner { border: 2px solid #a5b4fc; padding: 20px 28px; flex: 1; display: flex; flex-direction: column; }
+  /* ── Top gradient bar ── */
+  .top-bar {
+    height: 8px;
+    background: linear-gradient(90deg, #4c1d95, #8b5cf6);
+  }
 
-  /* Header */
-  .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #6366f1; padding-bottom: 14px; margin-bottom: 20px; }
+  /* ── Outer decorative frame ── */
+  .outer-frame {
+    border: 3px double #5b21b6;
+    margin: 8px;
+    padding: 4px;
+  }
+
+  /* ── Inner border ── */
+  .inner-frame {
+    border: 1px solid #c4b5fd;
+    padding: 20px 28px;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: #f5f3ff;
+    padding: 14px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #c4b5fd;
+    margin: -20px -28px 20px;
+  }
   .header .logo img { max-height: 65px; max-width: 200px; }
-  .header .company-info { text-align: right; font-size: 11px; color: #4b5563; }
-  .header .company-info .cname { font-size: 16px; font-weight: 700; color: #4f46e5; }
+  .header .logo .logo-text {
+    font-size: 22px;
+    font-weight: 800;
+    color: #5b21b6;
+  }
+  .header .company-info {
+    text-align: right;
+    font-size: 11px;
+    color: #4b5563;
+  }
+  .header .company-info .cname {
+    font-size: 16px;
+    font-weight: 700;
+    color: #5b21b6;
+    margin-bottom: 2px;
+  }
 
-  /* Certificate title band */
-  .cert-band { background: linear-gradient(135deg, #4f46e5, #7c3aed); color: white; text-align: center; padding: 14px 0; border-radius: 10px; margin-bottom: 22px; }
-  .cert-band .cert-title { font-size: 22px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; }
-  .cert-band .cert-sub   { font-size: 11px; letter-spacing: 2px; opacity: 0.85; margin-top: 3px; }
+  /* ── Certificate title band ── */
+  .cert-band {
+    background: linear-gradient(90deg, #4c1d95, #8b5cf6);
+    color: #fff;
+    text-align: center;
+    padding: 16px 20px;
+    border-radius: 10px;
+    margin-bottom: 18px;
+  }
+  .cert-band .cert-title {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+  }
+  .cert-band .cert-sub {
+    font-size: 11px;
+    letter-spacing: 2px;
+    opacity: 0.88;
+    margin-top: 4px;
+    text-transform: uppercase;
+  }
 
-  /* Doc ref */
-  .ref-row { display: flex; justify-content: space-between; font-size: 11px; color: #6b7280; margin-bottom: 18px; }
+  /* Ref row */
+  .ref-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #6b7280;
+    margin-bottom: 18px;
+  }
 
   /* Body text */
-  .body-text { font-size: 13.5px; line-height: 1.9; text-align: justify; margin-bottom: 16px; }
-  .body-text strong { color: #1e1b4b; }
-  .highlight-name { font-size: 16px; font-weight: 700; color: #4f46e5; }
+  .body-text {
+    font-size: 13.5px;
+    line-height: 1.85;
+    text-align: justify;
+    margin-bottom: 14px;
+  }
+  .body-text p { margin: 6px 0; }
+
+  /* Certify intro */
+  .certify-intro {
+    text-align: center;
+    font-size: 13px;
+    color: #4b5563;
+    font-style: italic;
+    margin: 12px 0 4px;
+  }
+
+  /* Intern name highlight */
+  .intern-name {
+    text-align: center;
+    font-size: 20px;
+    font-weight: 800;
+    color: #5b21b6;
+    letter-spacing: 1px;
+    margin: 6px 0 10px;
+  }
 
   /* Details table */
-  .detail-table { width: 100%; border-collapse: collapse; margin: 16px 0; }
-  .detail-table tr td { padding: 7px 12px; font-size: 12px; border: 1px solid #e0e7ff; }
+  .detail-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+    font-size: 12px;
+  }
+  .detail-table tr td {
+    padding: 7px 12px;
+    border: 1px solid #ede9fe;
+    vertical-align: top;
+  }
   .detail-table tr:nth-child(even) td { background: #f5f3ff; }
-  .detail-table td:first-child { font-weight: 700; color: #4f46e5; width: 35%; background: #ede9fe; }
+  .detail-table tr td:first-child {
+    font-weight: 700;
+    color: #5b21b6;
+    background: #ede9fe;
+    width: 34%;
+    white-space: nowrap;
+  }
+  .detail-table tr td:last-child { color: #374151; }
 
   /* Performance badge */
-  .perf-block { display: flex; justify-content: center; margin: 16px 0; }
-  .perf-badge { display: inline-block; padding: 8px 28px; border-radius: 30px; font-weight: 800; font-size: 14px; letter-spacing: 1px; }
-  .perf-Excellent { background: #d1fae5; color: #065f46; border: 2px solid #6ee7b7; }
-  .perf-Good      { background: #dbeafe; color: #1e40af; border: 2px solid #93c5fd; }
+  .perf-section {
+    text-align: center;
+    margin: 14px 0 10px;
+  }
+  .perf-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #7c3aed;
+    margin-bottom: 6px;
+  }
+  .perf-badge {
+    display: inline-block;
+    padding: 8px 32px;
+    border-radius: 50px;
+    font-weight: 800;
+    font-size: 14px;
+    letter-spacing: 1px;
+  }
+  .perf-Excellent    { background: #d1fae5; color: #065f46; border: 2px solid #6ee7b7; }
+  .perf-Good         { background: #dbeafe; color: #1e40af; border: 2px solid #93c5fd; }
   .perf-Satisfactory { background: #fef3c7; color: #92400e; border: 2px solid #fcd34d; }
-  .perf-NeedsImprovement { background: #fee2e2; color: #991b1b; border: 2px solid #fca5a5; }
 
   /* Skills tags */
-  .skills-wrap { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
-  .skill-tag { background: #ede9fe; color: #4f46e5; border: 1px solid #c4b5fd; border-radius: 20px; padding: 3px 12px; font-size: 11px; font-weight: 600; }
-
-  /* Signature */
-  .sig-section { margin-top: 40px; display: flex; justify-content: space-between; align-items: flex-end; }
-  .sig-block { text-align: center; min-width: 180px; }
-  .sig-block img { max-height: 55px; margin-bottom: 4px; }
-  .sig-line { border-top: 1.5px solid #374151; padding-top: 6px; margin-top: 6px; }
-  .sig-name  { font-weight: 700; font-size: 13px; }
-  .sig-title { font-size: 11px; color: #6b7280; }
-
-  /* Seal area */
-  .seal-block { text-align: center; }
-  .seal-block img { max-height: 70px; }
-  .seal-block .seal-text { font-size: 10px; color: #9ca3af; margin-top: 4px; }
-
-  /* Footer */
-  .footer { margin-top: 24px; border-top: 2px solid #a5b4fc; padding-top: 8px; text-align: center; font-size: 10px; color: #9ca3af; }
-  .footer strong { color: #6366f1; }
+  .skills-section { margin: 10px 0 14px; }
+  .skills-heading {
+    font-size: 11px;
+    font-weight: 700;
+    color: #5b21b6;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .skills-wrap { display: flex; flex-wrap: wrap; gap: 7px; }
+  .skill-tag {
+    background: #ede9fe;
+    color: #5b21b6;
+    border: 1px solid #c4b5fd;
+    border-radius: 20px;
+    padding: 3px 13px;
+    font-size: 11px;
+    font-weight: 600;
+  }
 
   /* Remarks box */
-  .remarks-box { background: #f5f3ff; border-left: 4px solid #6366f1; border-radius: 6px; padding: 10px 14px; margin: 12px 0; font-size: 12px; color: #374151; }
+  .remarks-box {
+    background: #f5f3ff;
+    border-left: 4px solid #8b5cf6;
+    border-radius: 0 6px 6px 0;
+    padding: 10px 14px;
+    margin: 10px 0;
+    font-size: 12px;
+    color: #374151;
+  }
+
+  /* Closing text */
+  .closing-text {
+    font-size: 13px;
+    line-height: 1.8;
+    text-align: justify;
+    margin: 14px 0;
+  }
+
+  /* Signature section */
+  .sig-section {
+    margin-top: 34px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+
+  /* Seal block (left) */
+  .seal-block { text-align: center; }
+  .seal-block img { max-height: 75px; }
+  .seal-placeholder {
+    width: 80px;
+    height: 80px;
+    border: 2px dashed #c4b5fd;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    color: #a5b4fc;
+    text-align: center;
+    padding: 8px;
+  }
+  .seal-text {
+    font-size: 10px;
+    color: #9ca3af;
+    margin-top: 5px;
+  }
+
+  /* Signature block (right) */
+  .sig-block { text-align: center; min-width: 200px; }
+  .sig-block img.sig-img { max-height: 55px; display: block; margin: 0 auto 4px; }
+  .sig-line {
+    border-top: 1.5px solid #5b21b6;
+    padding-top: 6px;
+    margin-top: 6px;
+  }
+  .sig-name  { font-weight: 700; font-size: 13px; color: #1e1b4b; }
+  .sig-title { font-size: 11px; color: #6b7280; }
+
+  /* Footer */
+  .footer {
+    margin-top: 20px;
+    border-top: 2px solid #c4b5fd;
+    padding: 8px 0 0;
+    text-align: center;
+    font-size: 10px;
+    color: #9ca3af;
+  }
+  .footer strong { color: #7c3aed; }
 </style>
-</head><body>
+</head>
+<body>
 
-<div class="frame">
-<div class="inner">
+<!-- Top gradient bar -->
+<div class="top-bar"></div>
 
-  <!-- Header -->
+<!-- Outer decorative frame -->
+<div class="outer-frame">
+<div class="inner-frame">
+
+  <!-- Header (inset to bleed edge of inner-frame) -->
   <div class="header">
     <div class="logo">
-      {{#if company.logo_url}}<img src="{{company.logo_url}}" />{{else}}<div style="font-size:20px;font-weight:700;color:#4f46e5">{{company.name}}</div>{{/if}}
+      {{#if company.logo_url}}
+        <img src="{{company.logo_url}}" alt="{{company.name}}" />
+      {{else}}
+        <div class="logo-text">{{company.name}}</div>
+      {{/if}}
     </div>
     <div class="company-info">
       <div class="cname">{{company.name}}</div>
-      <div>{{company.address}}{{#if company.city}}, {{company.city}}{{/if}}{{#if company.state}}, {{company.state}}{{/if}}</div>
-      <div>{{company.email}} | {{company.phone}}</div>
+      <div>{{company.address}}{{#if company.city}}, {{company.city}}{{/if}}{{#if company.state}}, {{company.state}}{{/if}}{{#if company.pincode}} — {{company.pincode}}{{/if}}</div>
+      {{#if company.email}}<div>{{company.email}}{{#if company.phone}} | {{company.phone}}{{/if}}</div>{{/if}}
       {{#if company.website}}<div>{{company.website}}</div>{{/if}}
     </div>
   </div>
 
-  <!-- Title Band -->
+  <!-- Title band -->
   <div class="cert-band">
     <div class="cert-title">Internship Certificate</div>
-    <div class="cert-sub">Certificate of Successful Completion of Internship</div>
+    <div class="cert-sub">Certificate of Successful Completion</div>
   </div>
 
-  <!-- Ref & Date -->
+  <!-- Ref row -->
   <div class="ref-row">
-    <span>Ref: <strong>{{doc_number}}</strong></span>
-    <span>Date: <strong>{{data.issue_date}}</strong></span>
+    <span>Ref: <strong style="color:#5b21b6;">{{doc_number}}</strong></span>
+    <span>Date: <strong style="color:#5b21b6;">{{data.issue_date}}</strong></span>
   </div>
 
-  <!-- Body -->
+  <!-- Body: certify statement -->
+  <p class="certify-intro">This is to certify that</p>
+
+  <div class="intern-name">{{data.intern_name}}</div>
+
   <div class="body-text">
-    <p>This is to certify that</p>
-    <p style="text-align:center; margin: 10px 0;">
-      <span class="highlight-name">{{data.intern_name}}</span>
-    </p>
     <p>
       {{#if data.college}}student of <strong>{{data.college}}</strong>{{/if}}{{#if data.course}},
-      pursuing <strong>{{data.course}}{{#if data.branch}} — {{data.branch}}{{/if}}</strong>{{/if}},
-      has successfully completed an internship programme at <strong>{{company.name}}</strong>
-      {{#if data.department}}in the <strong>{{data.department}}</strong> department{{/if}}.
+      pursuing <strong>{{data.course}}{{#if data.branch}} &mdash; {{data.branch}}{{/if}}</strong>{{/if}},
+      has successfully completed an internship at <strong>{{company.name}}</strong>{{#if data.department}}
+      in the <strong>{{data.department}}</strong> department{{/if}}.
     </p>
   </div>
 
-  <!-- Details Table -->
+  <!-- Details table -->
   <table class="detail-table">
-    <tr><td>Internship Period</td><td><strong>{{data.from_date}}</strong> to <strong>{{data.to_date}}</strong> ({{data.duration_text}})</td></tr>
-    <tr><td>Department / Domain</td><td>{{data.department}}</td></tr>
-    {{#if data.roll_no}}<tr><td>Roll No / Register No</td><td>{{data.roll_no}}</td></tr>{{/if}}
-    {{#if data.project_title}}<tr><td>Project / Role</td><td>{{data.project_title}}</td></tr>{{/if}}
-    {{#if data.college}}<tr><td>Institution</td><td>{{data.college}}</td></tr>{{/if}}
-    {{#if data.course}}<tr><td>Course / Degree</td><td>{{data.course}}{{#if data.branch}} — {{data.branch}}{{/if}}</td></tr>{{/if}}
-    {{#if data.mentor_name}}<tr><td>Internship Mentor</td><td>{{data.mentor_name}}</td></tr>{{/if}}
+    <tr>
+      <td>Internship Period</td>
+      <td><strong>{{data.from_date}}</strong> to <strong>{{data.to_date}}</strong>{{#if data.duration_text}} &nbsp;({{data.duration_text}}){{/if}}</td>
+    </tr>
+    <tr>
+      <td>Department / Domain</td>
+      <td>{{data.department}}</td>
+    </tr>
+    {{#if data.roll_no}}
+    <tr>
+      <td>Roll No / Register No</td>
+      <td>{{data.roll_no}}</td>
+    </tr>
+    {{/if}}
+    {{#if data.project_title}}
+    <tr>
+      <td>Project / Role</td>
+      <td>{{data.project_title}}</td>
+    </tr>
+    {{/if}}
+    {{#if data.college}}
+    <tr>
+      <td>Institution</td>
+      <td>{{data.college}}</td>
+    </tr>
+    {{/if}}
+    {{#if data.course}}
+    <tr>
+      <td>Course / Degree</td>
+      <td>{{data.course}}{{#if data.branch}} &mdash; {{data.branch}}{{/if}}</td>
+    </tr>
+    {{/if}}
+    {{#if data.mentor_name}}
+    <tr>
+      <td>Internship Mentor</td>
+      <td>{{data.mentor_name}}</td>
+    </tr>
+    {{/if}}
   </table>
 
-  <!-- Performance -->
+  <!-- Performance badge -->
   {{#if data.performance}}
-  <p style="text-align:center; font-size:12px; color:#6b7280; margin-bottom:4px; font-weight:600;">PERFORMANCE RATING</p>
-  <div class="perf-block">
-    <span class="perf-badge perf-{{data.performance}}">★ {{data.performance}}</span>
+  <div class="perf-section">
+    <div class="perf-label">Performance Rating</div>
+    <span class="perf-badge perf-{{data.performance}}">&#9733; {{data.performance}}</span>
   </div>
   {{/if}}
 
-  <!-- Skills -->
+  <!-- Skills tags -->
   {{#if data.skills_arr}}
-  <p style="font-size:12px; font-weight:700; color:#4f46e5; margin-bottom:6px;">Skills & Technologies Learned</p>
-  <div class="skills-wrap">
-    {{#each data.skills_arr}}<span class="skill-tag">{{this}}</span>{{/each}}
+  <div class="skills-section">
+    <div class="skills-heading">Skills &amp; Technologies</div>
+    <div class="skills-wrap">
+      {{#each data.skills_arr}}<span class="skill-tag">{{this}}</span>{{/each}}
+    </div>
   </div>
   {{/if}}
 
@@ -143,31 +379,36 @@
   </div>
   {{/if}}
 
-  <!-- Closing -->
-  <div class="body-text" style="margin-top:16px;">
+  <!-- Closing paragraph (performance-based) -->
+  <div class="closing-text">
     <p>
-      During the internship, <strong>{{data.intern_name}}</strong> demonstrated
+      During the internship tenure, <strong>{{data.intern_name}}</strong> demonstrated
       {{#if data.performance}}
-        {{#if (eq data.performance "Excellent")}}exceptional dedication, outstanding technical skills, and a highly professional attitude{{/if}}
-        {{#if (eq data.performance "Good")}}good dedication, sound technical skills, and a professional attitude{{/if}}
-        {{#if (eq data.performance "Satisfactory")}}satisfactory performance and a willingness to learn{{/if}}
+        {{#if (eq data.performance "Excellent")}}exceptional dedication, outstanding technical aptitude, and a highly professional attitude. The quality of work delivered was commendable and above expectations{{/if}}
+        {{#if (eq data.performance "Good")}}good dedication, sound technical skills, and a consistently professional attitude throughout the engagement{{/if}}
+        {{#if (eq data.performance "Satisfactory")}}satisfactory commitment and a genuine willingness to learn and grow professionally{{/if}}
       {{else}}commendable dedication and a professional attitude{{/if}}.
-      We wish {{data.intern_name}} all the best in future endeavours.
+      We wish <strong>{{data.intern_name}}</strong> all the very best in all future academic
+      and professional endeavours.
     </p>
   </div>
 
-  <!-- Signature -->
+  <!-- Signature section: seal left + signature right -->
   <div class="sig-section">
     <div class="seal-block">
       {{#if company.stamp_url}}
-        <img src="{{company.stamp_url}}" />
+        <img src="{{company.stamp_url}}" alt="Company Seal" />
         <div class="seal-text">Company Seal</div>
       {{else}}
-        <div style="width:80px;height:80px;border:2px dashed #c4b5fd;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;color:#a5b4fc;text-align:center;padding:8px;">Company Seal</div>
+        <div class="seal-placeholder">Company<br/>Seal</div>
+        <div class="seal-text">Company Seal</div>
       {{/if}}
     </div>
+
     <div class="sig-block">
-      {{#if company.signature_url}}<img src="{{company.signature_url}}" />{{/if}}
+      {{#if company.signature_url}}
+        <img class="sig-img" src="{{company.signature_url}}" alt="Signature" />
+      {{/if}}
       <div class="sig-line">
         <div class="sig-name">{{company.signatory_name}}</div>
         <div class="sig-title">{{company.signatory_designation}}</div>
@@ -178,10 +419,13 @@
 
   <!-- Footer -->
   <div class="footer">
-    <strong>{{company.name}}</strong> | {{company.address}}{{#if company.city}}, {{company.city}}{{/if}} |
-    {{company.email}} | {{company.phone}}
+    <strong>{{company.name}}</strong> |
+    {{company.address}}{{#if company.city}}, {{company.city}}{{/if}} |
+    {{company.email}}{{#if company.phone}} | {{company.phone}}{{/if}}
   </div>
 
 </div>
 </div>
-</body></html>
+
+</body>
+</html>

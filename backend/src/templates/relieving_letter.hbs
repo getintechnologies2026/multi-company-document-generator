@@ -1,54 +1,292 @@
 <!DOCTYPE html>
-<html><head><meta charset="utf-8">
+<html>
+<head>
+<meta charset="utf-8">
 <style>
-  body { font-family: 'Segoe UI', Arial, sans-serif; color: #222; font-size: 13px; line-height: 1.7; margin: 0; }
-  .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #1e40af; padding-bottom: 12px; margin-bottom: 22px; }
-  .header img { max-height: 65px; max-width: 200px; }
-  .cinfo { text-align: right; font-size: 11px; color: #444; }
-  .cinfo .cname { font-size: 16px; font-weight: 700; color: #1e40af; }
-  h1.title { text-align: center; font-size: 18px; text-decoration: underline; margin: 18px 0 22px; letter-spacing: 1px; }
-  .meta { display: flex; justify-content: space-between; margin-bottom: 14px; font-size: 12px; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    color: #1c1917;
+    font-size: 13px;
+    line-height: 1.75;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* ── Top gradient bar ── */
+  .top-bar {
+    height: 8px;
+    background: linear-gradient(90deg, #881337, #f43f5e);
+  }
+
+  /* ── Header ── */
+  .header {
+    background: #fff1f2;
+    padding: 16px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #fecdd3;
+  }
+  .header .logo img { max-height: 65px; max-width: 200px; }
+  .header .logo .logo-text {
+    font-size: 22px;
+    font-weight: 800;
+    color: #be123c;
+  }
+  .header .company-info {
+    text-align: right;
+    font-size: 11px;
+    color: #57534e;
+  }
+  .header .company-info .cname {
+    font-size: 16px;
+    font-weight: 700;
+    color: #be123c;
+    margin-bottom: 2px;
+  }
+
+  /* ── Body ── */
+  .body {
+    padding: 20px 30px;
+  }
+
+  /* Meta row */
+  .meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    margin-bottom: 18px;
+    color: #44403c;
+  }
+
+  /* Pill title */
+  .title-pill {
+    text-align: center;
+    margin: 0 0 22px;
+  }
+  .title-pill span {
+    display: inline-block;
+    background: linear-gradient(90deg, #9f1239, #f43f5e);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 8px 36px;
+    border-radius: 50px;
+  }
+
+  /* Salutation */
+  .salutation { margin: 0 0 12px; font-size: 13px; }
+
+  /* Body paragraphs */
   p { margin: 10px 0; text-align: justify; }
-  .signature-block { margin-top: 50px; }
-  .signature-block img { max-height: 55px; }
-  .footer { margin-top: 30px; border-top: 1px solid #ccc; padding-top: 6px; text-align: center; font-size: 10px; color: #666; }
+
+  /* Employment details box */
+  .emp-box {
+    border-left: 4px solid #f43f5e;
+    background: #fff1f2;
+    border-radius: 0 6px 6px 0;
+    padding: 14px 18px;
+    margin: 18px 0;
+  }
+  .emp-box table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .emp-box table td {
+    padding: 5px 10px 5px 0;
+    vertical-align: top;
+  }
+  .emp-box table td:first-child {
+    color: #9f1239;
+    font-weight: 700;
+    width: 38%;
+    white-space: nowrap;
+  }
+  .emp-box table td:nth-child(2) {
+    color: #44403c;
+    font-weight: 600;
+  }
+
+  /* Signature block */
+  .signature-block {
+    margin-top: 40px;
+    text-align: right;
+  }
+  .signature-block .sig-for {
+    font-size: 12px;
+    color: #78716c;
+    margin-bottom: 4px;
+  }
+  .signature-block img.sig-img {
+    max-height: 55px;
+    display: block;
+    margin-left: auto;
+    margin-bottom: 2px;
+  }
+  .signature-block img.stamp-img {
+    max-height: 60px;
+    display: block;
+    margin-left: auto;
+    margin-bottom: 4px;
+    opacity: 0.85;
+  }
+  .signature-block .sig-name {
+    font-weight: 700;
+    font-size: 13px;
+    color: #1c1917;
+  }
+  .signature-block .sig-title {
+    font-size: 11px;
+    color: #78716c;
+  }
+
+  /* Footer */
+  .footer {
+    margin-top: 28px;
+    border-top: 2px solid #fecdd3;
+    padding: 8px 30px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: #a8a29e;
+    background: #fff1f2;
+  }
+  .footer .f-left { color: #be123c; font-weight: 600; }
 </style>
-</head><body>
+</head>
+<body>
 
+<!-- Top gradient bar -->
+<div class="top-bar"></div>
+
+<!-- Header -->
 <div class="header">
-  <div>
-    {{#if company.logo_url}}<img src="{{company.logo_url}}" />{{else}}<div style="font-size:20px;font-weight:700;color:#1e40af">{{company.name}}</div>{{/if}}
+  <div class="logo">
+    {{#if company.logo_url}}
+      <img src="{{company.logo_url}}" alt="{{company.name}}" />
+    {{else}}
+      <div class="logo-text">{{company.name}}</div>
+    {{/if}}
   </div>
-  <div class="cinfo">
+  <div class="company-info">
     <div class="cname">{{company.name}}</div>
-    <div>{{company.address}}{{#if company.city}}, {{company.city}}{{/if}} {{company.pincode}}</div>
-    <div>{{company.email}} | {{company.phone}}</div>
+    <div>{{company.address}}{{#if company.city}}, {{company.city}}{{/if}}{{#if company.state}}, {{company.state}}{{/if}}{{#if company.pincode}} — {{company.pincode}}{{/if}}</div>
+    {{#if company.email}}<div>{{company.email}}{{#if company.phone}} | {{company.phone}}{{/if}}</div>{{/if}}
+    {{#if company.website}}<div>{{company.website}}</div>{{/if}}
+    {{#if company.gstin}}<div>GSTIN: {{company.gstin}}</div>{{/if}}
   </div>
 </div>
 
-<div class="meta">
-  <div><strong>Ref:</strong> {{doc_number}}</div>
-  <div><strong>Date:</strong> {{today}}</div>
+<!-- Body -->
+<div class="body">
+
+  <!-- Meta: Ref + Date -->
+  <div class="meta">
+    <div><strong>Ref:</strong> {{doc_number}}</div>
+    <div><strong>Date:</strong> {{today}}</div>
+  </div>
+
+  <!-- Rose pill title -->
+  <div class="title-pill">
+    <span>Relieving Letter</span>
+  </div>
+
+  <!-- Salutation -->
+  <p class="salutation">Dear <strong>{{employee.full_name}}</strong>,</p>
+
+  <!-- Paragraph 1 -->
+  <p>
+    This has reference to your resignation from the services of <strong>{{company.name}}</strong>.
+    We acknowledge the receipt of your resignation and hereby relieve you from your duties
+    effective close of business hours on
+    <strong>{{#if employee.lwd_date}}{{formatDate employee.lwd_date}}{{else}}{{formatDate employee.date_of_leaving}}{{/if}}</strong>.
+  </p>
+
+  <!-- Employment details box -->
+  <div class="emp-box">
+    <table>
+      <tr>
+        <td>Employee Name</td>
+        <td>{{employee.full_name}}</td>
+      </tr>
+      <tr>
+        <td>Designation</td>
+        <td>{{employee.designation}}</td>
+      </tr>
+      <tr>
+        <td>Department</td>
+        <td>{{employee.department}}</td>
+      </tr>
+      <tr>
+        <td>Employee Code</td>
+        <td>{{employee.emp_code}}</td>
+      </tr>
+      <tr>
+        <td>Date of Joining</td>
+        <td>{{formatDate employee.date_of_joining}}</td>
+      </tr>
+      <tr>
+        <td>Last Working Day</td>
+        <td>{{#if employee.lwd_date}}{{formatDate employee.lwd_date}}{{else}}{{formatDate employee.date_of_leaving}}{{/if}}</td>
+      </tr>
+      {{#if employee.notice_period}}
+      <tr>
+        <td>Notice Period</td>
+        <td>{{employee.notice_period}}</td>
+      </tr>
+      {{/if}}
+    </table>
+  </div>
+
+  <!-- Paragraph 2 -->
+  <p>
+    You joined our organization on <strong>{{formatDate employee.date_of_joining}}</strong> and
+    last held the position of <strong>{{employee.designation}}</strong> in the
+    <strong>{{employee.department}}</strong> department.
+  </p>
+
+  <!-- Paragraph 3 -->
+  <p>
+    We confirm that you have completed the handover of all company assets, documents, access
+    credentials, and responsibilities entrusted to you during your tenure. As per our records,
+    there are no dues pending against you from the company. Your full and final settlement,
+    including any outstanding dues or reimbursements owed to you, will be processed in accordance
+    with the company policy and communicated to you separately.
+  </p>
+
+  <!-- Paragraph 4 -->
+  <p>
+    We sincerely appreciate your contributions and the valuable services you have rendered to
+    <strong>{{company.name}}</strong> during your association with us. We wish you every success
+    and the very best in all your future endeavours.
+  </p>
+
+  <!-- Signature block (right-aligned) -->
+  <div class="signature-block">
+    <div class="sig-for">For <strong>{{company.name}}</strong>,</div>
+    {{#if company.signature_url}}
+      <img class="sig-img" src="{{company.signature_url}}" alt="Signature" />
+    {{/if}}
+    {{#if company.stamp_url}}
+      <img class="stamp-img" src="{{company.stamp_url}}" alt="Company Seal" />
+    {{/if}}
+    <div class="sig-name">{{company.signatory_name}}</div>
+    <div class="sig-title">{{company.signatory_designation}}</div>
+    <div class="sig-title">{{company.name}}</div>
+  </div>
+
 </div>
 
-<h1 class="title">RELIEVING LETTER</h1>
-
-<p>Dear <strong>{{employee.full_name}}</strong>,</p>
-
-<p>This has reference to your resignation from the services of <strong>{{company.name}}</strong>. We acknowledge the receipt of your resignation and hereby relieve you from your duties effective close of business hours on <strong>{{formatDate employee.date_of_leaving}}</strong>.</p>
-
-<p>You joined our organization on <strong>{{formatDate employee.date_of_joining}}</strong> and last held the position of <strong>{{employee.designation}}</strong> in the <strong>{{employee.department}}</strong> department.</p>
-
-<p>We confirm that you have handed over all the company property, documents, and responsibilities entrusted to you, and there are no dues pending against you. Your full and final settlement will be processed as per company policy.</p>
-
-<p>We take this opportunity to thank you for your contribution and services rendered to the organization. We wish you all the best for your future endeavours.</p>
-
-<div class="signature-block">
-  <p>For <strong>{{company.name}}</strong>,</p>
-  {{#if company.signature_url}}<img src="{{company.signature_url}}" />{{/if}}
-  <div><strong>{{company.signatory_name}}</strong></div>
-  <div>{{company.signatory_designation}}</div>
+<!-- Footer -->
+<div class="footer">
+  <div class="f-left">{{company.name}}</div>
+  <div>{{company.address}}{{#if company.city}}, {{company.city}}{{/if}} | {{company.email}}{{#if company.phone}} | {{company.phone}}{{/if}}</div>
+  <div>Ref: {{doc_number}}</div>
 </div>
 
-<div class="footer">{{company.name}} | {{company.address}} | {{company.email}} | {{company.phone}}</div>
-</body></html>
+</body>
+</html>

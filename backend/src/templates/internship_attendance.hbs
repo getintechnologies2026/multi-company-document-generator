@@ -2,98 +2,113 @@
 <html><head><meta charset="utf-8">
 <style>
   * { box-sizing: border-box; }
-  body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a2e; font-size: 13px; line-height: 1.7; margin: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a1a; font-size: 13px; line-height: 1.7; margin: 0; padding: 0; }
 
-  /* Outer border frame */
-  .frame { border: 6px double #0891b2; padding: 6px; min-height: 96vh; display: flex; flex-direction: column; }
-  .inner { border: 2px solid #67e8f9; padding: 20px 28px; flex: 1; display: flex; flex-direction: column; }
+  /* ── Top colour bar ── */
+  .top-bar { height: 8px; background: linear-gradient(90deg, #0c4a6e, #38bdf8); }
 
-  /* Header */
-  .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #0891b2; padding-bottom: 14px; margin-bottom: 20px; }
+  /* ── Outer double-border frame ── */
+  .frame { border: 3px double #0369a1; margin: 8px; padding: 4px; min-height: calc(100vh - 24px); display: -webkit-box; display: flex; -webkit-box-orient: vertical; -webkit-box-direction: normal; flex-direction: column; }
+
+  /* ── Inner single-border ── */
+  .inner { border: 1px solid #bae6fd; padding: 20px 28px; -webkit-box-flex: 1; flex: 1; display: -webkit-box; display: flex; -webkit-box-orient: vertical; -webkit-box-direction: normal; flex-direction: column; }
+
+  /* ── Header ── */
+  .header { display: -webkit-box; display: flex; -webkit-box-pack: justify; justify-content: space-between; -webkit-box-align: center; align-items: center; background: #f0f9ff; border-bottom: 2px solid #bae6fd; padding: 12px 0 14px; margin-bottom: 20px; }
   .header .logo img { max-height: 65px; max-width: 200px; }
+  .header .logo .logo-text { font-size: 20px; font-weight: 700; color: #0369a1; }
   .header .company-info { text-align: right; font-size: 11px; color: #4b5563; }
-  .header .company-info .cname { font-size: 16px; font-weight: 700; color: #0e7490; }
+  .header .company-info .cname { font-size: 16px; font-weight: 800; color: #0369a1; }
 
-  /* Certificate title band */
-  .cert-band { background: linear-gradient(135deg, #0891b2, #0369a1); color: white; text-align: center; padding: 14px 0; border-radius: 10px; margin-bottom: 22px; }
-  .cert-band .cert-title { font-size: 22px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; }
-  .cert-band .cert-sub   { font-size: 11px; letter-spacing: 2px; opacity: 0.85; margin-top: 3px; }
+  /* ── Title band ── */
+  .title-band { background: linear-gradient(90deg, #0c4a6e, #38bdf8); color: #fff; text-align: center; padding: 16px 0 12px; border-radius: 8px; margin-bottom: 22px; }
+  .title-band .t-main { font-size: 22px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; }
+  .title-band .t-sub  { font-size: 11px; letter-spacing: 2px; opacity: 0.88; margin-top: 4px; }
 
-  /* Doc ref */
-  .ref-row { display: flex; justify-content: space-between; font-size: 11px; color: #6b7280; margin-bottom: 18px; }
+  /* ── Ref row ── */
+  .ref-row { display: -webkit-box; display: flex; -webkit-box-pack: justify; justify-content: space-between; font-size: 11px; color: #6b7280; margin-bottom: 18px; }
 
-  /* Body text */
-  .body-text { font-size: 13.5px; line-height: 1.9; text-align: justify; margin-bottom: 16px; }
-  .body-text strong { color: #1e3a4b; }
-  .highlight-name { font-size: 16px; font-weight: 700; color: #0891b2; }
+  /* ── Body text ── */
+  .body-text { font-size: 13.5px; line-height: 1.9; text-align: justify; margin-bottom: 14px; }
+  .body-text strong { color: #0c4a6e; }
+  .highlight-name { font-size: 16px; font-weight: 700; color: #0369a1; }
 
-  /* Details table */
+  /* ── Details table ── */
   .detail-table { width: 100%; border-collapse: collapse; margin: 12px 0; }
-  .detail-table tr td { padding: 6px 12px; font-size: 12px; border: 1px solid #cffafe; }
-  .detail-table tr:nth-child(even) td { background: #f0fdfe; }
-  .detail-table td:first-child { font-weight: 700; color: #0e7490; width: 38%; background: #e0f2fe; }
+  .detail-table td { padding: 7px 12px; font-size: 12px; border: 1px solid #bae6fd; }
+  .detail-table tr:nth-child(even) td { background: #f0f9ff; }
+  .detail-table td:first-child { font-weight: 700; color: #0369a1; width: 38%; background: #e0f2fe; }
 
-  /* Attendance summary cards */
-  .att-box { display: flex; justify-content: center; gap: 20px; margin: 16px 0; flex-wrap: wrap; }
-  .att-card { text-align: center; padding: 14px 20px; border-radius: 14px; min-width: 110px; }
-  .att-card .att-val  { font-size: 26px; font-weight: 800; }
-  .att-card .att-lbl  { font-size: 10px; font-weight: 600; letter-spacing: 0.5px; margin-top: 2px; }
-  .att-total   { background: #e0f2fe; color: #0369a1; border: 2px solid #7dd3fc; }
-  .att-present { background: #d1fae5; color: #065f46; border: 2px solid #6ee7b7; }
-  .att-absent  { background: #fee2e2; color: #991b1b; border: 2px solid #fca5a5; }
-  .att-pct     { background: #fef3c7; color: #92400e; border: 2px solid #fcd34d; }
+  /* ── Attendance summary cards — display:table layout for wkhtmltopdf ── */
+  .att-cards-wrap { display: table; width: 100%; border-collapse: separate; border-spacing: 10px; margin: 16px 0 6px; }
+  .att-cards-row  { display: table-row; }
+  .att-card       { display: table-cell; text-align: center; padding: 14px 8px; border-radius: 10px; vertical-align: middle; }
+  .att-card .att-val { font-size: 28px; font-weight: 800; display: block; }
+  .att-card .att-lbl { font-size: 10px; font-weight: 700; letter-spacing: 0.5px; margin-top: 3px; display: block; }
+  .card-total   { background: #e0f2fe; color: #0369a1; border: 2px solid #7dd3fc; }
+  .card-present { background: #dcfce7; color: #166534; border: 2px solid #86efac; }
+  .card-absent  { background: #fee2e2; color: #991b1b; border: 2px solid #fca5a5; }
+  .card-pct     { background: #fef9c3; color: #854d0e; border: 2px solid #fde047; }
 
-  /* Progress bar */
-  .bar-wrap { background: #e2e8f0; border-radius: 999px; height: 12px; margin: 6px 0 16px; overflow: hidden; }
-  .bar-fill  { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #0891b2, #38bdf8); }
+  /* ── Progress bar ── */
+  .bar-label { font-size: 11px; font-weight: 700; color: #0369a1; margin-bottom: 4px; }
+  .bar-wrap { background: #e2e8f0; border-radius: 999px; height: 14px; margin-bottom: 18px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #0369a1, #38bdf8); }
 
-  /* Date-wise attendance table */
-  .att-section-title { font-size: 12px; font-weight: 700; color: #0e7490; letter-spacing: 1px; text-align: center; text-transform: uppercase; margin: 16px 0 8px; }
-  .att-log-table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
-  .att-log-table thead tr { background: linear-gradient(135deg, #0891b2, #0369a1); color: white; }
-  .att-log-table thead th { padding: 7px 10px; font-weight: 700; text-align: center; border: 1px solid #0369a1; letter-spacing: 0.3px; }
-  .att-log-table thead th:last-child { text-align: left; }
-  .att-log-table tbody tr { border-bottom: 1px solid #e0f2fe; }
-  .att-log-table tbody tr:nth-child(even) { background: #f0fdfe; }
-  .att-log-table tbody tr.weekend-row { background: #fafafa; color: #9ca3af; }
-  .att-log-table tbody tr.absent-row { background: #fff5f5; }
-  .att-log-table tbody td { padding: 5px 10px; border: 1px solid #e2e8f0; text-align: center; }
-  .att-log-table tbody td:last-child { text-align: left; }
-  .badge-P { display:inline-block; background:#d1fae5; color:#065f46; border:1px solid #6ee7b7; border-radius:20px; padding:1px 10px; font-weight:700; font-size:10.5px; }
-  .badge-A { display:inline-block; background:#fee2e2; color:#991b1b; border:1px solid #fca5a5; border-radius:20px; padding:1px 10px; font-weight:700; font-size:10.5px; }
-  .badge-H { display:inline-block; background:#fef3c7; color:#92400e; border:1px solid #fcd34d; border-radius:20px; padding:1px 10px; font-weight:700; font-size:10.5px; }
-  .badge-W { display:inline-block; background:#f3f4f6; color:#6b7280; border:1px solid #d1d5db; border-radius:20px; padding:1px 10px; font-weight:700; font-size:10.5px; }
+  /* ── Attendance section title ── */
+  .section-title { font-size: 12px; font-weight: 800; color: #0369a1; letter-spacing: 1.5px; text-align: center; text-transform: uppercase; margin: 18px 0 8px; border-bottom: 1.5px solid #bae6fd; padding-bottom: 6px; }
 
-  /* Performance badge */
-  .perf-block { display: flex; justify-content: center; margin: 10px 0; }
-  .perf-badge { display: inline-block; padding: 7px 24px; border-radius: 30px; font-weight: 800; font-size: 13px; letter-spacing: 1px; }
-  .perf-Excellent { background: #d1fae5; color: #065f46; border: 2px solid #6ee7b7; }
-  .perf-Good      { background: #dbeafe; color: #1e40af; border: 2px solid #93c5fd; }
-  .perf-Satisfactory { background: #fef3c7; color: #92400e; border: 2px solid #fcd34d; }
+  /* ── Attendance log table ── */
+  .att-log { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+  .att-log thead tr { background: linear-gradient(90deg, #0c4a6e, #0369a1); color: #fff; }
+  .att-log thead th { padding: 8px 10px; font-weight: 700; text-align: center; border: 1px solid #075985; letter-spacing: 0.3px; }
+  .att-log thead th:last-child { text-align: left; }
+  .att-log tbody td { padding: 5px 10px; border: 1px solid #e0f2fe; text-align: center; vertical-align: middle; }
+  .att-log tbody td:last-child { text-align: left; }
+  .att-log tbody tr:nth-child(even) { background: #f0f9ff; }
+  .att-log tbody tr.absent-row  { background: #fff1f2; }
+  .att-log tbody tr.holiday-row { background: #fffbeb; }
+  .att-log tbody tr.weekend-row { background: #fafafa; color: #9ca3af; }
+
+  /* Status badges */
+  .badge-P { display: inline-block; background: #dcfce7; color: #166534; border: 1px solid #86efac; border-radius: 20px; padding: 1px 10px; font-weight: 700; font-size: 10.5px; white-space: nowrap; }
+  .badge-A { display: inline-block; background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; border-radius: 20px; padding: 1px 10px; font-weight: 700; font-size: 10.5px; white-space: nowrap; }
+  .badge-H { display: inline-block; background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; border-radius: 20px; padding: 1px 10px; font-weight: 700; font-size: 10.5px; white-space: nowrap; }
+  .badge-W { display: inline-block; background: #f3f4f6; color: #6b7280; border: 1px solid #d1d5db; border-radius: 20px; padding: 1px 10px; font-weight: 700; font-size: 10.5px; white-space: nowrap; }
+
+  /* ── Performance badge ── */
+  .perf-wrap { text-align: center; margin: 10px 0 14px; }
+  .perf-label { font-size: 11px; font-weight: 700; color: #0369a1; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+  .perf-badge { display: inline-block; padding: 7px 28px; border-radius: 30px; font-weight: 800; font-size: 13px; letter-spacing: 1px; }
+  .perf-Excellent      { background: #dcfce7; color: #166534; border: 2px solid #86efac; }
+  .perf-Good           { background: #dbeafe; color: #1e40af; border: 2px solid #93c5fd; }
+  .perf-Satisfactory   { background: #fef3c7; color: #92400e; border: 2px solid #fcd34d; }
   .perf-NeedsImprovement { background: #fee2e2; color: #991b1b; border: 2px solid #fca5a5; }
 
-  /* Topics tags */
-  .topics-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
-  .topic-tag { background: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc; border-radius: 20px; padding: 3px 12px; font-size: 11px; font-weight: 600; }
+  /* ── Topics pill tags (flex-wrap) ── */
+  .topics-wrap { display: -webkit-box; display: flex; -webkit-flex-wrap: wrap; flex-wrap: wrap; gap: 6px; margin: 8px 0 14px; }
+  .topic-pill { background: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc; border-radius: 20px; padding: 3px 12px; font-size: 11px; font-weight: 600; }
 
-  /* Signature */
-  .sig-section { margin-top: 30px; display: flex; justify-content: space-between; align-items: flex-end; }
+  /* ── Signature ── */
+  .sig-section { margin-top: auto; padding-top: 28px; display: -webkit-box; display: flex; -webkit-box-pack: justify; justify-content: space-between; -webkit-box-align: end; align-items: flex-end; }
   .sig-block { text-align: center; min-width: 180px; }
   .sig-block img { max-height: 55px; margin-bottom: 4px; }
   .sig-line { border-top: 1.5px solid #374151; padding-top: 6px; margin-top: 6px; }
   .sig-name  { font-weight: 700; font-size: 13px; }
   .sig-title { font-size: 11px; color: #6b7280; }
-
-  /* Seal area */
   .seal-block { text-align: center; }
   .seal-block img { max-height: 70px; }
-  .seal-block .seal-text { font-size: 10px; color: #9ca3af; margin-top: 4px; }
+  .seal-text { font-size: 10px; color: #9ca3af; margin-top: 4px; }
+  .seal-placeholder { width: 80px; height: 80px; border: 2px dashed #bae6fd; border-radius: 50%; display: -webkit-box; display: flex; -webkit-box-align: center; align-items: center; -webkit-box-pack: center; justify-content: center; font-size: 9px; color: #38bdf8; text-align: center; padding: 8px; }
 
-  /* Footer */
-  .footer { margin-top: 20px; border-top: 2px solid #67e8f9; padding-top: 8px; text-align: center; font-size: 10px; color: #9ca3af; }
-  .footer strong { color: #0891b2; }
+  /* ── Footer ── */
+  .footer { margin-top: 20px; border-top: 2px solid #bae6fd; padding-top: 8px; text-align: center; font-size: 10px; color: #9ca3af; }
+  .footer strong { color: #0369a1; }
 </style>
-</head><body>
+</head>
+<body>
+
+<div class="top-bar"></div>
 
 <div class="frame">
 <div class="inner">
@@ -101,7 +116,11 @@
   <!-- Header -->
   <div class="header">
     <div class="logo">
-      {{#if company.logo_url}}<img src="{{company.logo_url}}" />{{else}}<div style="font-size:20px;font-weight:700;color:#0891b2">{{company.name}}</div>{{/if}}
+      {{#if company.logo_url}}
+        <img src="{{company.logo_url}}" alt="{{company.name}}" />
+      {{else}}
+        <div class="logo-text">{{company.name}}</div>
+      {{/if}}
     </div>
     <div class="company-info">
       <div class="cname">{{company.name}}</div>
@@ -112,18 +131,18 @@
   </div>
 
   <!-- Title Band -->
-  <div class="cert-band">
-    <div class="cert-title">Internship Attendance Certificate</div>
-    <div class="cert-sub">Certificate of Internship Attendance Record</div>
+  <div class="title-band">
+    <div class="t-main">Internship Attendance Certificate</div>
+    <div class="t-sub">Official Attendance Record</div>
   </div>
 
-  <!-- Ref & Date -->
+  <!-- Ref Row -->
   <div class="ref-row">
-    <span>Ref: <strong>{{doc_number}}</strong></span>
+    <span>Ref No: <strong>{{doc_number}}</strong></span>
     <span>Date: <strong>{{data.issue_date}}</strong></span>
   </div>
 
-  <!-- Body -->
+  <!-- Body Certification Text -->
   <div class="body-text">
     <p>This is to certify that</p>
     <p style="text-align:center; margin: 8px 0;">
@@ -131,65 +150,72 @@
     </p>
     <p>
       {{#if data.college}}student of <strong>{{data.college}}</strong>{{/if}}{{#if data.course}},
-      pursuing <strong>{{data.course}}{{#if data.branch}} — {{data.branch}}{{/if}}</strong>{{/if}},
+      pursuing <strong>{{data.course}}{{#if data.branch}} &mdash; {{data.branch}}{{/if}}</strong>{{/if}},
       has completed an internship programme at <strong>{{company.name}}</strong>
       {{#if data.department}}in the <strong>{{data.department}}</strong> department{{/if}}
-      from <strong>{{data.from_date}}</strong> to <strong>{{data.to_date}}</strong> ({{data.duration_text}}).
+      from <strong>{{data.from_date}}</strong> to <strong>{{data.to_date}}</strong>{{#if data.duration_text}} ({{data.duration_text}}){{/if}}.
+      The attendance record for the internship period is certified as follows.
     </p>
   </div>
 
   <!-- Details Table -->
   <table class="detail-table">
-    <tr><td>Internship Period</td><td><strong>{{data.from_date}}</strong> to <strong>{{data.to_date}}</strong> ({{data.duration_text}})</td></tr>
-    <tr><td>Department / Domain</td><td>{{data.department}}</td></tr>
+    <tr><td>Intern Name</td><td><strong>{{data.intern_name}}</strong></td></tr>
     {{#if data.roll_no}}<tr><td>Roll No / Register No</td><td>{{data.roll_no}}</td></tr>{{/if}}
     {{#if data.college}}<tr><td>Institution</td><td>{{data.college}}</td></tr>{{/if}}
-    {{#if data.course}}<tr><td>Course / Degree</td><td>{{data.course}}{{#if data.branch}} — {{data.branch}}{{/if}}</td></tr>{{/if}}
-    {{#if data.mentor_name}}<tr><td>Internship Mentor</td><td>{{data.mentor_name}}</td></tr>{{/if}}
+    {{#if data.course}}<tr><td>Course / Degree</td><td>{{data.course}}{{#if data.branch}} &mdash; {{data.branch}}{{/if}}</td></tr>{{/if}}
+    <tr><td>Department / Domain</td><td>{{data.department}}</td></tr>
+    <tr><td>Internship Period</td><td><strong>{{data.from_date}}</strong> to <strong>{{data.to_date}}</strong>{{#if data.duration_text}} ({{data.duration_text}}){{/if}}</td></tr>
+    {{#if data.mentor_name}}<tr><td>Reporting To</td><td>{{data.mentor_name}}</td></tr>{{/if}}
   </table>
 
-  <!-- Attendance Summary Cards -->
-  <p class="att-section-title">Attendance Summary</p>
-  <div class="att-box">
-    <div class="att-card att-total">
-      <div class="att-val">{{data.total_working_days}}</div>
-      <div class="att-lbl">Working Days</div>
-    </div>
-    <div class="att-card att-present">
-      <div class="att-val">{{data.days_present}}</div>
-      <div class="att-lbl">Days Present</div>
-    </div>
-    <div class="att-card att-absent">
-      <div class="att-val">{{data.days_absent}}</div>
-      <div class="att-lbl">Days Absent</div>
-    </div>
-    <div class="att-card att-pct">
-      <div class="att-val">{{data.attendance_pct}}%</div>
-      <div class="att-lbl">Attendance</div>
+  <!-- Attendance Summary Section -->
+  <div class="section-title">Attendance Summary</div>
+
+  <!-- 4 Cards using display:table for wkhtmltopdf -->
+  <div class="att-cards-wrap">
+    <div class="att-cards-row">
+      <div class="att-card card-total">
+        <span class="att-val">{{data.total_working_days}}</span>
+        <span class="att-lbl">Working Days</span>
+      </div>
+      <div class="att-card card-present">
+        <span class="att-val">{{data.days_present}}</span>
+        <span class="att-lbl">Days Present</span>
+      </div>
+      <div class="att-card card-absent">
+        <span class="att-val">{{data.days_absent}}</span>
+        <span class="att-lbl">Days Absent</span>
+      </div>
+      <div class="att-card card-pct">
+        <span class="att-val">{{data.attendance_pct}}%</span>
+        <span class="att-lbl">Attendance %</span>
+      </div>
     </div>
   </div>
 
-  <!-- Progress bar -->
+  <!-- Progress Bar -->
+  <div class="bar-label">Attendance: {{data.attendance_pct}}%</div>
   <div class="bar-wrap">
     <div class="bar-fill" style="width: {{data.attendance_pct}}%;"></div>
   </div>
 
-  <!-- Date-wise Attendance Log -->
+  <!-- Date-wise Attendance Table -->
   {{#if data.attendance_records}}
-  <p class="att-section-title">Day-wise Attendance Register</p>
-  <table class="att-log-table">
+  <div class="section-title">Date-wise Attendance Register</div>
+  <table class="att-log">
     <thead>
       <tr>
-        <th style="width:6%">S.No</th>
-        <th style="width:20%">Date</th>
-        <th style="width:14%">Day</th>
-        <th style="width:12%">Status</th>
+        <th style="width:5%">S.No</th>
+        <th style="width:18%">Date</th>
+        <th style="width:12%">Day</th>
+        <th style="width:13%">Status</th>
         <th>Topics Covered</th>
       </tr>
     </thead>
     <tbody>
       {{#each data.attendance_records}}
-      <tr class="{{#if (eq this.status 'A')}}absent-row{{/if}}{{#if (eq this.status 'W')}}weekend-row{{/if}}{{#if (eq this.status 'H')}}weekend-row{{/if}}">
+      <tr class="{{#if (eq this.status 'A')}}absent-row{{/if}}{{#if (eq this.status 'H')}}holiday-row{{/if}}{{#if (eq this.status 'W')}}weekend-row{{/if}}">
         <td>{{inc @index}}</td>
         <td>{{this.display_date}}</td>
         <td>{{this.day}}</td>
@@ -206,46 +232,46 @@
   </table>
   {{/if}}
 
-  <!-- Performance Rating -->
+  <!-- Performance Badge -->
   {{#if data.performance}}
-  <p style="text-align:center; font-size:11px; font-weight:700; color:#0e7490; letter-spacing:1px; margin: 14px 0 4px;">PERFORMANCE RATING</p>
-  <div class="perf-block">
-    <span class="perf-badge perf-{{data.performance}}">★ {{data.performance}}</span>
+  <div class="perf-wrap">
+    <div class="perf-label">Performance Rating</div>
+    <span class="perf-badge perf-{{data.performance}}">&#9733; {{data.performance}}</span>
   </div>
   {{/if}}
 
-  <!-- Topics Covered (summary) -->
+  <!-- Topics Covered -->
   {{#if data.topics_arr}}
-  <p style="font-size:12px; font-weight:700; color:#0e7490; margin: 12px 0 6px;">Topics Covered During Internship</p>
+  <div style="font-size:12px; font-weight:700; color:#0369a1; margin: 10px 0 6px;">Topics Covered During Internship</div>
   <div class="topics-wrap">
-    {{#each data.topics_arr}}<span class="topic-tag">{{this}}</span>{{/each}}
+    {{#each data.topics_arr}}<span class="topic-pill">{{this}}</span>{{/each}}
   </div>
   {{/if}}
 
-  <!-- Closing -->
-  <div class="body-text" style="margin-top:14px;">
+  <!-- Closing Para -->
+  <div class="body-text" style="margin-top: 14px;">
     <p>
-      During the internship period, <strong>{{data.intern_name}}</strong> maintained an attendance of
-      <strong>{{data.attendance_pct}}%</strong> (<strong>{{data.days_present}}</strong> present out of
-      <strong>{{data.total_working_days}}</strong> working days{{#if data.days_absent}},
-      <strong>{{data.days_absent}}</strong> absent{{/if}}).
-      {{#if data.remarks}}{{data.remarks}}{{/if}}
+      During the internship period, <strong>{{data.intern_name}}</strong>'s performance was
+      {{#if data.performance}}<strong>{{data.performance}}</strong>{{else}}satisfactory{{/if}}.
+      A total attendance of <strong>{{data.attendance_pct}}%</strong> was recorded
+      (<strong>{{data.days_present}}</strong> days present out of <strong>{{data.total_working_days}}</strong>
+      working days{{#if data.days_absent}}, with <strong>{{data.days_absent}}</strong> day(s) absent{{/if}}).
+      This certificate is issued upon request and for official / academic record purposes only.
     </p>
-    <p>This certificate is issued upon request for official purposes.</p>
   </div>
 
-  <!-- Signature -->
+  <!-- Signature Section -->
   <div class="sig-section">
     <div class="seal-block">
       {{#if company.stamp_url}}
-        <img src="{{company.stamp_url}}" />
+        <img src="{{company.stamp_url}}" alt="Company Seal" />
         <div class="seal-text">Company Seal</div>
       {{else}}
-        <div style="width:80px;height:80px;border:2px dashed #67e8f9;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;color:#67e8f9;text-align:center;padding:8px;">Company Seal</div>
+        <div class="seal-placeholder">Company<br>Seal</div>
       {{/if}}
     </div>
     <div class="sig-block">
-      {{#if company.signature_url}}<img src="{{company.signature_url}}" />{{/if}}
+      {{#if company.signature_url}}<img src="{{company.signature_url}}" alt="Signature" />{{/if}}
       <div class="sig-line">
         <div class="sig-name">{{company.signatory_name}}</div>
         <div class="sig-title">{{company.signatory_designation}}</div>
@@ -256,10 +282,11 @@
 
   <!-- Footer -->
   <div class="footer">
-    <strong>{{company.name}}</strong> | {{company.address}}{{#if company.city}}, {{company.city}}{{/if}} |
-    {{company.email}} | {{company.phone}}
+    <strong>{{company.name}}</strong> &nbsp;|&nbsp; {{company.address}}{{#if company.city}}, {{company.city}}{{/if}}{{#if company.state}}, {{company.state}}{{/if}} &nbsp;|&nbsp;
+    {{company.email}} &nbsp;|&nbsp; {{company.phone}}
   </div>
 
-</div>
-</div>
+</div><!-- /.inner -->
+</div><!-- /.frame -->
+
 </body></html>
