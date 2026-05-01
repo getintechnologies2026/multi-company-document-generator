@@ -22,8 +22,17 @@ export const AuthProvider = ({ children }) => {
     window.location.href = '/login';
   };
 
+  // Returns true if user has permission for a feature key
+  // super_admin always has access to everything
+  const hasPermission = (key) => {
+    if (!user) return false;
+    if (user.role === 'super_admin') return true;
+    if (!user.permissions) return true; // legacy users without permissions get full access
+    return !!user.permissions[key];
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, loading, hasPermission }}>
       {children}
     </AuthContext.Provider>
   );

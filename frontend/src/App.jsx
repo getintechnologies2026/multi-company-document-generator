@@ -12,11 +12,19 @@ import BulkPayslips from './pages/BulkPayslips';
 import TNSalaryCalculator from './pages/TNSalaryCalculator';
 import Documents from './pages/Documents';
 import InternshipCertificate from './pages/InternshipCertificate';
+import UsersPage from './pages/Users';
 import { useAuth } from './context/AuthContext';
 
 function PrivateRoute({ children }) {
   const { user } = useAuth();
   return user ? children : <Navigate to="/login" />;
+}
+
+function AdminRoute({ children }) {
+  const { user } = useAuth();
+  if (!user) return <Navigate to="/login" />;
+  if (user.role !== 'super_admin') return <Navigate to="/" />;
+  return children;
 }
 
 export default function App() {
@@ -38,6 +46,7 @@ export default function App() {
         <Route path="generate/:type" element={<Generate />} />
         <Route path="documents" element={<Documents />} />
         <Route path="internship-certificate" element={<InternshipCertificate />} />
+        <Route path="users" element={<AdminRoute><UsersPage /></AdminRoute>} />
       </Route>
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>

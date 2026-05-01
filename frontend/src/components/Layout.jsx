@@ -1,25 +1,32 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Building2, Users, FileText, FilePlus,
-  Layers, CreditCard, Calculator, LogOut, TrendingUp, GraduationCap
+  Layers, CreditCard, Calculator, LogOut, TrendingUp, GraduationCap, Shield
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-const links = [
-  { to: '/',                           label: 'Dashboard',           icon: LayoutDashboard, end: true,  color: 'text-blue-300' },
-  { to: '/companies',                  label: 'Companies',           icon: Building2,                   color: 'text-violet-300' },
-  { to: '/employees',                  label: 'Employees',           icon: Users,                       color: 'text-emerald-300' },
-  { to: '/generate-all',               label: 'Generate All',        icon: Layers,                      color: 'text-pink-300' },
-  { to: '/generate/salary_increment',  label: 'Increment Letter',    icon: TrendingUp,                  color: 'text-teal-300' },
-  { to: '/bulk-payslips',              label: 'Bulk Payslips',       icon: CreditCard,                  color: 'text-amber-300' },
-  { to: '/tn-salary',                  label: 'TN Salary Calc',      icon: Calculator,                  color: 'text-cyan-300' },
-  { to: '/internship-certificate',     label: 'Internship Cert',     icon: GraduationCap,               color: 'text-purple-300' },
-  { to: '/generate',                   label: 'Single Document',     icon: FilePlus,                    color: 'text-orange-300' },
-  { to: '/documents',                  label: 'Documents',           icon: FileText,                    color: 'text-rose-300' },
+// permKey = null means always visible (no permission check)
+const ALL_LINKS = [
+  { to: '/',                           label: 'Dashboard',           icon: LayoutDashboard, end: true,  color: 'text-blue-300',   permKey: null },
+  { to: '/companies',                  label: 'Companies',           icon: Building2,                   color: 'text-violet-300', permKey: 'manage_companies' },
+  { to: '/employees',                  label: 'Employees',           icon: Users,                       color: 'text-emerald-300',permKey: 'manage_employees' },
+  { to: '/generate-all',               label: 'Generate All',        icon: Layers,                      color: 'text-pink-300',   permKey: 'generate_all' },
+  { to: '/generate/salary_increment',  label: 'Increment Letter',    icon: TrendingUp,                  color: 'text-teal-300',   permKey: 'salary_increment' },
+  { to: '/bulk-payslips',              label: 'Bulk Payslips',       icon: CreditCard,                  color: 'text-amber-300',  permKey: 'bulk_payslips' },
+  { to: '/tn-salary',                  label: 'TN Salary Calc',      icon: Calculator,                  color: 'text-cyan-300',   permKey: 'tn_salary' },
+  { to: '/internship-certificate',     label: 'Internship Cert',     icon: GraduationCap,               color: 'text-purple-300', permKey: 'internship_cert' },
+  { to: '/generate',                   label: 'Single Document',     icon: FilePlus,                    color: 'text-orange-300', permKey: 'generate_documents' },
+  { to: '/documents',                  label: 'Documents',           icon: FileText,                    color: 'text-rose-300',   permKey: 'view_documents' },
 ];
 
+// Only super_admin sees User Management
+const ADMIN_LINK = { to: '/users', label: 'User Management', icon: Shield, color: 'text-yellow-300', permKey: null };
+
 export default function Layout() {
-  const { user, logout } = useAuth();
+  const { user, logout, hasPermission } = useAuth();
+
+  const visibleLinks = ALL_LINKS.filter(l => l.permKey === null || hasPermission(l.permKey));
+  const showAdmin = user?.role === 'super_admin';
 
   return (
     <div className="min-h-screen flex">
@@ -43,7 +50,7 @@ export default function Layout() {
 
         {/* Nav */}
         <nav className="flex-1 px-2 py-3 space-y-0.5 overflow-y-auto">
-          {links.map(({ to, label, icon: Icon, end, color }) => (
+          {visibleLinks.map(({ to, label, icon: Icon, end, color }) => (
             <NavLink key={to} to={to} end={end}
               className={({ isActive }) =>
                 `flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs font-medium transition-all ${
@@ -60,6 +67,30 @@ export default function Layout() {
               )}
             </NavLink>
           ))}
+
+          {/* Super Admin section */}
+          {showAdmin && (
+            <>
+              <div className="pt-2 pb-1 px-2.5">
+                <p className="text-[9px] font-bold text-white/30 uppercase tracking-widest">Admin</p>
+              </div>
+              <NavLink to={ADMIN_LINK.to}
+                className={({ isActive }) =>
+                  `flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs font-medium transition-all ${
+                    isActive
+                      ? 'bg-yellow-400/20 text-yellow-200 shadow-sm'
+                      : 'text-white/60 hover:bg-white/8 hover:text-white/90'
+                  }`
+                }>
+                {({ isActive }) => (
+                  <>
+                    <Shield size={14} className={isActive ? 'text-yellow-300' : ADMIN_LINK.color} />
+                    <span className="truncate">{ADMIN_LINK.label}</span>
+                  </>
+                )}
+              </NavLink>
+            </>
+          )}
         </nav>
 
         {/* User */}

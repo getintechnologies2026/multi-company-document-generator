@@ -6,8 +6,11 @@ const { generatePDF, createBrowser } = require('../utils/pdfGenerator');
 
 exports.list = async (req, res) => {
     const { company_id, doc_type, employee_id, search } = req.query;
-    let sql = `SELECT d.*, c.name as company_name
-               FROM documents d LEFT JOIN companies c ON d.company_id = c.id WHERE 1=1`;
+    let sql = `SELECT d.*, c.name as company_name, u.name as created_by_name
+               FROM documents d
+               LEFT JOIN companies c ON d.company_id = c.id
+               LEFT JOIN users u ON d.created_by = u.id
+               WHERE 1=1`;
     const params = [];
     if (company_id) { sql += ' AND d.company_id = ?'; params.push(company_id); }
     if (doc_type) { sql += ' AND d.doc_type = ?'; params.push(doc_type); }

@@ -33,9 +33,11 @@ exports.login = async (req, res) => {
             process.env.JWT_SECRET || 'secret',
             { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
         );
+        const permissions = user.permissions ? JSON.parse(user.permissions) : null;
         res.json({
             token,
-            user: { id: user.id, name: user.name, email: user.email, role: user.role, company_id: user.company_id }
+            user: { id: user.id, name: user.name, email: user.email, role: user.role,
+                    company_id: user.company_id, permissions }
         });
     } catch (e) {
         res.status(500).json({ error: e.message });
@@ -43,6 +45,12 @@ exports.login = async (req, res) => {
 };
 
 exports.me = async (req, res) => {
-    const [rows] = await db.query('SELECT id, name, email, role, company_id FROM users WHERE id = ?', [req.user.id]);
-    res.json(rows[0] || null);
+    const [rows] = await db.query(
+        'SELECT id, name, email, role, company_id, permissions FROM users WHERE id = ?',
+        [req.user.id]
+    );
+    if (!rows[0]) return res.json(null);
+    const u = rows[0];
+    u.permissions = u.permissions ? JSON.parse(u.permissions) : null;
+    res.json(u);
 };

@@ -9,6 +9,7 @@ const employeeRoutes = require('./src/routes/employee.routes');
 const documentRoutes = require('./src/routes/document.routes');
 const dashboardRoutes = require('./src/routes/dashboard.routes');
 const salaryRoutes    = require('./src/routes/salary.routes');
+const userRoutes      = require('./src/routes/user.routes');
 
 const app = express();
 
@@ -27,6 +28,7 @@ app.use('/api/employees', employeeRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/salary',   salaryRoutes);
+app.use('/api/users',    userRoutes);
 
 app.get('/', (req, res) => {
     res.json({ message: 'Doc Software API is running', version: '1.0.0' });

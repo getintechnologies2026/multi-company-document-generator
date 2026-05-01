@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS users (
     role ENUM('super_admin','company_admin','hr','viewer') DEFAULT 'hr',
     company_id INT NULL,
     is_active TINYINT(1) DEFAULT 1,
+    permissions JSON DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
