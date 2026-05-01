@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a2e; font-size: 13px; line-height: 1.7; margin: 0; }
+
+  .frame { border: 6px double #d97706; padding: 6px; min-height: 96vh; display: flex; flex-direction: column; }
+  .inner { border: 2px solid #fcd34d; padding: 20px 28px; flex: 1; display: flex; flex-direction: column; }
+
+  .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #d97706; padding-bottom: 14px; margin-bottom: 20px; }
+  .header .logo img { max-height: 65px; max-width: 200px; }
+  .header .company-info { text-align: right; font-size: 11px; color: #4b5563; }
+  .header .company-info .cname { font-size: 16px; font-weight: 700; color: #b45309; }
+
+  .cert-band { background: linear-gradient(135deg, #d97706, #ea580c); color: white; text-align: center; padding: 14px 0; border-radius: 10px; margin-bottom: 22px; }
+  .cert-band .cert-title { font-size: 22px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; }
+  .cert-band .cert-sub   { font-size: 11px; letter-spacing: 2px; opacity: 0.85; margin-top: 3px; }
+
+  .ref-row { display: flex; justify-content: space-between; font-size: 11px; color: #6b7280; margin-bottom: 18px; }
+
+  .body-text { font-size: 13.5px; line-height: 1.9; text-align: justify; margin-bottom: 16px; }
+  .body-text strong { color: #78350f; }
+  .highlight-name { font-size: 16px; font-weight: 700; color: #d97706; }
+
+  .addr-block { font-size: 12px; color: #374151; margin-bottom: 16px; line-height: 1.7; }
+  .addr-block .salute { font-size: 13.5px; font-weight: 600; margin-top: 8px; }
+
+  .detail-table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+  .detail-table tr td { padding: 7px 12px; font-size: 12px; border: 1px solid #fde68a; }
+  .detail-table tr:nth-child(even) td { background: #fffbeb; }
+  .detail-table td:first-child { font-weight: 700; color: #b45309; width: 38%; background: #fef3c7; }
+
+  .terms-box { background: #fffbeb; border-left: 4px solid #d97706; border-radius: 6px; padding: 10px 14px; margin: 12px 0; font-size: 12px; color: #374151; }
+  .terms-box ul { margin: 6px 0; padding-left: 16px; }
+  .terms-box li { margin-bottom: 3px; }
+
+  .sig-section { margin-top: 40px; display: flex; justify-content: space-between; align-items: flex-end; }
+  .sig-block { text-align: center; min-width: 180px; }
+  .sig-block img { max-height: 55px; margin-bottom: 4px; }
+  .sig-line { border-top: 1.5px solid #374151; padding-top: 6px; margin-top: 6px; }
+  .sig-name  { font-weight: 700; font-size: 13px; }
+  .sig-title { font-size: 11px; color: #6b7280; }
+
+  .seal-block { text-align: center; }
+  .seal-block img { max-height: 70px; }
+  .seal-block .seal-text { font-size: 10px; color: #9ca3af; margin-top: 4px; }
+
+  .accept-block { margin-top: 20px; border: 1.5px dashed #d97706; border-radius: 8px; padding: 12px 16px; font-size: 12px; color: #374151; }
+  .accept-block .accept-title { font-weight: 700; color: #b45309; margin-bottom: 6px; }
+  .accept-block .sign-line { margin-top: 24px; display: flex; gap: 48px; }
+  .accept-block .sign-field { flex: 1; border-top: 1px solid #9ca3af; padding-top: 4px; font-size: 10px; color: #6b7280; }
+
+  .footer { margin-top: 24px; border-top: 2px solid #fcd34d; padding-top: 8px; text-align: center; font-size: 10px; color: #9ca3af; }
+  .footer strong { color: #d97706; }
+</style>
+</head><body>
+
+<div class="frame">
+<div class="inner">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">
+      {{#if company.logo_url}}<img src="{{company.logo_url}}" />{{else}}<div style="font-size:20px;font-weight:700;color:#d97706">{{company.name}}</div>{{/if}}
+    </div>
+    <div class="company-info">
+      <div class="cname">{{company.name}}</div>
+      <div>{{company.address}}{{#if company.city}}, {{company.city}}{{/if}}{{#if company.state}}, {{company.state}}{{/if}}</div>
+      <div>{{company.email}} | {{company.phone}}</div>
+      {{#if company.website}}<div>{{company.website}}</div>{{/if}}
+    </div>
+  </div>
+
+  <!-- Title Band -->
+  <div class="cert-band">
+    <div class="cert-title">Internship Offer Letter</div>
+    <div class="cert-sub">Official Offer for Internship Programme</div>
+  </div>
+
+  <!-- Ref & Date -->
+  <div class="ref-row">
+    <span>Ref: <strong>{{doc_number}}</strong></span>
+    <span>Date: <strong>{{data.issue_date}}</strong></span>
+  </div>
+
+  <!-- Addressee -->
+  <div class="addr-block">
+    <strong>To,</strong><br>
+    <strong>{{data.intern_name}}</strong><br>
+    {{#if data.roll_no}}<span>Roll No: {{data.roll_no}}</span><br>{{/if}}
+    {{#if data.college}}{{data.college}}{{/if}}
+    {{#if data.course}}<br>{{data.course}}{{#if data.branch}} ({{data.branch}}){{/if}}{{/if}}
+    <div class="salute">Dear {{data.intern_name}},</div>
+  </div>
+
+  <!-- Body -->
+  <div class="body-text">
+    <p>
+      We are pleased to offer you an internship at <strong>{{company.name}}</strong>
+      {{#if data.department}}in the <strong>{{data.department}}</strong> department{{/if}}.
+      We were impressed with your profile and believe you will make a valuable contribution to our team.
+    </p>
+    <p>
+      Your internship is scheduled to commence on <strong>{{data.from_date}}</strong> and conclude on
+      <strong>{{data.to_date}}</strong>{{#if data.duration_text}} ({{data.duration_text}}){{/if}}.
+      Please find the details of your internship offer below.
+    </p>
+  </div>
+
+  <!-- Details Table -->
+  <table class="detail-table">
+    <tr><td>Intern Name</td><td><strong>{{data.intern_name}}</strong></td></tr>
+    {{#if data.roll_no}}<tr><td>Roll No / Register No</td><td>{{data.roll_no}}</td></tr>{{/if}}
+    {{#if data.college}}<tr><td>Institution</td><td>{{data.college}}</td></tr>{{/if}}
+    {{#if data.course}}<tr><td>Course / Degree</td><td>{{data.course}}{{#if data.branch}} — {{data.branch}}{{/if}}</td></tr>{{/if}}
+    <tr><td>Department / Domain</td><td>{{data.department}}</td></tr>
+    {{#if data.project_title}}<tr><td>Project / Role</td><td>{{data.project_title}}</td></tr>{{/if}}
+    <tr><td>Internship Start Date</td><td><strong>{{data.from_date}}</strong></td></tr>
+    <tr><td>Internship End Date</td><td><strong>{{data.to_date}}</strong></td></tr>
+    <tr><td>Duration</td><td>{{data.duration_text}}</td></tr>
+    {{#if data.stipend}}<tr><td>Monthly Stipend</td><td><strong>₹{{data.stipend}}</strong> per month</td></tr>{{/if}}
+    {{#if data.mentor_name}}<tr><td>Reporting To</td><td>{{data.mentor_name}}</td></tr>{{/if}}
+    <tr><td>Work Location</td><td>{{company.address}}{{#if company.city}}, {{company.city}}{{/if}}</td></tr>
+  </table>
+
+  <!-- Terms -->
+  <div class="terms-box">
+    <strong>Terms & Conditions:</strong>
+    <ul>
+      <li>This internship is for academic / training purposes and does not constitute employment.</li>
+      <li>You are expected to maintain professional conduct and adhere to company policies.</li>
+      <li>The internship may be terminated by either party with reasonable prior notice.</li>
+      {{#if data.joining_instructions}}<li>{{data.joining_instructions}}</li>{{/if}}
+    </ul>
+  </div>
+
+  <div class="body-text">
+    <p>
+      We look forward to welcoming you to <strong>{{company.name}}</strong>.
+      Please confirm your acceptance by signing the duplicate copy of this letter and returning it to us at the earliest.
+    </p>
+  </div>
+
+  <!-- Signature -->
+  <div class="sig-section">
+    <div class="seal-block">
+      {{#if company.stamp_url}}
+        <img src="{{company.stamp_url}}" />
+        <div class="seal-text">Company Seal</div>
+      {{else}}
+        <div style="width:80px;height:80px;border:2px dashed #fcd34d;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fcd34d;text-align:center;padding:8px;">Company Seal</div>
+      {{/if}}
+    </div>
+    <div class="sig-block">
+      {{#if company.signature_url}}<img src="{{company.signature_url}}" />{{/if}}
+      <div class="sig-line">
+        <div class="sig-name">{{company.signatory_name}}</div>
+        <div class="sig-title">{{company.signatory_designation}}</div>
+        <div class="sig-title">{{company.name}}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Acceptance Block -->
+  <div class="accept-block">
+    <div class="accept-title">Acceptance by Intern</div>
+    <p style="font-size:12px; margin:0;">I, <strong>{{data.intern_name}}</strong>, hereby accept the internship offer and agree to the terms and conditions mentioned above.</p>
+    <div class="sign-line">
+      <div class="sign-field">Intern Signature</div>
+      <div class="sign-field">Date</div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <strong>{{company.name}}</strong> | {{company.address}}{{#if company.city}}, {{company.city}}{{/if}} |
+    {{company.email}} | {{company.phone}}
+  </div>
+
+</div>
+</div>
+</body></html>

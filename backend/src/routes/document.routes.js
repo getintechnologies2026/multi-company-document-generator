@@ -12,6 +12,8 @@ router.post('/generate-payslips-bulk', ctrl.generateBulkPayslips);
 router.post('/generate-salary-increment', ctrl.generateSalaryIncrement);
 router.post('/generate-internship', ctrl.generateInternshipCertificate);
 router.post('/generate-internship-attendance', ctrl.generateInternshipAttendance);
+router.post('/generate-internship-offer', ctrl.generateInternshipOffer);
+router.post('/generate-internship-confirmation', ctrl.generateInternshipConfirmation);
 router.get('/:id/download', ctrl.download);
 router.delete('/:id', ctrl.remove);
 

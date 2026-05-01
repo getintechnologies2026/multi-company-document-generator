@@ -10,13 +10,17 @@ const TYPE_META = {
   experience_letter: { label: 'Experience Letter',    icon: Award,       bg: 'bg-amber-100',  text: 'text-amber-700',  dot: 'bg-amber-400' },
   relieving_letter:  { label: 'Relieving Letter',     icon: LogOut,      bg: 'bg-red-100',    text: 'text-red-700',    dot: 'bg-red-400' },
   salary_increment:        { label: 'Increment Letter',     icon: TrendingUp,    bg: 'bg-teal-100',   text: 'text-teal-700',   dot: 'bg-teal-400' },
-  internship_certificate:  { label: 'Internship Certificate',          icon: GraduationCap, bg: 'bg-violet-100', text: 'text-violet-700', dot: 'bg-violet-400' },
-  internship_attendance:   { label: 'Internship Attendance Certificate', icon: GraduationCap, bg: 'bg-cyan-100',   text: 'text-cyan-700',   dot: 'bg-cyan-400' },
+  internship_certificate:    { label: 'Internship Completion Cert',    icon: GraduationCap, bg: 'bg-violet-100', text: 'text-violet-700', dot: 'bg-violet-400' },
+  internship_attendance:     { label: 'Internship Attendance Cert',    icon: GraduationCap, bg: 'bg-cyan-100',   text: 'text-cyan-700',   dot: 'bg-cyan-400' },
+  internship_offer:          { label: 'Internship Offer Letter',       icon: GraduationCap, bg: 'bg-amber-100',  text: 'text-amber-700',  dot: 'bg-amber-400' },
+  internship_confirmation:   { label: 'Internship Confirmation Letter',icon: GraduationCap, bg: 'bg-green-100',  text: 'text-green-700',  dot: 'bg-green-400' },
 };
 
 const STATS_COLORS = {
   offer_letter: '#3b82f6', payslip: '#10b981', experience_letter: '#f59e0b',
-  relieving_letter: '#ef4444', salary_increment: '#0d9488', internship_certificate: '#7c3aed', internship_attendance: '#0891b2'
+  relieving_letter: '#ef4444', salary_increment: '#0d9488',
+  internship_certificate: '#7c3aed', internship_attendance: '#0891b2',
+  internship_offer: '#d97706', internship_confirmation: '#059669'
 };
 
 export default function Documents() {

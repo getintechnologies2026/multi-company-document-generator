@@ -583,6 +583,145 @@ exports.generateInternshipCertificate = async (req, res) => {
     }
 };
 
+exports.generateInternshipOffer = async (req, res) => {
+    try {
+        const { company_id, employee_id, intern } = req.body;
+        if (!company_id) return res.status(400).json({ error: 'company_id required' });
+        if (!intern || !intern.intern_name) return res.status(400).json({ error: 'intern_name required' });
+
+        const [companies] = await db.query('SELECT * FROM companies WHERE id = ?', [company_id]);
+        if (!companies.length) return res.status(404).json({ error: 'Company not found' });
+        const company = companies[0];
+
+        const fmtDate  = d => d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' }) : '';
+        const today    = new Date();
+        const issueDate = fmtDate(today.toISOString().split('T')[0]);
+
+        // Duration
+        const fromDate = intern.from_date ? new Date(intern.from_date) : null;
+        const toDate   = intern.to_date   ? new Date(intern.to_date)   : null;
+        let durationText = '';
+        if (fromDate && toDate) {
+            const diffDays = Math.round((toDate - fromDate) / (1000 * 60 * 60 * 24));
+            const months   = Math.floor(diffDays / 30);
+            const days     = diffDays % 30;
+            const parts    = [];
+            if (months > 0) parts.push(`${months} Month${months > 1 ? 's' : ''}`);
+            if (days   > 0) parts.push(`${days} Day${days   > 1 ? 's' : ''}`);
+            durationText = parts.join(' ') || '1 Day';
+        }
+
+        const data = {
+            intern_name:          intern.intern_name         || '',
+            roll_no:              intern.roll_no             || '',
+            college:              intern.college             || '',
+            course:               intern.course              || '',
+            branch:               intern.branch              || '',
+            department:           intern.department          || '',
+            project_title:        intern.project_title       || '',
+            from_date:            fmtDate(intern.from_date),
+            to_date:              fmtDate(intern.to_date),
+            duration_text:        intern.duration_text       || durationText,
+            stipend:              intern.stipend             || '',
+            mentor_name:          intern.mentor_name         || '',
+            joining_instructions: intern.joining_instructions || '',
+            remarks:              intern.remarks             || '',
+            issue_date:           issueDate,
+        };
+
+        const prefix   = company.doc_number_prefix || 'DOC';
+        const year     = today.getFullYear();
+        const [cnt]    = await db.query(
+            "SELECT COUNT(*) as c FROM documents WHERE company_id = ? AND doc_type = 'internship_offer'", [company_id]
+        );
+        const seq        = String(cnt[0].c + 1).padStart(4, '0');
+        const doc_number = `${prefix}/IOF/${year}/${seq}`;
+        const filename   = `${doc_number.replace(/\//g, '_')}.pdf`;
+        const outPath    = path.join(__dirname, '..', '..', 'generated', filename);
+
+        await generatePDF('internship_offer', { company, employee: {}, data, doc_number }, outPath);
+
+        const [r] = await db.query(
+            `INSERT INTO documents (doc_number, doc_type, company_id, employee_id, employee_name, issue_date, pdf_path, extra_data, created_by)
+             VALUES (?, 'internship_offer', ?, ?, ?, CURDATE(), ?, ?, ?)`,
+            [doc_number, company_id, employee_id || null, data.intern_name, filename, JSON.stringify(data), req.user.id]
+        );
+
+        res.json({ id: r.insertId, doc_number, pdf_path: filename, url: `/generated/${filename}` });
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ error: e.message });
+    }
+};
+
+exports.generateInternshipConfirmation = async (req, res) => {
+    try {
+        const { company_id, employee_id, intern } = req.body;
+        if (!company_id) return res.status(400).json({ error: 'company_id required' });
+        if (!intern || !intern.intern_name) return res.status(400).json({ error: 'intern_name required' });
+
+        const [companies] = await db.query('SELECT * FROM companies WHERE id = ?', [company_id]);
+        if (!companies.length) return res.status(404).json({ error: 'Company not found' });
+        const company = companies[0];
+
+        const fmtDate  = d => d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' }) : '';
+        const today    = new Date();
+        const issueDate = fmtDate(today.toISOString().split('T')[0]);
+
+        const fromDate = intern.from_date ? new Date(intern.from_date) : null;
+        const toDate   = intern.to_date   ? new Date(intern.to_date)   : null;
+        let durationText = '';
+        if (fromDate && toDate) {
+            const diffDays = Math.round((toDate - fromDate) / (1000 * 60 * 60 * 24));
+            const months   = Math.floor(diffDays / 30);
+            const days     = diffDays % 30;
+            const parts    = [];
+            if (months > 0) parts.push(`${months} Month${months > 1 ? 's' : ''}`);
+            if (days   > 0) parts.push(`${days} Day${days   > 1 ? 's' : ''}`);
+            durationText = parts.join(' ') || '1 Day';
+        }
+
+        const data = {
+            intern_name:   intern.intern_name  || '',
+            roll_no:       intern.roll_no      || '',
+            college:       intern.college      || '',
+            course:        intern.course       || '',
+            branch:        intern.branch       || '',
+            department:    intern.department   || '',
+            joining_date:  fmtDate(intern.joining_date || intern.from_date),
+            from_date:     fmtDate(intern.from_date),
+            to_date:       fmtDate(intern.to_date),
+            duration_text: intern.duration_text || durationText,
+            mentor_name:   intern.mentor_name  || '',
+            remarks:       intern.remarks      || '',
+            issue_date:    issueDate,
+        };
+
+        const prefix   = company.doc_number_prefix || 'DOC';
+        const year     = today.getFullYear();
+        const [cnt]    = await db.query(
+            "SELECT COUNT(*) as c FROM documents WHERE company_id = ? AND doc_type = 'internship_confirmation'", [company_id]
+        );
+        const seq        = String(cnt[0].c + 1).padStart(4, '0');
+        const doc_number = `${prefix}/ICF/${year}/${seq}`;
+        const filename   = `${doc_number.replace(/\//g, '_')}.pdf`;
+        const outPath    = path.join(__dirname, '..', '..', 'generated', filename);
+
+        await generatePDF('internship_confirmation', { company, employee: {}, data, doc_number }, outPath);
+
+        const [r] = await db.query(
+            `INSERT INTO documents (doc_number, doc_type, company_id, employee_id, employee_name, issue_date, pdf_path, extra_data, created_by)
+             VALUES (?, 'internship_confirmation', ?, ?, ?, CURDATE(), ?, ?, ?)`,
+            [doc_number, company_id, employee_id || null, data.intern_name, filename, JSON.stringify(data), req.user.id]
+        );
+
+        res.json({ id: r.insertId, doc_number, pdf_path: filename, url: `/generated/${filename}` });
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ error: e.message });
+    }
+};
+
 exports.generateInternshipAttendance = async (req, res) => {
     try {
         const { company_id, employee_id, intern } = req.body;
@@ -624,6 +763,11 @@ exports.generateInternshipAttendance = async (req, res) => {
         const daysPresent = Number(intern.days_present) || 0;
         const attendancePct = totalDays > 0 ? Math.round((daysPresent / totalDays) * 100) : 0;
 
+        // Covered topics array
+        const topicsArr = intern.covered_topics
+            ? intern.covered_topics.split(',').map(s => s.trim()).filter(Boolean)
+            : [];
+
         const data = {
             intern_name:         intern.intern_name    || '',
             roll_no:             intern.roll_no        || '',
@@ -638,6 +782,9 @@ exports.generateInternshipAttendance = async (req, res) => {
             total_working_days:  totalDays,
             days_present:        daysPresent,
             attendance_pct:      attendancePct,
+            performance:         intern.performance    || '',
+            covered_topics:      intern.covered_topics || '',
+            topics_arr:          topicsArr,
             remarks:             intern.remarks        || '',
             issue_date:          issueDate,
         };

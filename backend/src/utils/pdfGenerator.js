@@ -18,13 +18,15 @@ Handlebars.registerHelper('upper', (s) => (s || '').toString().toUpperCase());
 Handlebars.registerHelper('eq', (a, b) => a === b);
 
 const TEMPLATE_FILES = {
-    offer_letter: 'offer_letter.hbs',
-    payslip: 'payslip.hbs',
-    experience_letter: 'experience_letter.hbs',
-    relieving_letter: 'relieving_letter.hbs',
-    salary_increment: 'salary_increment.hbs',
-    internship_certificate: 'internship_certificate.hbs',
-    internship_attendance:  'internship_attendance.hbs'
+    offer_letter:              'offer_letter.hbs',
+    payslip:                   'payslip.hbs',
+    experience_letter:         'experience_letter.hbs',
+    relieving_letter:          'relieving_letter.hbs',
+    salary_increment:          'salary_increment.hbs',
+    internship_certificate:    'internship_certificate.hbs',
+    internship_attendance:     'internship_attendance.hbs',
+    internship_offer:          'internship_offer.hbs',
+    internship_confirmation:   'internship_confirmation.hbs',
 };
 
 function renderTemplate(docType, ctx) {
@@ -68,13 +70,38 @@ const BROWSER_ARGS = [
 
 /**
  * Launch a Puppeteer browser instance.
- * Uses 'shell' headless mode (chrome-headless-shell) which is lighter and
- * more reliable on headless Linux VPS servers than the full Chrome headless mode.
- * Falls back to 'new' mode if shell is unavailable.
+ * Priority:
+ * 1. System Chrome (google-chrome-stable / google-chrome) — most stable on VPS
+ * 2. Puppeteer bundled chrome-headless-shell ('shell' mode)
+ * 3. Puppeteer bundled full Chrome ('new' mode)
  */
 async function createBrowser() {
-    // 'shell' = chrome-headless-shell binary — faster startup, stable on VPS
-    // If it fails, fall back to 'new' (full headless Chrome)
+    // Check for system-installed Chrome first (installed via apt / Google .deb)
+    const SYSTEM_CHROME_PATHS = [
+        '/usr/bin/google-chrome-stable',
+        '/usr/bin/google-chrome',
+        '/usr/bin/chromium-browser',
+        '/usr/bin/chromium',
+    ];
+    const systemChrome = SYSTEM_CHROME_PATHS.find(p => {
+        try { fs.accessSync(p, fs.constants.X_OK); return true; } catch { return false; }
+    });
+
+    if (systemChrome) {
+        try {
+            console.log('[pdfGenerator] Using system Chrome:', systemChrome);
+            return await puppeteer.launch({
+                executablePath: systemChrome,
+                headless: 'new',
+                args: BROWSER_ARGS,
+                timeout: 60000,
+            });
+        } catch (e) {
+            console.warn('[pdfGenerator] System Chrome failed, falling back:', e.message);
+        }
+    }
+
+    // Fallback 1: bundled chrome-headless-shell
     try {
         return await puppeteer.launch({
             headless: 'shell',
@@ -83,12 +110,14 @@ async function createBrowser() {
         });
     } catch (e) {
         console.warn('[pdfGenerator] shell headless failed, trying new mode:', e.message);
-        return await puppeteer.launch({
-            headless: true,
-            args: BROWSER_ARGS,
-            timeout: 60000,
-        });
     }
+
+    // Fallback 2: bundled full Chrome
+    return await puppeteer.launch({
+        headless: true,
+        args: BROWSER_ARGS,
+        timeout: 60000,
+    });
 }
 
 /**

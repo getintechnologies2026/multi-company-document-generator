@@ -54,6 +54,18 @@
   .sig-name  { font-weight: 700; font-size: 13px; }
   .sig-title { font-size: 11px; color: #6b7280; }
 
+  /* Performance badge */
+  .perf-block { display: flex; justify-content: center; margin: 10px 0; }
+  .perf-badge { display: inline-block; padding: 7px 24px; border-radius: 30px; font-weight: 800; font-size: 13px; letter-spacing: 1px; }
+  .perf-Excellent { background: #d1fae5; color: #065f46; border: 2px solid #6ee7b7; }
+  .perf-Good      { background: #dbeafe; color: #1e40af; border: 2px solid #93c5fd; }
+  .perf-Satisfactory { background: #fef3c7; color: #92400e; border: 2px solid #fcd34d; }
+  .perf-NeedsImprovement { background: #fee2e2; color: #991b1b; border: 2px solid #fca5a5; }
+
+  /* Topics tags */
+  .topics-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .topic-tag { background: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc; border-radius: 20px; padding: 3px 12px; font-size: 11px; font-weight: 600; }
+
   /* Seal area */
   .seal-block { text-align: center; }
   .seal-block img { max-height: 70px; }
@@ -142,6 +154,22 @@
   <div class="bar-wrap">
     <div class="bar-fill" style="width: {{data.attendance_pct}}%;"></div>
   </div>
+
+  <!-- Performance Rating -->
+  {{#if data.performance}}
+  <p style="text-align:center; font-size:11px; font-weight:700; color:#0e7490; letter-spacing:1px; margin: 12px 0 4px;">PERFORMANCE RATING</p>
+  <div class="perf-block">
+    <span class="perf-badge perf-{{data.performance}}">★ {{data.performance}}</span>
+  </div>
+  {{/if}}
+
+  <!-- Covered Topics -->
+  {{#if data.topics_arr}}
+  <p style="font-size:12px; font-weight:700; color:#0e7490; margin: 12px 0 6px;">Topics Covered During Internship</p>
+  <div class="topics-wrap">
+    {{#each data.topics_arr}}<span class="topic-tag">{{this}}</span>{{/each}}
+  </div>
+  {{/if}}
 
   <!-- Closing -->
   <div class="body-text" style="margin-top:16px;">
