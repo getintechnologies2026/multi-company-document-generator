@@ -1,298 +1,856 @@
-<!-- offer_letter.hbs -->
+<!-- offer_letter.hbs — 4-page comprehensive offer letter -->
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
   <style>
+    /* ── Reset ── */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Segoe UI', Arial, sans-serif;
       color: #1a1a1a;
-      font-size: 13px;
-      line-height: 1.65;
+      font-size: 12.5px;
+      line-height: 1.7;
       background: #fff;
     }
-    .page { padding: 0; }
+
+    /* ── Page break ── */
+    .page-break { page-break-after: always; }
 
     /* ── Top accent bar ── */
     .top-bar { height: 8px; width: 100%; background: linear-gradient(90deg, #1e3a8a, #3b82f6); }
 
-    /* ── Header — float layout (wkhtmltopdf safe) ── */
+    /* ── Header — float layout ── */
     .header {
       background: #eff6ff;
-      padding: 16px 30px;
+      padding: 14px 30px;
       border-bottom: 2px solid #bfdbfe;
       overflow: hidden;
     }
     .header-logo { float: left; }
-    .header-logo img { max-height: 62px; max-width: 190px; display: block; }
-    .header-logo .logo-text {
-      font-size: 22px; font-weight: 700; color: #1e40af; letter-spacing: 0.5px;
-    }
+    .header-logo img { max-height: 60px; max-width: 185px; display: block; }
+    .header-logo .logo-text { font-size: 21px; font-weight: 700; color: #1e40af; letter-spacing: 0.5px; }
     .header-company {
-      float: right;
-      text-align: right;
-      font-size: 11px;
-      color: #475569;
-      line-height: 1.55;
+      float: right; text-align: right; font-size: 10.5px; color: #475569; line-height: 1.55;
     }
-    .header-company .company-name {
-      font-size: 15px; font-weight: 700; color: #1e40af; margin-bottom: 2px;
-    }
+    .header-company .company-name { font-size: 14px; font-weight: 700; color: #1e40af; margin-bottom: 2px; }
 
     /* ── Body ── */
-    .body { padding: 20px 30px; }
+    .body { padding: 18px 30px 10px; }
+
+    /* ── Confidential banner ── */
+    .confidential-bar {
+      text-align: center; font-size: 9.5px; font-weight: 700;
+      letter-spacing: 3px; color: #dc2626; text-transform: uppercase;
+      margin-bottom: 8px; opacity: 0.75;
+    }
 
     /* ── Meta row — table layout ── */
     table.meta-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 16px;
-      padding-bottom: 8px;
-      border-bottom: 1px dashed #bfdbfe;
-      font-size: 11.5px;
-      color: #475569;
+      width: 100%; border-collapse: collapse;
+      margin-bottom: 12px; border-bottom: 1px dashed #bfdbfe;
+      font-size: 11px; color: #475569;
     }
-    table.meta-table td { padding: 0 0 8px 0; border: none; background: none; }
+    table.meta-table td { padding: 0 0 7px 0; border: none; background: none; }
     table.meta-table td:last-child { text-align: right; }
 
     /* ── Document title ── */
     .doc-title {
-      text-align: center;
-      background: #1e40af;
-      color: #fff;
-      font-size: 14px;
-      font-weight: 700;
-      letter-spacing: 2px;
-      padding: 9px 24px;
-      border-radius: 30px;
-      display: block;
-      width: 100%;
-      margin-bottom: 20px;
+      text-align: center; background: #1e40af; color: #fff;
+      font-size: 15px; font-weight: 700; letter-spacing: 3px;
+      padding: 10px 24px; border-radius: 30px;
+      display: block; width: 100%; margin-bottom: 16px;
     }
 
-    /* ── Text ── */
-    .salutation { font-size: 13px; margin-bottom: 10px; }
-    p { margin: 8px 0; text-align: justify; font-size: 13px; }
+    /* ── Candidate address block ── */
+    .addr-block {
+      background: #f8faff; border-left: 3px solid #bfdbfe;
+      padding: 10px 14px; margin-bottom: 14px;
+      font-size: 12px; color: #1e293b; line-height: 1.8;
+    }
+    .addr-block .addr-name { font-size: 13px; font-weight: 700; color: #1e40af; }
+
+    /* ── Subject line ── */
+    .subject-line {
+      font-size: 12.5px; font-weight: 700; color: #1e293b;
+      margin: 10px 0 12px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;
+    }
+    .subject-line span { color: #1e40af; }
+
+    /* ── Salutation & paragraphs ── */
+    .salutation { font-size: 13px; margin-bottom: 8px; }
+    p { margin: 7px 0; text-align: justify; font-size: 12.5px; color: #1c1917; }
 
     /* ── Section heading ── */
-    .section-label {
+    .section-heading {
       font-size: 12px; font-weight: 700; color: #1e40af;
-      margin: 18px 0 6px; text-transform: uppercase; letter-spacing: 0.5px;
+      margin: 16px 0 6px; text-transform: uppercase; letter-spacing: 1px;
+      border-left: 4px solid #3b82f6; padding-left: 8px;
+    }
+
+    /* ── Section heading (page 3 style — numbered) ── */
+    .tc-heading {
+      font-size: 13px; font-weight: 800; color: #1e3a8a;
+      margin: 0 0 8px; text-transform: uppercase; letter-spacing: 1.5px;
+      text-align: center; border-bottom: 2px solid #bfdbfe; padding-bottom: 6px;
     }
 
     /* ── Employment details table ── */
     table.details-table {
-      width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 12.5px;
+      width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 12px;
     }
     table.details-table th {
-      background: #1e40af; color: #fff; padding: 8px 10px;
-      text-align: left; font-weight: 600; font-size: 12px;
+      background: #1e40af; color: #fff; padding: 7px 10px;
+      text-align: left; font-weight: 600; font-size: 11.5px;
     }
-    table.details-table td { border: 1px solid #bfdbfe; padding: 7px 10px; vertical-align: top; }
-    table.details-table td:first-child {
-      width: 38%; background: #eff6ff; font-weight: 600; color: #1e3a8a;
-    }
+    table.details-table td { border: 1px solid #bfdbfe; padding: 6px 10px; vertical-align: top; }
+    table.details-table td:first-child { width: 42%; background: #eff6ff; font-weight: 600; color: #1e3a8a; }
     table.details-table tr:nth-child(even) td:last-child { background: #f8fafc; }
+    table.details-table td strong { color: #1e40af; }
 
-    /* ── Salary breakdown table ── */
+    /* ── Salary table ── */
     table.salary-table {
-      width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 12px;
+      width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 11.5px;
     }
     table.salary-table th {
-      background: #dbeafe; color: #1e3a8a; padding: 7px 10px;
-      text-align: left; font-weight: 700; border: 1px solid #bfdbfe; font-size: 11.5px;
+      padding: 7px 10px; text-align: left; font-weight: 700; border: 1px solid #bfdbfe; font-size: 11px;
     }
-    table.salary-table th:last-child { text-align: right; }
+    table.salary-table th.th-blue { background: #1e40af; color: #fff; }
+    table.salary-table th.th-light { background: #dbeafe; color: #1e3a8a; text-align: right; }
     table.salary-table td { border: 1px solid #bfdbfe; padding: 6px 10px; vertical-align: middle; }
-    table.salary-table td:first-child {
-      background: #f8faff; font-weight: 500; color: #334155; width: 55%;
-    }
+    table.salary-table td:first-child { background: #f8faff; font-weight: 500; color: #334155; width: 50%; }
     table.salary-table td.amount { text-align: right; color: #1e293b; }
+    table.salary-table td.annual { text-align: right; color: #1e3a8a; font-weight: 600; }
     table.salary-table tr:nth-child(even) td:first-child { background: #eff6ff; }
     table.salary-table tr.gross-row td {
       background: #dbeafe; font-weight: 700; color: #1e3a8a; border-top: 2px solid #3b82f6;
     }
     table.salary-table tr.deduction-row td:first-child { color: #dc2626; }
+    table.salary-table tr.deduction-row td { background: #fef2f2 !important; }
     table.salary-table tr.net-row td {
       background: #1e40af; color: #fff; font-weight: 700; font-size: 13px; border-top: 2px solid #1e3a8a;
     }
     table.salary-table tr.net-row td.amount { color: #fff; }
-
-    /* ── Terms box ── */
-    .terms-box {
-      background: #eff6ff; border-left: 4px solid #3b82f6;
-      border-radius: 0 6px 6px 0; padding: 12px 16px; margin: 16px 0; font-size: 12.5px;
+    table.salary-table tr.ctc-row td {
+      background: #1e3a8a; color: #fff; font-weight: 700; font-size: 12px;
     }
-    .terms-box .terms-heading { font-weight: 700; color: #1e40af; font-size: 12.5px; margin-bottom: 8px; }
-    .terms-box ol { padding-left: 18px; margin: 0; }
-    .terms-box ol li { margin-bottom: 5px; color: #334155; line-height: 1.6; }
+    table.salary-table tr.ctc-row td.amount { color: #93c5fd; }
+
+    /* ── Benefits box ── */
+    .benefits-box {
+      background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 6px;
+      padding: 12px 16px; margin: 14px 0;
+    }
+    .benefits-box .ben-title {
+      font-size: 11.5px; font-weight: 700; color: #0369a1; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    table.ben-table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+    table.ben-table td { padding: 4px 8px; vertical-align: top; width: 50%; color: #1e293b; }
+    table.ben-table td:before { content: "✔ "; color: #2563eb; font-size: 10px; }
+
+    /* ── Leave table ── */
+    table.leave-table {
+      width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 11.5px;
+    }
+    table.leave-table th {
+      background: #1e40af; color: #fff; padding: 7px 10px; text-align: left; font-size: 11px; font-weight: 600;
+    }
+    table.leave-table td { border: 1px solid #bfdbfe; padding: 6px 10px; }
+    table.leave-table td:first-child { background: #eff6ff; font-weight: 600; color: #1e3a8a; width: 45%; }
+    table.leave-table td:nth-child(2) { text-align: center; font-weight: 700; color: #1e40af; width: 20%; }
+    table.leave-table tr:nth-child(even) td:last-child { background: #f8fafc; }
+
+    /* ── T&C numbered clauses ── */
+    .tc-block {
+      margin-bottom: 10px;
+    }
+    .tc-clause-title {
+      font-size: 11.5px; font-weight: 700; color: #1e3a8a;
+      margin-bottom: 4px;
+    }
+    .tc-clause-title .clause-num {
+      display: inline-block; background: #1e40af; color: #fff;
+      border-radius: 50%; width: 20px; height: 20px;
+      text-align: center; line-height: 20px; font-size: 10.5px;
+      margin-right: 6px; font-weight: 800;
+    }
+    .tc-clause-body {
+      font-size: 11.5px; color: #334155; line-height: 1.65;
+      text-align: justify; padding-left: 26px;
+    }
+    .tc-clause-body ul { padding-left: 14px; margin: 4px 0; }
+    .tc-clause-body ul li { margin-bottom: 3px; }
+
+    /* ── Important note box ── */
+    .note-box {
+      background: #fef3c7; border-left: 4px solid #f59e0b;
+      border-radius: 0 6px 6px 0; padding: 10px 14px; margin: 14px 0; font-size: 11.5px;
+    }
+    .note-box strong { color: #92400e; }
+
+    /* ── Acceptance section ── */
+    .acceptance-box {
+      background: #f0fdf4; border: 1.5px dashed #22c55e;
+      border-radius: 8px; padding: 16px 20px; margin-top: 20px;
+    }
+    .acceptance-box .acc-title {
+      font-size: 12.5px; font-weight: 800; color: #166534;
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;
+      text-align: center; border-bottom: 1px solid #bbf7d0; padding-bottom: 8px;
+    }
+    .acceptance-box p { font-size: 11.5px; color: #374151; margin: 6px 0; text-align: justify; }
+    table.acc-fields {
+      width: 100%; border-collapse: collapse; margin-top: 24px; font-size: 11px; color: #6b7280;
+    }
+    table.acc-fields td {
+      border: none; background: none; padding: 0;
+      border-top: 1px solid #374151; padding-top: 5px; text-align: left; width: 33.33%;
+    }
+    table.acc-fields td:nth-child(2) { text-align: center; }
+    table.acc-fields td:last-child { text-align: right; }
 
     /* ── Signature block ── */
-    .signature-block { margin-top: 36px; text-align: right; }
-    .signature-block img {
-      max-height: 56px; max-width: 160px; display: block; margin-left: auto; margin-bottom: 4px;
-    }
+    .signature-block { margin-top: 28px; text-align: right; }
+    .signature-block img { max-height: 56px; max-width: 160px; display: block; margin-left: auto; margin-bottom: 4px; }
     .signature-block .sig-name { font-weight: 700; font-size: 13px; color: #1e293b; }
-    .signature-block .sig-designation { font-size: 11.5px; color: #475569; }
-    .signature-block .sig-company { font-size: 11.5px; color: #1e40af; font-weight: 600; }
+    .signature-block .sig-designation { font-size: 11px; color: #475569; }
+    .signature-block .sig-company { font-size: 11px; color: #1e40af; font-weight: 600; }
 
     /* ── Footer ── */
     .footer {
-      margin-top: 28px; border-top: 1px solid #bfdbfe; padding: 7px 30px;
-      text-align: center; font-size: 10px; color: #64748b; background: #f8faff; line-height: 1.5;
+      margin-top: 14px; border-top: 1px solid #bfdbfe; padding: 6px 30px;
+      text-align: center; font-size: 9.5px; color: #64748b; background: #f8faff; line-height: 1.5;
     }
+
+    /* ── Page header repeated (pages 2-4) ── */
+    .page-header {
+      background: #1e40af; color: #fff;
+      padding: 6px 30px; overflow: hidden; font-size: 10.5px;
+    }
+    .page-header .ph-left { float: left; font-weight: 600; }
+    .page-header .ph-right { float: right; opacity: 0.85; }
+
+    /* ── Two-column grid using table ── */
+    table.two-col { width: 100%; border-collapse: collapse; }
+    table.two-col td { vertical-align: top; width: 50%; padding: 0 8px 0 0; border: none; background: none; }
+    table.two-col td:last-child { padding: 0 0 0 8px; }
   </style>
 </head>
 <body>
-<div class="page">
 
-  <div class="top-bar"></div>
+<!-- ════════════════════════════════════════════════════════════
+     PAGE 1 — OFFER DETAILS & EMPLOYMENT TERMS
+     ════════════════════════════════════════════════════════════ -->
 
-  <!-- Header: logo left, company info right via float -->
-  <div class="header">
-    <div class="header-logo">
-      {{#if company.logo_url}}
-        <img src="{{company.logo_url}}" alt="{{company.name}}" />
-      {{else}}
-        <div class="logo-text">{{company.name}}</div>
-      {{/if}}
-    </div>
-    <div class="header-company">
-      <div class="company-name">{{company.name}}</div>
-      <div>{{company.address}}{{#if company.city}}, {{company.city}}{{/if}}{{#if company.state}}, {{company.state}}{{/if}}{{#if company.pincode}} - {{company.pincode}}{{/if}}</div>
-      {{#if company.phone}}<div>Phone: {{company.phone}}</div>{{/if}}
-      {{#if company.email}}<div>Email: {{company.email}}</div>{{/if}}
-      {{#if company.website}}<div>{{company.website}}</div>{{/if}}
-      {{#if company.gstin}}<div>GSTIN: {{company.gstin}}</div>{{/if}}
+<div class="top-bar"></div>
+
+<div class="header">
+  <div class="header-logo">
+    {{#if company.logo_url}}
+      <img src="{{company.logo_url}}" alt="{{company.name}}" />
+    {{else}}
+      <div class="logo-text">{{company.name}}</div>
+    {{/if}}
+  </div>
+  <div class="header-company">
+    <div class="company-name">{{company.name}}</div>
+    <div>{{company.address}}{{#if company.city}}, {{company.city}}{{/if}}{{#if company.state}}, {{company.state}}{{/if}}{{#if company.pincode}} &mdash; {{company.pincode}}{{/if}}</div>
+    {{#if company.phone}}<div>Phone: {{company.phone}}</div>{{/if}}
+    {{#if company.email}}<div>Email: {{company.email}}</div>{{/if}}
+    {{#if company.website}}<div>{{company.website}}</div>{{/if}}
+    {{#if company.gstin}}<div>GSTIN: {{company.gstin}}</div>{{/if}}
+  </div>
+</div>
+
+<div class="body">
+
+  <div class="confidential-bar">— Private &amp; Confidential —</div>
+
+  <table class="meta-table">
+    <tr>
+      <td><strong>Ref No:</strong> {{doc_number}}</td>
+      <td><strong>Date:</strong> {{today}}</td>
+    </tr>
+  </table>
+
+  <div class="doc-title">LETTER OF APPOINTMENT / OFFER OF EMPLOYMENT</div>
+
+  <!-- Candidate address -->
+  <div class="addr-block">
+    <div class="addr-name">{{employee.full_name}}</div>
+    {{#if employee.address}}<div>{{employee.address}}</div>{{/if}}
+    {{#if employee.email}}<div>Email: {{employee.email}}{{#if employee.mobile}} &nbsp;|&nbsp; Mobile: {{employee.mobile}}{{/if}}</div>{{/if}}
+  </div>
+
+  <div class="subject-line">
+    Subject: <span>Letter of Appointment for the Position of {{#if employee.offered_designation}}{{employee.offered_designation}}{{else}}{{employee.designation}}{{/if}}</span>
+  </div>
+
+  <p class="salutation">Dear <strong>{{employee.full_name}}</strong>,</p>
+
+  <p>
+    We are pleased to inform you that after a careful review of your application and interview,
+    <strong>{{company.name}}</strong> is delighted to offer you the position of
+    <strong>{{#if employee.offered_designation}}{{employee.offered_designation}}{{else}}{{employee.designation}}{{/if}}</strong>
+    in the <strong>{{employee.department}}</strong> department. We believe your skills, experience,
+    and professional conduct are well-suited for this role, and we look forward to your valuable
+    contribution to our organisation.
+  </p>
+  <p>
+    This letter sets out the terms and conditions of your employment with us. Please read all clauses
+    carefully before signing and returning the acceptance copy.
+  </p>
+
+  <!-- Employment details table -->
+  <div class="section-heading">Employment Details</div>
+  <table class="details-table">
+    <tr><th colspan="2">Appointment Particulars</th></tr>
+    <tr>
+      <td>Employee Name</td>
+      <td><strong>{{employee.full_name}}</strong></td>
+    </tr>
+    <tr>
+      <td>Designation</td>
+      <td><strong>{{#if employee.offered_designation}}{{employee.offered_designation}}{{else}}{{employee.designation}}{{/if}}</strong></td>
+    </tr>
+    <tr>
+      <td>Department</td>
+      <td>{{employee.department}}</td>
+    </tr>
+    <tr>
+      <td>Date of Joining</td>
+      <td><strong>{{#if employee.joining_date}}{{formatDate employee.joining_date "DD-MMM-YYYY"}}{{else}}{{formatDate employee.date_of_joining "DD-MMM-YYYY"}}{{/if}}</strong></td>
+    </tr>
+    <tr>
+      <td>Employment Type</td>
+      <td>{{employee.employment_type}}</td>
+    </tr>
+    <tr>
+      <td>Work Location</td>
+      <td>{{company.address}}{{#if company.city}}, {{company.city}}{{/if}}{{#if company.state}}, {{company.state}}{{/if}}</td>
+    </tr>
+    <tr>
+      <td>Reporting To</td>
+      <td>{{#if employee.reporting_to}}{{employee.reporting_to}}{{else}}Respective Functional Head{{/if}}</td>
+    </tr>
+    <tr>
+      <td>Probation Period</td>
+      <td><strong>Six (6) Months</strong> from the Date of Joining</td>
+    </tr>
+    <tr>
+      <td>Notice Period</td>
+      <td><strong>One (1) Month</strong> (during probation) &nbsp;|&nbsp; <strong>One (1) Month</strong> (post-confirmation)</td>
+    </tr>
+    <tr>
+      <td>Annual CTC (Cost to Company)</td>
+      <td><strong>&#8377; {{#if employee.offered_ctc}}{{inr employee.offered_ctc}}{{else}}{{inr employee.ctc}}{{/if}} /- per annum</strong></td>
+    </tr>
+    {{#if employee.pan}}
+    <tr>
+      <td>PAN</td>
+      <td>{{employee.pan}}</td>
+    </tr>
+    {{/if}}
+  </table>
+
+</div>
+
+<div class="footer">
+  {{company.name}} &nbsp;|&nbsp; {{company.address}}{{#if company.city}}, {{company.city}}{{/if}} &nbsp;|&nbsp; {{company.email}} &nbsp;|&nbsp; Doc No: {{doc_number}} &nbsp;|&nbsp; <strong>Page 1 of 4</strong>
+</div>
+
+<!-- ════════════ PAGE BREAK ════════════ -->
+<div class="page-break"></div>
+
+<!-- ════════════════════════════════════════════════════════════
+     PAGE 2 — COMPENSATION, BENEFITS & LEAVE POLICY
+     ════════════════════════════════════════════════════════════ -->
+
+<div class="top-bar"></div>
+<div class="page-header">
+  <div class="ph-left">{{company.name}} &nbsp;&mdash;&nbsp; Letter of Appointment</div>
+  <div class="ph-right">{{employee.full_name}} &nbsp;|&nbsp; {{today}}</div>
+</div>
+
+<div class="body">
+
+  <div class="section-heading">Compensation &amp; Salary Breakdown</div>
+
+  <p>Your gross monthly remuneration and the annual CTC breakup are detailed below. This is a
+  cost-to-company (CTC) structure and the in-hand take-home will vary based on applicable
+  statutory deductions.</p>
+
+  <table class="salary-table">
+    <tr>
+      <th class="th-blue" style="width:50%">Salary Component</th>
+      <th class="th-light" style="width:25%">Monthly (&#8377;)</th>
+      <th class="th-light" style="width:25%">Annual (&#8377;)</th>
+    </tr>
+    <!-- Earnings -->
+    {{#if employee.basic}}
+    <tr>
+      <td>Basic Salary</td>
+      <td class="amount">{{inr employee.basic}}</td>
+      <td class="annual">{{inr employee.basic_annual}}</td>
+    </tr>
+    {{/if}}
+    {{#if employee.hra}}
+    <tr>
+      <td>House Rent Allowance (HRA) &mdash; 50% of Basic</td>
+      <td class="amount">{{inr employee.hra}}</td>
+      <td class="annual">{{inr employee.hra_annual}}</td>
+    </tr>
+    {{/if}}
+    {{#if employee.da}}
+    <tr>
+      <td>Dearness Allowance (DA)</td>
+      <td class="amount">{{inr employee.da}}</td>
+      <td class="annual">{{inr employee.da_annual}}</td>
+    </tr>
+    {{/if}}
+    {{#if employee.conveyance}}
+    <tr>
+      <td>Conveyance Allowance</td>
+      <td class="amount">{{inr employee.conveyance}}</td>
+      <td class="annual">{{inr employee.conveyance_annual}}</td>
+    </tr>
+    {{/if}}
+    {{#if employee.medical}}
+    <tr>
+      <td>Medical Allowance</td>
+      <td class="amount">{{inr employee.medical}}</td>
+      <td class="annual">{{inr employee.medical_annual}}</td>
+    </tr>
+    {{/if}}
+    {{#if employee.special_allowance}}
+    <tr>
+      <td>Special Allowance</td>
+      <td class="amount">{{inr employee.special_allowance}}</td>
+      <td class="annual">{{inr employee.special_allowance_annual}}</td>
+    </tr>
+    {{/if}}
+    <tr class="gross-row">
+      <td><strong>Gross Monthly Earnings (A)</strong></td>
+      <td class="amount">{{#if data.gross_earnings}}{{inr data.gross_earnings}}{{else}}{{#if data.gross}}{{inr data.gross}}{{/if}}{{/if}}</td>
+      <td class="amount" style="font-weight:700; color:#1e3a8a;">{{#if data.gross_annual}}{{inr data.gross_annual}}{{/if}}</td>
+    </tr>
+    <!-- Deductions -->
+    {{#if employee.pf}}
+    <tr class="deduction-row">
+      <td>(-) Employee Provident Fund (EPF) &mdash; 12% of Basic</td>
+      <td class="amount">{{inr employee.pf}}</td>
+      <td class="annual">{{inr employee.pf_annual}}</td>
+    </tr>
+    {{/if}}
+    {{#if employee.esi}}
+    <tr class="deduction-row">
+      <td>(-) Employee State Insurance (ESI)</td>
+      <td class="amount">{{inr employee.esi}}</td>
+      <td class="annual">{{inr employee.esi_annual}}</td>
+    </tr>
+    {{/if}}
+    {{#if employee.professional_tax}}
+    <tr class="deduction-row">
+      <td>(-) Professional Tax</td>
+      <td class="amount">{{inr employee.professional_tax}}</td>
+      <td class="annual">&mdash;</td>
+    </tr>
+    {{/if}}
+    <tr class="net-row">
+      <td><strong>Net Monthly Take-Home (B)</strong></td>
+      <td class="amount">{{#if data.net_pay}}{{inr data.net_pay}}{{else}}{{#if data.net}}{{inr data.net}}{{/if}}{{/if}}</td>
+      <td class="amount" style="color:#93c5fd;">{{#if data.net_annual}}{{inr data.net_annual}}{{/if}}</td>
+    </tr>
+    <tr class="ctc-row">
+      <td><strong>Total Annual CTC</strong></td>
+      <td class="amount" colspan="2" style="text-align:right;">
+        <strong>&#8377; {{#if employee.offered_ctc}}{{inr employee.offered_ctc}}{{else}}{{inr employee.ctc}}{{/if}} /- per annum</strong>
+      </td>
+    </tr>
+  </table>
+
+  <div class="note-box">
+    <strong>Note:</strong> The above compensation is subject to applicable Income Tax (TDS) deductions as per the prevailing Income Tax Act, which will be calculated and deducted based on your declared investments and the applicable tax slab. Net take-home may vary accordingly.
+  </div>
+
+  <!-- Benefits -->
+  <div class="section-heading">Benefits &amp; Perquisites</div>
+  <div class="benefits-box">
+    <div class="ben-title">In addition to the above salary components, you will be entitled to the following:</div>
+    <table class="ben-table">
+      <tr>
+        <td>Provident Fund (Company Contribution)</td>
+        <td>Gratuity (as per Gratuity Act, on eligibility)</td>
+      </tr>
+      <tr>
+        <td>Annual Performance Bonus (at management discretion)</td>
+        <td>ESI Coverage (if applicable by statute)</td>
+      </tr>
+      <tr>
+        <td>Group Mediclaim Insurance</td>
+        <td>Professional Development &amp; Training</td>
+      </tr>
+      <tr>
+        <td>Reimbursement of Business Expenses (on approval)</td>
+        <td>Annual Salary Review (performance-based)</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- Leave Policy -->
+  <div class="section-heading">Leave Entitlement (Per Calendar Year)</div>
+  <table class="leave-table">
+    <tr>
+      <th>Type of Leave</th>
+      <th>Days</th>
+      <th>Remarks</th>
+    </tr>
+    <tr>
+      <td>Earned Leave (EL) / Privilege Leave</td>
+      <td style="text-align:center; font-weight:700; color:#1e40af;">15</td>
+      <td>Accrues monthly; carry forward up to 30 days permitted</td>
+    </tr>
+    <tr>
+      <td>Casual Leave (CL)</td>
+      <td style="text-align:center; font-weight:700; color:#1e40af;">6</td>
+      <td>Not carry-forward; not encashable</td>
+    </tr>
+    <tr>
+      <td>Sick Leave (SL) / Medical Leave</td>
+      <td style="text-align:center; font-weight:700; color:#1e40af;">6</td>
+      <td>Medical certificate required for &gt;2 consecutive days</td>
+    </tr>
+    <tr>
+      <td>Maternity Leave</td>
+      <td style="text-align:center; font-weight:700; color:#1e40af;">26 weeks</td>
+      <td>As per Maternity Benefit (Amendment) Act, 2017</td>
+    </tr>
+    <tr>
+      <td>Paternity Leave</td>
+      <td style="text-align:center; font-weight:700; color:#1e40af;">5</td>
+      <td>On birth/legal adoption of a child</td>
+    </tr>
+    <tr>
+      <td>Public / National Holidays</td>
+      <td style="text-align:center; font-weight:700; color:#1e40af;">12</td>
+      <td>As per company holiday calendar published annually</td>
+    </tr>
+  </table>
+
+  <p style="font-size:11px; color:#64748b; margin-top:4px;">
+    * Leave during probation will be governed by the Company's Leave Policy in force at the time.
+    Leaves taken in excess of the entitlement will be treated as Loss of Pay (LOP).
+  </p>
+
+</div>
+
+<div class="footer">
+  {{company.name}} &nbsp;|&nbsp; {{company.address}}{{#if company.city}}, {{company.city}}{{/if}} &nbsp;|&nbsp; {{company.email}} &nbsp;|&nbsp; Doc No: {{doc_number}} &nbsp;|&nbsp; <strong>Page 2 of 4</strong>
+</div>
+
+<!-- ════════════ PAGE BREAK ════════════ -->
+<div class="page-break"></div>
+
+<!-- ════════════════════════════════════════════════════════════
+     PAGE 3 — TERMS & CONDITIONS (CLAUSES 1–12)
+     ════════════════════════════════════════════════════════════ -->
+
+<div class="top-bar"></div>
+<div class="page-header">
+  <div class="ph-left">{{company.name}} &nbsp;&mdash;&nbsp; Letter of Appointment</div>
+  <div class="ph-right">{{employee.full_name}} &nbsp;|&nbsp; {{today}}</div>
+</div>
+
+<div class="body">
+
+  <div class="tc-heading">Terms &amp; Conditions of Employment</div>
+
+  <div class="tc-block">
+    <div class="tc-clause-title"><span class="clause-num">1</span> Commencement &amp; Nature of Employment</div>
+    <div class="tc-clause-body">Your employment with <strong>{{company.name}}</strong> shall commence on
+    <strong>{{#if employee.joining_date}}{{formatDate employee.joining_date "DD-MMM-YYYY"}}{{else}}{{formatDate employee.date_of_joining "DD-MMM-YYYY"}}{{/if}}</strong>
+    or such other date mutually agreed in writing. Your appointment is on a regular, full-time basis
+    and you are expected to devote your full working time, attention, and abilities to the company
+    and its business interests.</div>
+  </div>
+
+  <div class="tc-block">
+    <div class="tc-clause-title"><span class="clause-num">2</span> Probation Period</div>
+    <div class="tc-clause-body">You will be on a probationary period of <strong>six (6) calendar months</strong>
+    from your date of joining. Upon satisfactory completion and subject to a formal performance review,
+    your employment will be confirmed. The company reserves the right to extend the probationary period
+    by a further period not exceeding <strong>three (3) months</strong> at its sole discretion,
+    by issuing written notice before the expiry of the original probationary period.</div>
+  </div>
+
+  <div class="tc-block">
+    <div class="tc-clause-title"><span class="clause-num">3</span> Notice Period</div>
+    <div class="tc-clause-body">
+      <ul>
+        <li><strong>During Probation:</strong> Either party may terminate this employment by giving <strong>One (1) month's written notice</strong> or payment of one month's gross salary in lieu of notice.</li>
+        <li><strong>Post Confirmation:</strong> Either party may terminate this employment by giving <strong>One (1) month's written notice</strong> or payment of one month's gross salary in lieu of notice.</li>
+        <li>The company reserves the right to terminate your employment immediately, without notice or payment in lieu, in cases of gross misconduct, fraud, wilful negligence, breach of confidentiality, or any other cause that justifies summary dismissal.</li>
+        <li>Notice must be submitted in writing and addressed to the HR Department. Notice periods cannot be adjusted against accumulated leave, except with prior written approval of the management.</li>
+      </ul>
     </div>
   </div>
 
-  <div class="body">
-
-    <!-- Meta row: ref left, date right via table -->
-    <table class="meta-table">
-      <tr>
-        <td><strong>Ref No:</strong> {{doc_number}}</td>
-        <td><strong>Date:</strong> {{today}}</td>
-      </tr>
-    </table>
-
-    <div class="doc-title">OFFER OF EMPLOYMENT</div>
-
-    <p class="salutation">Dear <strong>{{employee.full_name}}</strong>,</p>
-    <p>
-      We are delighted to extend this offer of employment to you for the position of
-      <strong>{{#if employee.offered_designation}}{{employee.offered_designation}}{{else}}{{employee.designation}}{{/if}}</strong>
-      at <strong>{{company.name}}</strong>. After careful consideration of your qualifications and experience,
-      we are confident that you will be a valuable addition to our growing team.
-    </p>
-    <p>The details of your appointment and the terms of your employment are outlined below:</p>
-
-    <div class="section-label">Employment Details</div>
-    <table class="details-table">
-      <tr><th>Particulars</th><th>Details</th></tr>
-      <tr>
-        <td>Offered Designation</td>
-        <td>{{#if employee.offered_designation}}{{employee.offered_designation}}{{else}}{{employee.designation}}{{/if}}</td>
-      </tr>
-      <tr><td>Department</td><td>{{employee.department}}</td></tr>
-      <tr>
-        <td>Date of Joining</td>
-        <td>{{#if employee.joining_date}}{{formatDate employee.joining_date "DD-MMM-YYYY"}}{{else}}{{formatDate employee.date_of_joining "DD-MMM-YYYY"}}{{/if}}</td>
-      </tr>
-      <tr><td>Employment Type</td><td>{{employee.employment_type}}</td></tr>
-      <tr>
-        <td>Annual CTC</td>
-        <td><strong>&#8377; {{#if employee.offered_ctc}}{{inr employee.offered_ctc}}{{else}}{{inr employee.ctc}}{{/if}} /-</strong></td>
-      </tr>
-      <tr>
-        <td>Work Location</td>
-        <td>{{company.city}}{{#if company.state}}, {{company.state}}{{/if}}</td>
-      </tr>
-    </table>
-
-    <div class="section-label">Salary Breakdown</div>
-    <table class="salary-table">
-      <tr>
-        <th>Component</th>
-        <th>Monthly Amount (&#8377;)</th>
-      </tr>
-      {{#if employee.basic}}
-      <tr><td>Basic Salary</td><td class="amount">{{inr employee.basic}}</td></tr>
-      {{/if}}
-      {{#if employee.hra}}
-      <tr><td>House Rent Allowance (HRA)</td><td class="amount">{{inr employee.hra}}</td></tr>
-      {{/if}}
-      {{#if employee.da}}
-      <tr><td>Dearness Allowance (DA)</td><td class="amount">{{inr employee.da}}</td></tr>
-      {{/if}}
-      {{#if employee.conveyance}}
-      <tr><td>Conveyance Allowance</td><td class="amount">{{inr employee.conveyance}}</td></tr>
-      {{/if}}
-      {{#if employee.medical}}
-      <tr><td>Medical Allowance</td><td class="amount">{{inr employee.medical}}</td></tr>
-      {{/if}}
-      {{#if employee.special_allowance}}
-      <tr><td>Special Allowance</td><td class="amount">{{inr employee.special_allowance}}</td></tr>
-      {{/if}}
-      <tr class="gross-row">
-        <td>Gross Monthly Earnings</td>
-        <td class="amount">{{#if data.gross_earnings}}{{inr data.gross_earnings}}{{else}}{{#if data.gross}}{{inr data.gross}}{{/if}}{{/if}}</td>
-      </tr>
-      {{#if employee.pf}}
-      <tr class="deduction-row">
-        <td>(-) PF Deduction</td>
-        <td class="amount">{{inr employee.pf}}</td>
-      </tr>
-      {{/if}}
-      <tr class="net-row">
-        <td>Net Monthly Take-Home</td>
-        <td class="amount">{{#if data.net_pay}}{{inr data.net_pay}}{{else}}{{#if data.net}}{{inr data.net}}{{/if}}{{/if}}</td>
-      </tr>
-    </table>
-
-    <div class="terms-box">
-      <div class="terms-heading">Terms &amp; Conditions</div>
-      <ol>
-        <li>You will be on probation for a period of <strong>six (6) months</strong> from your date of joining, during which your performance will be reviewed.</li>
-        <li>The notice period during the probationary period is <strong>30 days</strong>, and <strong>60 days</strong> post-confirmation of employment.</li>
-        <li>You are required to maintain strict confidentiality of all company information, trade secrets, and intellectual property both during and after your employment.</li>
-        <li>This offer is contingent upon satisfactory completion of background verification and submission of all required original documents prior to joining.</li>
-        <li>You are expected to abide by all applicable rules, regulations, policies, and codes of conduct of <strong>{{company.name}}</strong>, as amended from time to time.</li>
-      </ol>
-    </div>
-
-    <p>
-      Please sign and return a copy of this offer letter as your formal acceptance of the terms stated herein.
-      This offer will remain valid for <strong>7 days</strong> from the date of issuance.
-    </p>
-    <p>
-      We look forward to welcoming you to the <strong>{{company.name}}</strong> family and wish you a rewarding and successful career with us.
-    </p>
-
-    <div class="signature-block">
-      <p style="font-size:12px; color:#475569; margin-bottom:16px;">Yours sincerely,</p>
-      {{#if company.signature_url}}
-        <img src="{{company.signature_url}}" alt="Signature" />
-      {{/if}}
-      {{#if company.stamp_url}}
-        <img src="{{company.stamp_url}}" alt="Stamp" style="max-height:56px; max-width:56px; margin-left:auto; margin-bottom:4px; display:block;" />
-      {{/if}}
-      <div class="sig-name">{{company.signatory_name}}</div>
-      <div class="sig-designation">{{company.signatory_designation}}</div>
-      <div class="sig-company">{{company.name}}</div>
-    </div>
-
+  <div class="tc-block">
+    <div class="tc-clause-title"><span class="clause-num">4</span> Working Hours &amp; Days</div>
+    <div class="tc-clause-body">Standard working hours are <strong>9 hours per day (including 1 hour lunch break)</strong>,
+    five to six days a week, as per the applicable shift roster. You may be required to work beyond regular
+    hours, on weekends, or on public holidays based on business requirements, without any additional
+    overtime compensation unless specifically agreed in writing. Flexible work arrangements, if any,
+    shall be at the sole discretion of the company.</div>
   </div>
 
-  <div class="footer">
-    {{company.name}} &nbsp;|&nbsp; {{company.address}}{{#if company.city}}, {{company.city}}{{/if}}{{#if company.state}}, {{company.state}}{{/if}}
-    &nbsp;|&nbsp; {{company.email}}
-    {{#if company.phone}}&nbsp;|&nbsp; {{company.phone}}{{/if}}
-    &nbsp;|&nbsp; Doc No: {{doc_number}}
+  <div class="tc-block">
+    <div class="tc-clause-title"><span class="clause-num">5</span> Remuneration &amp; Tax Obligations</div>
+    <div class="tc-clause-body">Your remuneration will be paid monthly, directly into your designated
+    bank account, on or before the last working day of each calendar month. The salary is subject to
+    applicable TDS (Tax Deducted at Source) as per the Income Tax Act, 1961. You are solely responsible
+    for filing your income tax returns and maintaining correct investment declarations. Any tax liability
+    arising due to incorrect or delayed declarations shall be borne by you.</div>
+  </div>
+
+  <div class="tc-block">
+    <div class="tc-clause-title"><span class="clause-num">6</span> Confidentiality &amp; Non-Disclosure</div>
+    <div class="tc-clause-body">During and after your employment, you shall maintain strict confidentiality
+    of all proprietary and sensitive information, including but not limited to:
+      <ul>
+        <li>Business strategies, plans, and financial data</li>
+        <li>Client and vendor lists, contact information, and agreements</li>
+        <li>Technical specifications, source code, algorithms, and product roadmaps</li>
+        <li>Employee compensation and personal data</li>
+        <li>Any information marked or reasonably understood to be confidential</li>
+      </ul>
+    Breach of this clause shall entitle the company to seek injunctive relief, damages, and other
+    remedies available under applicable law, including the Information Technology Act, 2000.</div>
+  </div>
+
+  <div class="tc-block">
+    <div class="tc-clause-title"><span class="clause-num">7</span> Intellectual Property Rights</div>
+    <div class="tc-clause-body">All inventions, discoveries, developments, improvements, designs, software,
+    reports, documents, creative works, and any other output conceived, developed, or produced by you
+    in the course of your employment — whether on company premises or otherwise — shall be the exclusive
+    property of <strong>{{company.name}}</strong>. You hereby irrevocably assign all intellectual property
+    rights in such works to the company and agree to execute any further instruments necessary to perfect
+    such assignment.</div>
+  </div>
+
+  <div class="tc-block">
+    <div class="tc-clause-title"><span class="clause-num">8</span> Non-Solicitation</div>
+    <div class="tc-clause-body">During the term of your employment and for a period of <strong>twelve (12)
+    months following termination</strong> of your employment for any reason, you shall not, directly or
+    indirectly: (a) solicit, induce, or encourage any employee, contractor, or consultant of the company
+    to leave their employment or engagement; or (b) solicit, approach, or do business with any client,
+    customer, or prospect of the company with whom you had contact or exposure during your employment.</div>
+  </div>
+
+  <div class="tc-block">
+    <div class="tc-clause-title"><span class="clause-num">9</span> Conflict of Interest &amp; Dual Employment</div>
+    <div class="tc-clause-body">You are required to devote your entire working time and efforts exclusively
+    to <strong>{{company.name}}</strong>. You shall not, during the period of employment:
+      <ul>
+        <li>Take up any other employment, consultancy, directorship, or business engagement — paid or unpaid — without prior written approval from management.</li>
+        <li>Hold any financial or personal interest that conflicts with the interests of the company.</li>
+        <li>Accept gifts, commissions, or consideration from clients, vendors, or competitors beyond nominal value.</li>
+      </ul>
+    Violation of this clause shall constitute grounds for immediate termination.</div>
+  </div>
+
+  <div class="tc-block">
+    <div class="tc-clause-title"><span class="clause-num">10</span> Background Verification</div>
+    <div class="tc-clause-body">This offer is conditional upon satisfactory completion of a pre-employment
+    background verification, which may include verification of educational qualifications, previous
+    employment records, character references, criminal record checks, and document authenticity.
+    If any information provided by you is found to be false, misleading, or incomplete at any point —
+    even after joining — the company reserves the right to terminate your employment without notice
+    or any compensation.</div>
+  </div>
+
+  <div class="tc-block">
+    <div class="tc-clause-title"><span class="clause-num">11</span> Document Submission</div>
+    <div class="tc-clause-body">You are required to submit the following original documents along with
+    self-attested photocopies on or before your date of joining:
+      <ul>
+        <li>All educational qualification certificates (10th, 12th, Degree, PG, certifications)</li>
+        <li>Previous employment experience letters and relieving letters</li>
+        <li>Last three months' salary slips and appointment letter from last employer</li>
+        <li>Government-issued photo ID proof (Aadhaar / Passport / Voter ID / Driving Licence)</li>
+        <li>PAN card copy, passport-size photographs (4 nos.), and cancelled cheque</li>
+        <li>Any other documents as requested by HR at the time of onboarding</li>
+      </ul>
+    Failure to produce required documents may result in withdrawal of this offer or termination.</div>
+  </div>
+
+  <div class="tc-block">
+    <div class="tc-clause-title"><span class="clause-num">12</span> Code of Conduct &amp; Discipline</div>
+    <div class="tc-clause-body">You are expected to conduct yourself professionally and ethically at all
+    times. You shall adhere to the company's Employee Handbook, Code of Conduct, HR Policies, IT Security
+    Policy, and any other policies or guidelines issued from time to time. Acts of misconduct, insubordination,
+    dishonesty, harassment (including sexual harassment), violence, or wilful damage to company property
+    shall be grounds for disciplinary action, including summary termination.</div>
   </div>
 
 </div>
+
+<div class="footer">
+  {{company.name}} &nbsp;|&nbsp; {{company.address}}{{#if company.city}}, {{company.city}}{{/if}} &nbsp;|&nbsp; {{company.email}} &nbsp;|&nbsp; Doc No: {{doc_number}} &nbsp;|&nbsp; <strong>Page 3 of 4</strong>
+</div>
+
+<!-- ════════════ PAGE BREAK ════════════ -->
+<div class="page-break"></div>
+
+<!-- ════════════════════════════════════════════════════════════
+     PAGE 4 — REMAINING TERMS, SIGNATURE & ACCEPTANCE
+     ════════════════════════════════════════════════════════════ -->
+
+<div class="top-bar"></div>
+<div class="page-header">
+  <div class="ph-left">{{company.name}} &nbsp;&mdash;&nbsp; Letter of Appointment</div>
+  <div class="ph-right">{{employee.full_name}} &nbsp;|&nbsp; {{today}}</div>
+</div>
+
+<div class="body">
+
+  <div class="tc-block">
+    <div class="tc-clause-title"><span class="clause-num">13</span> Company Property &amp; Assets</div>
+    <div class="tc-clause-body">All equipment, materials, data, software, access credentials, and assets
+    provided to you for official use remain the sole property of <strong>{{company.name}}</strong>.
+    You must use such assets solely for authorised business purposes, maintain them in good working condition,
+    and return them in full on or before your last working day. Any loss, damage, or unauthorised use may
+    result in recovery of the cost from your dues.</div>
+  </div>
+
+  <div class="tc-block">
+    <div class="tc-clause-title"><span class="clause-num">14</span> Transfer &amp; Relocation</div>
+    <div class="tc-clause-body">The company may, at its discretion, transfer or depute you to any of its
+    branch offices, subsidiaries, associated companies, client sites, or project locations anywhere within
+    India or abroad, based on business requirements. Such transfer or relocation shall be communicated with
+    reasonable notice and shall not be construed as a change in your terms of employment.</div>
+  </div>
+
+  <div class="tc-block">
+    <div class="tc-clause-title"><span class="clause-num">15</span> Performance Reviews &amp; Increments</div>
+    <div class="tc-clause-body">Your performance will be formally reviewed at the end of the probation
+    period and thereafter on an annual basis. Salary increments, bonuses, and promotions, if any, are
+    solely at the discretion of management and are based on individual performance, business results,
+    and market benchmarks. No increment shall be deemed automatic or guaranteed.</div>
+  </div>
+
+  <div class="tc-block">
+    <div class="tc-clause-title"><span class="clause-num">16</span> Social Media &amp; Communications Policy</div>
+    <div class="tc-clause-body">You shall not post, share, or publish any content on social media or
+    public platforms that could disparage, defame, or harm the reputation of <strong>{{company.name}}</strong>,
+    its clients, employees, or partners. Any official communication on behalf of the company through
+    external channels must receive prior written approval. Violation may result in disciplinary action
+    or termination.</div>
+  </div>
+
+  <div class="tc-block">
+    <div class="tc-clause-title"><span class="clause-num">17</span> Termination &amp; Exit Process</div>
+    <div class="tc-clause-body">
+      <ul>
+        <li>On separation (resignation, retirement, or termination), you are required to complete a structured exit process including knowledge transfer, handover of responsibilities and assets, clearance from all departments, and submission of resignation in writing.</li>
+        <li>Full and Final Settlement (F&amp;F), including payment of any outstanding salary, leave encashment, or other dues, will be processed within <strong>45 working days</strong> of completion of exit formalities.</li>
+        <li>Experience and Relieving Letters will be issued only upon completion of notice period, clearance, and receipt of all dues from the employee.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="tc-block">
+    <div class="tc-clause-title"><span class="clause-num">18</span> Data Protection &amp; Privacy</div>
+    <div class="tc-clause-body">You consent to the collection, processing, and storage of your personal
+    data by <strong>{{company.name}}</strong> for legitimate employment purposes, as required by applicable
+    data protection laws including the Digital Personal Data Protection Act, 2023. Such data shall not
+    be shared with third parties without your consent, except where required by law.</div>
+  </div>
+
+  <div class="tc-block">
+    <div class="tc-clause-title"><span class="clause-num">19</span> Amendments &amp; Modifications</div>
+    <div class="tc-clause-body">The company reserves the right to amend, modify, or update the terms
+    and conditions of employment, including compensation structures, policies, and procedures, with
+    reasonable prior notice. Continued employment after such notice shall constitute your acceptance
+    of the revised terms. Any individual modification to this letter shall only be valid if executed
+    in writing and signed by an authorised representative of the company.</div>
+  </div>
+
+  <div class="tc-block">
+    <div class="tc-clause-title"><span class="clause-num">20</span> Governing Law &amp; Jurisdiction</div>
+    <div class="tc-clause-body">This letter and your employment with <strong>{{company.name}}</strong>
+    shall be governed by and construed in accordance with the laws of India. Any dispute, claim, or
+    controversy arising out of or in connection with this letter or your employment shall be subject
+    to the exclusive jurisdiction of the courts in
+    <strong>{{#if company.city}}{{company.city}}{{else}}the city of the company's registered office{{/if}}</strong>.</div>
+  </div>
+
+  <div class="tc-block">
+    <div class="tc-clause-title"><span class="clause-num">21</span> Entire Agreement</div>
+    <div class="tc-clause-body">This letter, together with any documents expressly incorporated herein
+    by reference, constitutes the entire agreement between you and <strong>{{company.name}}</strong>
+    with respect to the subject matter hereof, and supersedes all prior discussions, representations,
+    warranties, and understandings, whether oral or written. No prior negotiations or communications
+    shall have any legal effect unless confirmed in this letter.</div>
+  </div>
+
+  <!-- Closing paragraph -->
+  <p style="margin-top:12px;">
+    We trust you will find this offer satisfactory and look forward to your long and successful
+    association with <strong>{{company.name}}</strong>. This offer is valid for
+    <strong>7 (seven) calendar days</strong> from the date of issuance. Kindly sign and return
+    the acceptance copy along with the required documents to the HR Department at the earliest.
+  </p>
+
+  <!-- Company signature -->
+  <div class="signature-block">
+    <p style="font-size:11.5px; color:#475569; margin-bottom:14px;">Yours sincerely,<br>For <strong>{{company.name}}</strong></p>
+    {{#if company.signature_url}}
+      <img src="{{company.signature_url}}" alt="Signature" />
+    {{/if}}
+    {{#if company.stamp_url}}
+      <img src="{{company.stamp_url}}" alt="Stamp" style="max-height:56px; max-width:56px; margin-left:auto; margin-bottom:4px; display:block;" />
+    {{/if}}
+    <div class="sig-name">{{company.signatory_name}}</div>
+    <div class="sig-designation">{{company.signatory_designation}}</div>
+    <div class="sig-company">{{company.name}}</div>
+  </div>
+
+  <!-- Acceptance by candidate -->
+  <div class="acceptance-box">
+    <div class="acc-title">&#10003; Acceptance of Offer — To Be Signed by Candidate</div>
+    <p>
+      I, <strong>{{employee.full_name}}</strong>, have read and fully understood the terms and
+      conditions set forth in this Letter of Appointment dated <strong>{{today}}</strong>, issued
+      by <strong>{{company.name}}</strong> for the position of
+      <strong>{{#if employee.offered_designation}}{{employee.offered_designation}}{{else}}{{employee.designation}}{{/if}}</strong>.
+    </p>
+    <p>
+      I hereby <strong>unconditionally accept</strong> this offer and agree to be bound by all the
+      terms, conditions, policies, and guidelines contained herein and as amended from time to time.
+      I confirm that the information provided by me in my application and during the interview process
+      is accurate, complete, and truthful. I understand that providing false information is grounds for
+      immediate termination.
+    </p>
+    <p>
+      I confirm my intent to join on
+      <strong>{{#if employee.joining_date}}{{formatDate employee.joining_date "DD-MMM-YYYY"}}{{else}}{{formatDate employee.date_of_joining "DD-MMM-YYYY"}}{{/if}}</strong>
+      and acknowledge that I have received a copy of this letter for my records.
+    </p>
+    <table class="acc-fields">
+      <tr>
+        <td>Candidate Signature</td>
+        <td>Date of Acceptance</td>
+        <td>Place</td>
+      </tr>
+    </table>
+  </div>
+
+</div>
+
+<div class="footer">
+  {{company.name}} &nbsp;|&nbsp; {{company.address}}{{#if company.city}}, {{company.city}}{{/if}} &nbsp;|&nbsp; {{company.email}} &nbsp;|&nbsp; Doc No: {{doc_number}} &nbsp;|&nbsp; <strong>Page 4 of 4</strong>
+</div>
+
 </body>
 </html>
