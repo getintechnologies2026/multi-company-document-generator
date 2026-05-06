@@ -4,6 +4,19 @@ const fs = require('fs');
 const archiver = require('archiver');
 const { generatePDF, createBrowser, WKHTMLTOPDF_BIN } = require('../utils/pdfGenerator');
 
+/**
+ * Extract the year from a document's own date string.
+ * Falls back to the current year only when no valid date is provided.
+ * Accepts YYYY-MM-DD, DD-MM-YYYY, or any string parseable by Date().
+ */
+function docYear(dateStr) {
+    if (!dateStr) return new Date().getFullYear();
+    // Handle plain 4-digit year (e.g. from pay_year)
+    if (/^\d{4}$/.test(String(dateStr))) return Number(dateStr);
+    const y = new Date(dateStr).getFullYear();
+    return isNaN(y) ? new Date().getFullYear() : y;
+}
+
 exports.list = async (req, res) => {
     const { company_id, doc_type, employee_id, search } = req.query;
     let sql = `SELECT d.*, c.name as company_name, u.name as created_by_name
@@ -50,10 +63,18 @@ exports.generate = async (req, res) => {
         // Merge employee with overrides from form
         const empData = { ...(employee || {}), ...data };
 
-        // Generate doc number
+        // Generate doc number — year comes from the document's own date, not the server clock
         const prefix = company.doc_number_prefix || 'DOC';
         const typeShort = { offer_letter: 'OFR', payslip: 'PAY', experience_letter: 'EXP', relieving_letter: 'REL' }[doc_type];
-        const year = new Date().getFullYear();
+        const year = docYear(
+            data.offer_release_date ||   // offer letter: release date field
+            data.release_date       ||   // experience letter: release date field
+            data.relieving_date     ||   // relieving letter: relieving date
+            data.joining_date       ||   // offer letter: joining date fallback
+            data.lwd_date           ||   // relieving: last working day fallback
+            data.date_of_leaving    ||   // experience: leaving date fallback
+            null
+        );
         const [cnt] = await db.query('SELECT COUNT(*) as c FROM documents WHERE company_id = ? AND doc_type = ?', [company_id, doc_type]);
         const seq = String(cnt[0].c + 1).padStart(4, '0');
         const doc_number = `${prefix}/${typeShort}/${year}/${seq}`;
@@ -118,8 +139,15 @@ exports.generateAll = async (req, res) => {
         const empData = { ...(empRecord || {}), ...(employee || {}) };
 
         const prefix = company.doc_number_prefix || 'DOC';
-        const year = new Date().getFullYear();
         const typeShorts = { offer_letter: 'OFR', payslip: 'PAY', experience_letter: 'EXP', relieving_letter: 'REL' };
+
+        // Year lookup per doc type — use the document's own date, not the server clock
+        const yearByType = {
+            offer_letter:      docYear(offer?.offer_release_date || offer?.joining_date || empData.date_of_joining),
+            payslip:           docYear(payslip?.pay_year ? String(payslip.pay_year) : null),
+            experience_letter: docYear(experience?.release_date || relieving?.relieving_date || empData.date_of_leaving),
+            relieving_letter:  docYear(relieving?.relieving_date || relieving?.lwd_date || empData.date_of_leaving),
+        };
 
         const results = {};
         const docTypes = ['offer_letter', 'payslip', 'experience_letter', 'relieving_letter'];
@@ -131,6 +159,7 @@ exports.generateAll = async (req, res) => {
             for (const doc_type of docTypes) {
                 try {
                     const data = { ...empData, ...extraData[doc_type] };
+                    const year = yearByType[doc_type];
                     const [cnt] = await db.query('SELECT COUNT(*) as c FROM documents WHERE company_id = ? AND doc_type = ?', [company_id, doc_type]);
                     const seq = String(cnt[0].c + 1).padStart(4, '0');
                     const doc_number = `${prefix}/${typeShorts[doc_type]}/${year}/${seq}`;
@@ -222,7 +251,8 @@ exports.generateAll = async (req, res) => {
                         "SELECT COUNT(*) as c FROM documents WHERE company_id = ? AND doc_type = 'salary_increment'", [company_id]
                     );
                     const seqInc = String(cntInc[0].c + 1).padStart(4, '0');
-                    const incDocNum = `${prefix}/INC/${year}/${seqInc}`;
+                    const incYear = docYear(increment.increment_date);
+                    const incDocNum = `${prefix}/INC/${incYear}/${seqInc}`;
                     const incFilename = `${incDocNum.replace(/\//g, '_')}.pdf`;
                     const incOutPath = path.join(__dirname, '..', '..', 'generated', incFilename);
                     await generatePDF('salary_increment', { company, employee: empData, data: incData, doc_number: incDocNum }, incOutPath, browser);
@@ -265,7 +295,7 @@ exports.generateBulkPayslips = async (req, res) => {
         }
         const empData = { ...(empRecord || {}), ...(employee || {}) };
         const prefix = company.doc_number_prefix || 'DOC';
-        const year = new Date().getFullYear();
+        // Note: payslip doc numbers use monthData.pay_year per-row — no global year variable needed
 
         const results = [];
 
@@ -452,9 +482,9 @@ exports.generateSalaryIncrement = async (req, res) => {
             new_special_allowance: nw.special,
         };
 
-        // Doc number
+        // Doc number — year from increment's own effective date
         const prefix   = company.doc_number_prefix || 'DOC';
-        const year     = today.getFullYear();
+        const year     = docYear(increment.increment_date);
         const [cnt]    = await db.query(
             "SELECT COUNT(*) as c FROM documents WHERE company_id = ? AND doc_type = 'salary_increment'",
             [company_id]
@@ -548,9 +578,9 @@ exports.generateInternshipCertificate = async (req, res) => {
             issue_date:     issueDate,
         };
 
-        // Doc number
+        // Doc number — year from intern's completion (to_date) or start date
         const prefix   = company.doc_number_prefix || 'DOC';
-        const year     = today.getFullYear();
+        const year     = docYear(intern.to_date || intern.from_date);
         const [cnt]    = await db.query(
             "SELECT COUNT(*) as c FROM documents WHERE company_id = ? AND doc_type = 'internship_certificate'",
             [company_id]
@@ -629,8 +659,9 @@ exports.generateInternshipOffer = async (req, res) => {
             issue_date:           issueDate,
         };
 
+        // Doc number — year from internship start date
         const prefix   = company.doc_number_prefix || 'DOC';
-        const year     = today.getFullYear();
+        const year     = docYear(intern.from_date || intern.to_date);
         const [cnt]    = await db.query(
             "SELECT COUNT(*) as c FROM documents WHERE company_id = ? AND doc_type = 'internship_offer'", [company_id]
         );
@@ -697,8 +728,9 @@ exports.generateInternshipConfirmation = async (req, res) => {
             issue_date:    issueDate,
         };
 
+        // Doc number — year from internship joining / start date
         const prefix   = company.doc_number_prefix || 'DOC';
-        const year     = today.getFullYear();
+        const year     = docYear(intern.joining_date || intern.from_date || intern.to_date);
         const [cnt]    = await db.query(
             "SELECT COUNT(*) as c FROM documents WHERE company_id = ? AND doc_type = 'internship_confirmation'", [company_id]
         );
@@ -818,7 +850,7 @@ exports.generateInternshipAttendance = async (req, res) => {
         };
 
         const prefix   = company.doc_number_prefix || 'DOC';
-        const year     = today.getFullYear();
+        const year     = docYear(intern.from_date || intern.to_date);
         const [cnt]    = await db.query(
             "SELECT COUNT(*) as c FROM documents WHERE company_id = ? AND doc_type = 'internship_attendance'",
             [company_id]
