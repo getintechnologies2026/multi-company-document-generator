@@ -132,7 +132,7 @@
     <table class="meta-table">
       <tr>
         <td><strong>Ref No:</strong> {{doc_number}}</td>
-        <td><strong>Date:</strong> {{today}}</td>
+        <td><strong>Date:</strong> {{#if data.release_date}}{{data.release_date}}{{else}}{{today}}{{/if}}</td>
       </tr>
     </table>
 

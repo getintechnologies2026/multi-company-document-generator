@@ -129,7 +129,7 @@ export default function GenerateAll() {
   const [employees,   setEmployees]   = useState([]);
   const [companyId,   setCompanyId]   = useState('');
   const [employeeId,  setEmployeeId]  = useState('');
-  const [open, setOpen] = useState({ joining: true, payslips: true, increments: true, exit: true });
+  const [open, setOpen] = useState({ joining: true, payslips: true, increments: true, inc_payslips: true, exit: true });
 
   /* ── Phase 1 – Joining ── */
   const [emp, setEmp] = useState({
@@ -141,7 +141,7 @@ export default function GenerateAll() {
     ctc:'', basic:'', hra:'', da:'', conveyance:'', medical:'', special_allowance:'',
     pf:'', esi:'', professional_tax:'', tds:'',
   });
-  const [offer,       setOffer]      = useState({ joining_date:'', designation:'', ctc:'' });
+  const [offer,       setOffer]      = useState({ joining_date:'', designation:'', ctc:'', offer_release_date:'', notice_period:'1 Month', work_location:'' });
   const [offerResult, setOfferResult] = useState(null);
   const [genOffer,    setGenOffer]    = useState(false);
 
@@ -161,10 +161,14 @@ export default function GenerateAll() {
   const [incResults, setIncResults] = useState([]);
   const [genInc,    setGenInc]    = useState(false);
 
+  /* ── Phase 3b – Post-Increment Payslips ── */
+  const [incPsState, setIncPsState] = useState({});
+
   /* ── Phase 4 – Exit ── */
   const [exit,       setExit]       = useState({
     notice_period:'', lwd_date:'', relieving_date:'',
     relieving_designation:'', relieving_ctc:'', experience_summary:'',
+    experience_release_date:'',
   });
   const [exitResults, setExitResults] = useState(null);
   const [genExit,    setGenExit]    = useState(false);
@@ -222,6 +226,68 @@ export default function GenerateAll() {
   const ch     = setter => e => setter(p => ({ ...p, [e.target.name]: e.target.value }));
   const toggle = id => setOpen(o => ({ ...o, [id]: !o[id] }));
 
+  /* ── Scale salary components proportionally to new CTC ── */
+  const scaleForNewCtc = (sal, oldCtc, newCtc) => {
+    if (!oldCtc || !newCtc || oldCtc <= 0) return sal;
+    const r = newCtc / oldCtc;
+    const newBasic = Math.round(Number(sal.basic || 0) * r);
+    return {
+      ...sal, ctc: newCtc,
+      basic: newBasic,
+      hra: Math.round(Number(sal.hra || 0) * r),
+      da: Math.round(Number(sal.da || 0) * r),
+      conveyance: Math.round(Number(sal.conveyance || 0) * r),
+      medical: Math.round(Number(sal.medical || 0) * r),
+      special_allowance: Math.round(Number(sal.special_allowance || 0) * r),
+      pf: Math.round(newBasic * 0.12),
+    };
+  };
+
+  /* ── Post-increment payslip helpers ── */
+  const updIncPs = (idx, patch) =>
+    setIncPsState(s => ({ ...s, [idx]: { ...(s[idx] || {}), ...patch } }));
+
+  const applyIncPsQuick = (idx, opt, incRow) => {
+    const scaledSal = scaleForNewCtc({ ...emp, ...salary }, incRow.fromCtc, incRow.newCtcVal);
+    const scaledGross = ['basic','hra','da','conveyance','medical','special_allowance']
+      .reduce((s, k) => s + Number(scaledSal[k] || 0), 0);
+    const scaledDed = ['pf','esi','professional_tax','tds']
+      .reduce((s, k) => s + Number(scaledSal[k] || 0), 0);
+    const scaledNet = scaledGross - scaledDed;
+    const rows = buildPayslipRows(opt.type, opt.months, incRow.increment_date);
+    if (!rows.length) {
+      toast.error(opt.type === 'tenure' && !incRow.increment_date ? 'Fill increment date first' : 'No months found');
+      return;
+    }
+    const monthRows = rows.map(r => ({
+      ...r,
+      gross_earnings: scaledGross.toFixed(2),
+      total_deductions: scaledDed.toFixed(2),
+      net_pay: scaledNet.toFixed(2),
+      amount_in_words: '',
+    }));
+    updIncPs(idx, { monthRows, activeQuick: opt.id, results: null, scaledSal, scaledGross, scaledDed, scaledNet });
+    toast(`${rows.length} month${rows.length > 1 ? 's' : ''} loaded`, { icon: '📅' });
+  };
+
+  const generateIncPayslips = async (idx, incRow) => {
+    const ps = incPsState[idx];
+    if (!ps?.monthRows?.length) return toast.error('Select a month range first');
+    updIncPs(idx, { loading: true, results: null });
+    try {
+      const { data } = await api.post('/documents/generate-payslips-bulk', {
+        company_id: companyId, employee_id: employeeId || null,
+        employee: { ...emp, ...(ps.scaledSal || {}), designation: incRow.new_designation || emp.designation },
+        months: ps.monthRows,
+      });
+      updIncPs(idx, { results: data, loading: false });
+      toast.success(`${data.generated} payslip${data.generated > 1 ? 's' : ''} generated!`);
+    } catch (err) {
+      updIncPs(idx, { loading: false });
+      toast.error(err.response?.data?.error || 'Payslip generation failed');
+    }
+  };
+
   /* ════════════════════════════════════════════════════════════ */
   /*  Phase 1 — Generate Offer Letter                            */
   /* ════════════════════════════════════════════════════════════ */
@@ -241,6 +307,9 @@ export default function GenerateAll() {
           offered_designation: offer.designation || emp.designation,
           joining_date:        offer.joining_date || emp.date_of_joining,
           offered_ctc:         offer.ctc || salary.ctc,
+          offer_release_date:  offer.offer_release_date || '',
+          notice_period:       offer.notice_period || '1 Month',
+          work_location:       offer.work_location || '',
           gross:               salaryGross,
           net:                 salaryNet,
         },
@@ -386,6 +455,7 @@ export default function GenerateAll() {
           date_of_leaving:  relDate,
           relieving_date:   relDate,
           summary:          exit.experience_summary || '',
+          release_date:     exit.experience_release_date || '',
         },
       });
       exResults.experience_letter = data;
@@ -648,6 +718,18 @@ export default function GenerateAll() {
                               <SInput ring={phase.ring} type="number" name="ctc"
                                 value={offer.ctc} onChange={ch(setOffer)} className="pl-7" placeholder="500000" />
                             </div>
+                          </Field>
+                          <Field label="Offer Release Date" color={phase.text}>
+                            <SInput ring={phase.ring} type="date" name="offer_release_date"
+                              value={offer.offer_release_date} onChange={ch(setOffer)} />
+                          </Field>
+                          <Field label="Notice Period" color={phase.text}>
+                            <SInput ring={phase.ring} name="notice_period"
+                              value={offer.notice_period} onChange={ch(setOffer)} placeholder="1 Month" />
+                          </Field>
+                          <Field label="Work Location" color={phase.text}>
+                            <SInput ring={phase.ring} name="work_location"
+                              value={offer.work_location} onChange={ch(setOffer)} placeholder="Leave blank for company address" />
                           </Field>
                         </div>
                         <button onClick={generateOffer} disabled={genOffer}
@@ -982,6 +1064,205 @@ export default function GenerateAll() {
             })()}
 
             {/* ══════════════════════════════════════════════════════ */}
+            {/*  STEP 3b — POST-INCREMENT PAYSLIPS                    */}
+            {/* ══════════════════════════════════════════════════════ */}
+            {incChain.some(r => r.increment_date && r.new_ctc) && (() => {
+              const validRows = incChain.filter(r => r.increment_date && r.new_ctc);
+              const anyGenerated = validRows.some((_, idx) => incPsState[idx]?.results?.generated > 0);
+              return (
+                <div className="rounded-2xl overflow-hidden shadow-md">
+                  <button type="button" onClick={() => toggle('inc_payslips')}
+                    className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-violet-500 to-purple-700 text-white shadow-md">
+                    <div className="flex items-center gap-3">
+                      <div className="bg-white/20 p-2 rounded-lg"><CreditCard size={18} /></div>
+                      <div className="text-left">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="bg-white/25 text-white text-xs font-bold px-2 py-0.5 rounded-full">Step 3b</span>
+                          <span className="font-bold text-base">Post-Increment Payslips</span>
+                        </div>
+                        <div className="text-xs text-white/80 mt-0.5">
+                          {anyGenerated
+                            ? <span className="flex items-center gap-1">✓ Post-increment payslips generated</span>
+                            : `Generate payslips after each of ${validRows.length} increment${validRows.length > 1 ? 's' : ''} — scaled salary`}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {anyGenerated && <CheckCircle size={16} className="text-white/90" />}
+                      {open.inc_payslips ? <ChevronUp size={20} className="text-white/80" /> : <ChevronDown size={20} className="text-white/80" />}
+                    </div>
+                  </button>
+
+                  {open.inc_payslips && (
+                    <div className="bg-violet-50 border border-violet-200 border-t-0 rounded-b-2xl p-5 space-y-5">
+                      <p className="text-xs text-violet-700 bg-violet-100 rounded-lg px-3 py-2 flex items-start gap-1.5">
+                        <TrendingUp size={12} className="shrink-0 mt-0.5" />
+                        Salary components are proportionally scaled from the joining CTC to the new CTC for each increment period.
+                      </p>
+
+                      {validRows.map((incRow, idx) => {
+                        const ps = incPsState[idx] || {};
+                        const scaledSal = ps.scaledSal || scaleForNewCtc({ ...emp, ...salary }, incRow.fromCtc, incRow.newCtcVal);
+                        const scaledGross = ps.scaledGross !== undefined ? ps.scaledGross :
+                          ['basic','hra','da','conveyance','medical','special_allowance'].reduce((s, k) => s + Number(scaledSal[k] || 0), 0);
+                        const scaledDed = ps.scaledDed !== undefined ? ps.scaledDed :
+                          ['pf','esi','professional_tax','tds'].reduce((s, k) => s + Number(scaledSal[k] || 0), 0);
+                        const scaledNet = ps.scaledNet !== undefined ? ps.scaledNet : scaledGross - scaledDed;
+
+                        return (
+                          <div key={incRow.id} className="bg-white rounded-xl border border-violet-200 shadow-sm overflow-hidden">
+                            {/* Sub-header */}
+                            <div className="bg-gradient-to-r from-violet-500 to-purple-600 px-4 py-2.5 flex items-center justify-between">
+                              <span className="text-white font-bold text-sm flex items-center gap-2 flex-wrap">
+                                <span className="bg-white/25 rounded-full w-5 h-5 flex items-center justify-center text-xs shrink-0">{idx + 1}</span>
+                                Post-Increment {idx + 1} Payslips
+                                <span className="text-violet-100 text-xs font-normal">
+                                  ₹{inrFmt(incRow.newCtcVal)}/yr
+                                  {incRow.increment_date && <span className="ml-1">· from {incRow.increment_date}</span>}
+                                </span>
+                              </span>
+                              {ps.results && <CheckCircle size={14} className="text-white" />}
+                            </div>
+
+                            <div className="p-4 space-y-4">
+                              {/* Revised salary cards */}
+                              <div className="grid grid-cols-3 gap-2">
+                                {[['Gross','bg-emerald-500',scaledGross],['Deductions','bg-red-500',scaledDed],['Net Pay','bg-violet-600',scaledNet]].map(([l,bg,v]) => (
+                                  <div key={l} className={`${bg} text-white rounded-xl p-2.5 text-center`}>
+                                    <div className="text-xs font-medium opacity-80 mb-0.5">{l}</div>
+                                    <div className="font-bold text-sm">₹{inrFmt(v)}</div>
+                                  </div>
+                                ))}
+                              </div>
+
+                              {/* Quick select */}
+                              <div>
+                                <p className="text-xs font-bold text-violet-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                  <Calendar size={12} /> Quick Select Range
+                                </p>
+                                <div className="grid grid-cols-3 md:grid-cols-7 gap-2">
+                                  {PAYSLIP_QUICK.map(opt => (
+                                    <button key={opt.id} type="button" onClick={() => applyIncPsQuick(idx, opt, incRow)}
+                                      className={`py-2 px-1 rounded-xl text-xs font-bold border-2 text-center transition
+                                        ${ps.activeQuick === opt.id
+                                          ? 'bg-violet-600 text-white border-violet-600 shadow-md'
+                                          : 'bg-white text-violet-700 border-violet-200 hover:border-violet-400 hover:bg-violet-50'}`}>
+                                      <div className="text-base mb-0.5">{opt.icon}</div>
+                                      <div className="leading-tight">{opt.label}</div>
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+
+                              {/* Month table */}
+                              {ps.monthRows?.length > 0 && (
+                                <div>
+                                  <div className="flex items-center justify-between mb-2">
+                                    <p className="text-xs font-bold text-violet-700 uppercase tracking-wider">
+                                      {ps.monthRows.length} Month{ps.monthRows.length > 1 ? 's' : ''} Selected
+                                    </p>
+                                    <button onClick={() => updIncPs(idx, { monthRows: [], activeQuick: '', results: null })}
+                                      className="text-xs text-red-500 hover:text-red-700 font-medium flex items-center gap-1">
+                                      <Trash2 size={11} /> Clear
+                                    </button>
+                                  </div>
+                                  <div className="overflow-x-auto rounded-xl border border-violet-200 shadow-sm">
+                                    <table className="w-full text-sm">
+                                      <thead>
+                                        <tr className="bg-violet-600 text-white">
+                                          {['#','Month','Work Days','Paid Days','LOP','Net Pay','Status',''].map(h => (
+                                            <th key={h} className="px-3 py-2 text-xs font-bold text-left">{h}</th>
+                                          ))}
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {ps.monthRows.map((row, mIdx) => {
+                                          const res = ps.results?.results?.[mIdx];
+                                          return (
+                                            <tr key={mIdx} className={mIdx % 2 === 0 ? 'bg-white' : 'bg-violet-50/40'}>
+                                              <td className="px-3 py-2 text-xs text-gray-400">{mIdx + 1}</td>
+                                              <td className="px-3 py-2 font-semibold text-violet-700 whitespace-nowrap">{row.pay_month} {row.pay_year}</td>
+                                              {[['working_days','violet'],['paid_days','violet'],['lop_days','red']].map(([field, color]) => (
+                                                <td key={field} className="px-3 py-2 text-center">
+                                                  <input type="number" value={row[field]}
+                                                    onChange={e => updIncPs(idx, { monthRows: ps.monthRows.map((r, i) => i === mIdx ? { ...r, [field]: e.target.value } : r) })}
+                                                    className={`w-14 px-1.5 py-1 border border-${color}-200 rounded text-center text-xs focus:outline-none focus:ring-1 focus:ring-${color}-400`} />
+                                                </td>
+                                              ))}
+                                              <td className="px-3 py-2 text-right font-bold text-emerald-700 text-xs whitespace-nowrap">
+                                                ₹{inr2(row.net_pay)}
+                                              </td>
+                                              <td className="px-3 py-2 text-center">
+                                                {res?.success && (
+                                                  <div className="flex items-center justify-center gap-1">
+                                                    <CheckCircle size={13} className="text-green-500" />
+                                                    <a href={res.url} target="_blank" rel="noreferrer" className="text-xs text-blue-600 hover:underline">View</a>
+                                                    <a href={res.url} download className="text-xs text-gray-500 hover:text-gray-700"><Download size={11} /></a>
+                                                  </div>
+                                                )}
+                                                {res && !res.success && <AlertCircle size={13} className="text-red-500 mx-auto" title={res.error} />}
+                                                {ps.loading && !res && <Loader size={13} className="animate-spin text-violet-500 mx-auto" />}
+                                              </td>
+                                              <td className="px-3 py-2 text-center">
+                                                <button onClick={() => updIncPs(idx, { monthRows: ps.monthRows.filter((_, i) => i !== mIdx) })}
+                                                  className="text-red-400 hover:text-red-600 transition"><Trash2 size={13} /></button>
+                                              </td>
+                                            </tr>
+                                          );
+                                        })}
+                                      </tbody>
+                                      <tfoot>
+                                        <tr className="bg-gradient-to-r from-violet-600 to-purple-700 text-white">
+                                          <td colSpan={5} className="px-3 py-2 text-xs font-bold">
+                                            Total — {ps.monthRows.length} months
+                                          </td>
+                                          <td className="px-3 py-2 text-right text-sm font-bold">
+                                            ₹{inr2(ps.monthRows.reduce((s, r) => s + Number(r.net_pay || 0), 0))}
+                                          </td>
+                                          <td colSpan={2}></td>
+                                        </tr>
+                                      </tfoot>
+                                    </table>
+                                  </div>
+                                  <button onClick={() => generateIncPayslips(idx, incRow)} disabled={!!ps.loading}
+                                    className="mt-3 w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-white shadow transition disabled:opacity-60 text-sm"
+                                    style={{ background: 'linear-gradient(135deg,#7c3aed,#6d28d9)' }}>
+                                    {ps.loading ? <Loader size={16} className="animate-spin" /> : <Zap size={16} />}
+                                    {ps.loading
+                                      ? `Generating ${ps.monthRows.length} Payslips...`
+                                      : `Generate All ${ps.monthRows.length} Post-Increment Payslips`}
+                                  </button>
+                                  {ps.results?.zipUrl && (
+                                    <a href={ps.results.zipUrl} download
+                                      className="mt-2 w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-bold text-white text-sm shadow hover:opacity-90 transition"
+                                      style={{ background: 'linear-gradient(135deg,#059669,#7c3aed)' }}>
+                                      <Archive size={16} /> Download All {ps.results.generated} Payslips as ZIP
+                                    </a>
+                                  )}
+                                  {ps.results && (
+                                    <div className="mt-2 bg-white border border-violet-200 rounded-xl px-4 py-2.5 flex items-center gap-2">
+                                      <CheckCircle size={16} className="text-emerald-500 shrink-0" />
+                                      <span className="text-sm font-semibold text-gray-700">
+                                        {ps.results.generated}/{ps.results.total} payslips generated
+                                        {ps.results.total - ps.results.generated > 0 && (
+                                          <span className="text-red-500 ml-2">({ps.results.total - ps.results.generated} failed)</span>
+                                        )}
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+
+            {/* ══════════════════════════════════════════════════════ */}
             {/*  STEP 4 — EXIT / RELIEVING                            */}
             {/* ══════════════════════════════════════════════════════ */}
             {(() => {
@@ -1030,8 +1311,14 @@ export default function GenerateAll() {
                       {/* Experience summary */}
                       <div className="border-t border-rose-200 pt-4">
                         <p className="text-xs font-bold text-rose-600 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                          <Award size={13} /> Experience Letter — Custom Summary (Optional)
+                          <Award size={13} /> Experience Letter Details (Optional)
                         </p>
+                        <div className="grid md:grid-cols-3 gap-4 mb-3">
+                          <Field label="Experience Letter Release Date" color={phase.text}>
+                            <SInput ring={phase.ring} type="date" name="experience_release_date"
+                              value={exit.experience_release_date} onChange={ch(setExit)} />
+                          </Field>
+                        </div>
                         <textarea
                           name="experience_summary" value={exit.experience_summary} onChange={ch(setExit)} rows={3}
                           placeholder="Leave blank for default text. Or write: He / She was a diligent and hardworking employee..."

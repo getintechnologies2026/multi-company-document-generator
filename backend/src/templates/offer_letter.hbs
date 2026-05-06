@@ -269,7 +269,7 @@
   <table class="meta-table">
     <tr>
       <td><strong>Ref No:</strong> {{doc_number}}</td>
-      <td><strong>Date:</strong> {{today}}</td>
+      <td><strong>Date:</strong> {{#if employee.offer_release_date}}{{employee.offer_release_date}}{{else}}{{today}}{{/if}}</td>
     </tr>
   </table>
 
@@ -327,7 +327,7 @@
     </tr>
     <tr>
       <td>Work Location</td>
-      <td>{{company.address}}{{#if company.city}}, {{company.city}}{{/if}}{{#if company.state}}, {{company.state}}{{/if}}</td>
+      <td>{{#if employee.work_location}}{{employee.work_location}}{{else}}{{company.address}}{{#if company.city}}, {{company.city}}{{/if}}{{#if company.state}}, {{company.state}}{{/if}}{{/if}}</td>
     </tr>
     <tr>
       <td>Reporting To</td>
@@ -339,7 +339,7 @@
     </tr>
     <tr>
       <td>Notice Period</td>
-      <td><strong>One (1) Month</strong> (during probation) &nbsp;|&nbsp; <strong>One (1) Month</strong> (post-confirmation)</td>
+      <td>{{#if employee.notice_period}}<strong>{{employee.notice_period}}</strong> (during probation) &nbsp;|&nbsp; <strong>{{employee.notice_period}}</strong> (post-confirmation){{else}}<strong>One (1) Month</strong> (during probation) &nbsp;|&nbsp; <strong>One (1) Month</strong> (post-confirmation){{/if}}</td>
     </tr>
     <tr>
       <td>Annual CTC (Cost to Company)</td>
