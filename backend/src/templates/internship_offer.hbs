@@ -132,9 +132,13 @@
   <div class="addr-block">
     <strong>To,</strong><br>
     <strong>{{data.intern_name}}</strong><br>
+    {{#if data.designation}}<span>{{data.designation}}</span><br>{{/if}}
     {{#if data.roll_no}}<span>Roll No: {{data.roll_no}}</span><br>{{/if}}
     {{#if data.college}}{{data.college}}{{/if}}
     {{#if data.course}}<br>{{data.course}}{{#if data.branch}} ({{data.branch}}){{/if}}{{/if}}
+    {{#if data.address}}<br>{{data.address}}{{/if}}
+    {{#if data.mobile_no}}<br>Mobile: {{data.mobile_no}}{{/if}}
+    {{#if data.email_id}}<br>{{data.email_id}}{{/if}}
     <div class="salute">Dear {{data.intern_name}},</div>
   </div>
 
@@ -155,9 +159,13 @@
   <!-- Details Table -->
   <table class="detail-table">
     <tr><td>Intern Name</td><td><strong>{{data.intern_name}}</strong></td></tr>
+    {{#if data.designation}}<tr><td>Designation</td><td>{{data.designation}}</td></tr>{{/if}}
     {{#if data.roll_no}}<tr><td>Roll No / Register No</td><td>{{data.roll_no}}</td></tr>{{/if}}
     {{#if data.college}}<tr><td>Institution</td><td>{{data.college}}</td></tr>{{/if}}
     {{#if data.course}}<tr><td>Course / Degree</td><td>{{data.course}}{{#if data.branch}} &mdash; {{data.branch}}{{/if}}</td></tr>{{/if}}
+    {{#if data.mobile_no}}<tr><td>Mobile No</td><td>{{data.mobile_no}}</td></tr>{{/if}}
+    {{#if data.email_id}}<tr><td>Email ID</td><td>{{data.email_id}}</td></tr>{{/if}}
+    {{#if data.pan_no}}<tr><td>PAN No</td><td>{{data.pan_no}}</td></tr>{{/if}}
     <tr><td>Department / Domain</td><td>{{data.department}}</td></tr>
     {{#if data.project_title}}<tr><td>Project / Role</td><td>{{data.project_title}}</td></tr>{{/if}}
     <tr><td>Internship Start Date</td><td><strong>{{data.from_date}}</strong></td></tr>

@@ -1,0 +1,292 @@
+<!-- internship_salary_cert.hbs -->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      color: #1a1a1a;
+      font-size: 13px;
+      line-height: 1.7;
+      background: #fff;
+    }
+    .page { padding: 0; }
+
+    /* ── Top accent bar ── */
+    .top-bar { height: 8px; width: 100%; background: linear-gradient(90deg, #881337, #f43f5e); }
+
+    /* ── Header — float layout ── */
+    .header {
+      background: #fff1f2;
+      padding: 16px 30px;
+      border-bottom: 2px solid #fecdd3;
+      overflow: hidden;
+    }
+    .header-logo { float: left; }
+    .header-logo img { max-height: 62px; max-width: 190px; display: block; }
+    .header-logo .logo-text { font-size: 22px; font-weight: 700; color: #be123c; letter-spacing: 0.5px; }
+    .header-company {
+      float: right;
+      text-align: right;
+      font-size: 11px;
+      color: #78716c;
+      line-height: 1.55;
+    }
+    .header-company .company-name { font-size: 15px; font-weight: 700; color: #be123c; margin-bottom: 2px; }
+
+    /* ── Body ── */
+    .body { padding: 20px 30px; }
+
+    /* ── Meta row — table layout ── */
+    table.meta-table {
+      width: 100%; border-collapse: collapse;
+      margin-bottom: 16px; border-bottom: 1px dashed #fecdd3;
+      font-size: 11.5px; color: #78716c;
+    }
+    table.meta-table td { padding: 0 0 8px 0; border: none; background: none; }
+    table.meta-table td:last-child { text-align: right; }
+
+    /* ── Document title ── */
+    .doc-title {
+      text-align: center;
+      background: #be123c;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      padding: 9px 24px;
+      border-radius: 30px;
+      display: block;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    /* ── Text ── */
+    .concern-line {
+      font-weight: 700; font-size: 13.5px; color: #1c1917; margin-bottom: 14px; letter-spacing: 0.3px;
+    }
+    p { margin: 10px 0; text-align: justify; font-size: 13px; color: #1c1917; }
+
+    /* ── Stipend highlight box ── */
+    .stipend-highlight {
+      background: linear-gradient(90deg, #fff1f2, #ffe4e6);
+      border: 1.5px solid #fda4af;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin: 16px 0;
+      text-align: center;
+    }
+    .stipend-highlight .sh-label { font-size: 11px; color: #be123c; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .stipend-highlight .sh-amount { font-size: 30px; font-weight: 800; color: #be123c; }
+    .stipend-highlight .sh-sub { font-size: 11px; color: #9f1239; margin-top: 3px; }
+
+    /* ── Details summary box ── */
+    .summary-box {
+      background: #fff1f2; border-left: 4px solid #f43f5e;
+      border-radius: 0 6px 6px 0; padding: 14px 18px; margin: 22px 0;
+    }
+    .summary-box .box-heading {
+      font-weight: 700; color: #be123c; font-size: 12.5px;
+      margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    table.summary-table {
+      width: 100%; border-collapse: collapse; font-size: 12px;
+    }
+    table.summary-table td { padding: 5px 8px; vertical-align: top; border: 1px solid #fecdd3; }
+    table.summary-table td.key {
+      background: #ffe4e6; font-weight: 600; color: #881337; width: 36%;
+    }
+    table.summary-table td.val { color: #1c1917; background: #fff8f9; }
+    table.summary-table tr:nth-child(even) td.val { background: #fff1f2; }
+
+    /* ── Signature block ── */
+    .signature-block { margin-top: 36px; text-align: right; }
+    .signature-block img { max-height: 56px; max-width: 160px; display: block; margin-left: auto; margin-bottom: 4px; }
+    .signature-block .sig-name { font-weight: 700; font-size: 13px; color: #1c1917; }
+    .signature-block .sig-designation { font-size: 11.5px; color: #78716c; }
+    .signature-block .sig-company { font-size: 11.5px; color: #be123c; font-weight: 600; }
+
+    /* ── Footer ── */
+    .footer {
+      margin-top: 28px; border-top: 1px solid #fecdd3; padding: 7px 30px;
+      text-align: center; font-size: 10px; color: #be123c; background: #fff1f2; line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="top-bar"></div>
+
+  <!-- Header: logo left, company info right via float -->
+  <div class="header">
+    <div class="header-logo">
+      {{#if company.logo_url}}
+        <img src="{{company.logo_url}}" alt="{{company.name}}" />
+      {{else}}
+        <div class="logo-text">{{company.name}}</div>
+      {{/if}}
+    </div>
+    <div class="header-company">
+      <div class="company-name">{{company.name}}</div>
+      <div>{{company.address}}{{#if company.city}}, {{company.city}}{{/if}}{{#if company.state}}, {{company.state}}{{/if}}{{#if company.pincode}} - {{company.pincode}}{{/if}}</div>
+      {{#if company.phone}}<div>Phone: {{company.phone}}</div>{{/if}}
+      {{#if company.email}}<div>Email: {{company.email}}</div>{{/if}}
+      {{#if company.website}}<div>{{company.website}}</div>{{/if}}
+      {{#if company.gstin}}<div>GSTIN: {{company.gstin}}</div>{{/if}}
+    </div>
+  </div>
+
+  <div class="body">
+
+    <!-- Meta row: ref left, date right via table -->
+    <table class="meta-table">
+      <tr>
+        <td><strong>Ref No:</strong> {{doc_number}}</td>
+        <td><strong>Date:</strong> {{data.issue_date}}</td>
+      </tr>
+    </table>
+
+    <div class="doc-title">INTERNSHIP SALARY CERTIFICATE</div>
+
+    <div class="concern-line">TO WHOMSOEVER IT MAY CONCERN</div>
+
+    <p>
+      This is to certify that <strong>{{data.intern_name}}</strong>{{#if data.designation}},
+      designated as <strong>{{data.designation}}</strong>{{/if}}, has completed an internship programme
+      at <strong>{{company.name}}</strong>{{#if data.department}}
+      in the <strong>{{data.department}}</strong> department{{/if}},
+      from <strong>{{data.from_date}}</strong> to <strong>{{data.to_date}}</strong>
+      {{#if data.duration_text}}({{data.duration_text}}){{/if}}.
+    </p>
+    <p>
+      During the internship period, <strong>{{data.intern_name}}</strong> was entitled to a monthly
+      stipend of <strong>&#8377;{{data.stipend}}</strong> as per the internship agreement.
+      The total stipend paid for the entire internship tenure amounts to
+      <strong>&#8377;{{data.total_stipend}}</strong>.
+    </p>
+    <p>
+      This certificate is issued upon request for the purpose of income tax filings, financial records,
+      and any other official requirements. The details mentioned herein are certified to be true
+      and correct to the best of our knowledge.
+    </p>
+
+    <!-- Stipend Highlight -->
+    <div class="stipend-highlight">
+      <div class="sh-label">Total Stipend Paid</div>
+      <div class="sh-amount">&#8377;{{data.total_stipend}}</div>
+      <div class="sh-sub">{{data.duration_text}} &nbsp;|&nbsp; &#8377;{{data.stipend}} / Month</div>
+    </div>
+
+    <!-- Internship Details Summary Box -->
+    <div class="summary-box">
+      <div class="box-heading">Internship Details</div>
+      <table class="summary-table">
+        <tr>
+          <td class="key">Name</td>
+          <td class="val"><strong>{{data.intern_name}}</strong></td>
+        </tr>
+        {{#if data.designation}}
+        <tr>
+          <td class="key">Designation</td>
+          <td class="val">{{data.designation}}</td>
+        </tr>
+        {{/if}}
+        <tr>
+          <td class="key">Department</td>
+          <td class="val">{{data.department}}</td>
+        </tr>
+        {{#if data.dob}}
+        <tr>
+          <td class="key">Date of Birth</td>
+          <td class="val">{{data.dob}}</td>
+        </tr>
+        {{/if}}
+        {{#if data.mobile_no}}
+        <tr>
+          <td class="key">Mobile No</td>
+          <td class="val">{{data.mobile_no}}</td>
+        </tr>
+        {{/if}}
+        {{#if data.email_id}}
+        <tr>
+          <td class="key">Email ID</td>
+          <td class="val">{{data.email_id}}</td>
+        </tr>
+        {{/if}}
+        {{#if data.address}}
+        <tr>
+          <td class="key">Address</td>
+          <td class="val">{{data.address}}</td>
+        </tr>
+        {{/if}}
+        <tr>
+          <td class="key">Internship Period</td>
+          <td class="val"><strong>{{data.from_date}}</strong> to <strong>{{data.to_date}}</strong></td>
+        </tr>
+        <tr>
+          <td class="key">Duration</td>
+          <td class="val">{{data.duration_text}}</td>
+        </tr>
+        <tr>
+          <td class="key">Monthly Stipend</td>
+          <td class="val"><strong>&#8377;{{data.stipend}}</strong></td>
+        </tr>
+        <tr>
+          <td class="key">Total Stipend Paid</td>
+          <td class="val"><strong>&#8377;{{data.total_stipend}}</strong></td>
+        </tr>
+        {{#if data.pan_no}}
+        <tr>
+          <td class="key">PAN No</td>
+          <td class="val">{{data.pan_no}}</td>
+        </tr>
+        {{/if}}
+        {{#if data.aadhaar_no}}
+        <tr>
+          <td class="key">Aadhaar No</td>
+          <td class="val">{{data.aadhaar_no}}</td>
+        </tr>
+        {{/if}}
+        {{#if data.supervisor}}
+        <tr>
+          <td class="key">Supervisor</td>
+          <td class="val">{{data.supervisor}}</td>
+        </tr>
+        {{/if}}
+        {{#if data.offer_date}}
+        <tr>
+          <td class="key">Offer Date</td>
+          <td class="val">{{data.offer_date}}</td>
+        </tr>
+        {{/if}}
+      </table>
+    </div>
+
+    <div class="signature-block">
+      <p style="font-size:12px; color:#78716c; margin-bottom:16px;">For <strong>{{company.name}}</strong>,</p>
+      {{#if company.signature_url}}
+        <img src="{{company.signature_url}}" alt="Signature" />
+      {{/if}}
+      {{#if company.stamp_url}}
+        <img src="{{company.stamp_url}}" alt="Stamp" style="max-height:56px; max-width:56px; margin-left:auto; margin-bottom:4px; display:block;" />
+      {{/if}}
+      <div class="sig-name">{{company.signatory_name}}</div>
+      <div class="sig-designation">{{company.signatory_designation}}</div>
+      <div class="sig-company">{{company.name}}</div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    {{company.name}} &nbsp;|&nbsp; {{company.address}}{{#if company.city}}, {{company.city}}{{/if}}{{#if company.state}}, {{company.state}}{{/if}}
+    &nbsp;|&nbsp; {{company.email}}
+    {{#if company.phone}}&nbsp;|&nbsp; {{company.phone}}{{/if}}
+    &nbsp;|&nbsp; Doc No: {{doc_number}}
+  </div>
+
+</div>
+</body>
+</html>

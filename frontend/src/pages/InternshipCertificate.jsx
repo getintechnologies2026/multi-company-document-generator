@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 import {
   GraduationCap, Building2, User, Briefcase, Award, Star,
   CheckCircle, Loader, Download, ChevronDown, ChevronUp,
-  X, Plus, Eye, CalendarCheck, Send, ClipboardCheck
+  X, Plus, Eye, CalendarCheck, Send, ClipboardCheck, IndianRupee,
 } from 'lucide-react';
 import api from '../services/api';
 
@@ -66,6 +66,21 @@ const CERT_TYPES = [
     endpoint: '/documents/generate-internship-attendance',
     activeCard: 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white border-transparent shadow-lg',
     inactiveCard: 'bg-white border-gray-200 hover:border-blue-300 hover:bg-blue-50',
+  },
+  {
+    id: 'salary_cert',
+    label: 'Salary Cert',
+    icon: IndianRupee,
+    gradient: 'from-rose-500 to-pink-600',
+    light: 'bg-rose-50',
+    border: 'border-rose-200',
+    text: 'text-rose-700',
+    ring: 'focus:ring-rose-400',
+    desc: 'Stipend certificate',
+    endpoint: '/documents/generate-internship-salary-cert',
+    activeCard: 'bg-gradient-to-br from-rose-500 to-pink-600 text-white border-transparent shadow-lg',
+    inactiveCard: 'bg-white border-gray-200 hover:border-rose-300 hover:bg-rose-50',
+    professionalOnly: true,
   },
 ];
 
@@ -134,59 +149,82 @@ function SectionWrap({ title, icon: Icon, gradient, light, border, open, onToggl
 /*  MAIN COMPONENT                                          */
 /* ─────────────────────────────────────────────────────── */
 export default function InternshipCertificate() {
-  const [companies, setCompanies] = useState([]);
-  const [companyId, setCompanyId] = useState('');
-  const [certType, setCertType]   = useState('offer');
-  const [generating, setGenerating] = useState(false);
-  const [result, setResult]         = useState(null);
+  const [companies, setCompanies]       = useState([]);
+  const [companyId, setCompanyId]       = useState('');
+  const [internCategory, setInternCategory] = useState('college'); // 'college' | 'professional'
+  const [certType, setCertType]         = useState('offer');
+  const [generating, setGenerating]     = useState(false);
+  const [result, setResult]             = useState(null);
 
-  // Skill tags (completion cert)
-  const [skillInput, setSkillInput]   = useState('');
-  const [skillsList, setSkillsList]   = useState([]);
+  // Skills tags (completion cert)
+  const [skillInput, setSkillInput]     = useState('');
+  const [skillsList, setSkillsList]     = useState([]);
 
   // Topics tags (attendance cert)
-  const [topicInput, setTopicInput]   = useState('');
-  const [topicsList, setTopicsList]   = useState([]);
+  const [topicInput, setTopicInput]     = useState('');
+  const [topicsList, setTopicsList]     = useState([]);
 
   // Date-wise attendance records
-  const [attRecords, setAttRecords]   = useState([]);
+  const [attRecords, setAttRecords]     = useState([]);
 
   // Section open/close
   const [open, setOpen] = useState({ company: true, intern: true, internship: true, extra: true });
   const toggle = k => setOpen(o => ({ ...o, [k]: !o[k] }));
 
-  // Form state — all fields for all types
+  // Form state — common + college + professional fields
   const [form, setForm] = useState({
+    // Common
     intern_name: '',
+    department: '',
+    from_date: '',
+    to_date: '',
+    mentor_name: '',
+    stipend: '',
+    performance: '',
+    remarks: '',
+    // College-only
     roll_no: '',
     college: '',
     course: '',
     branch: '',
-    department: '',
     project_title: '',
-    from_date: '',
-    to_date: '',
     joining_date: '',
-    mentor_name: '',
-    stipend: '',
     joining_instructions: '',
-    performance: '',
-    remarks: '',
     total_working_days: '',
     days_present: '',
+    // Professional-only
+    mobile_no: '',
+    email_id: '',
+    address: '',
+    dob: '',
+    pan_no: '',
+    aadhaar_no: '',
+    designation: '',
+    offer_date: '',
+    supervisor: '',
   });
 
   useEffect(() => {
     api.get('/companies').then(({ data }) => setCompanies(data));
   }, []);
 
-  // Reset result and regenerate records when cert type changes
+  // Reset result when cert type changes; re-generate attendance records if applicable
   useEffect(() => {
     setResult(null);
     if (certType === 'attendance' && form.from_date && form.to_date) {
       generateRecords(form.from_date, form.to_date);
     }
   }, [certType]); // eslint-disable-line
+
+  // Handle category switch
+  const handleCategoryChange = (cat) => {
+    setInternCategory(cat);
+    setResult(null);
+    // Salary cert is professional-only — switch away if moving to college
+    if (cat === 'college' && certType === 'salary_cert') {
+      setCertType('offer');
+    }
+  };
 
   const ch = e => {
     const { name, value } = e.target;
@@ -219,7 +257,7 @@ export default function InternshipCertificate() {
   };
   const removeTopic = s => setTopicsList(l => l.filter(x => x !== s));
 
-  // Auto-generate date-wise records when date range changes (attendance cert)
+  // Auto-generate date-wise records (attendance cert)
   const generateRecords = useCallback((from, to) => {
     if (!from || !to) return;
     const start = new Date(from);
@@ -245,13 +283,11 @@ export default function InternshipCertificate() {
   }, []);
 
   // Derive totals from attRecords
-  const workingRecords  = attRecords.filter(r => r.status !== 'W');
+  const workingRecords   = attRecords.filter(r => r.status !== 'W');
   const totalWorkingDays = workingRecords.length;
   const daysPresent      = workingRecords.filter(r => r.status === 'P').length;
   const daysAbsent       = workingRecords.filter(r => r.status === 'A').length;
-  const attendancePct    = totalWorkingDays > 0
-    ? Math.round((daysPresent / totalWorkingDays) * 100)
-    : null;
+  const attendancePct    = totalWorkingDays > 0 ? Math.round((daysPresent / totalWorkingDays) * 100) : null;
 
   const updateRecord = (idx, field, value) => {
     setAttRecords(prev => prev.map((r, i) => i === idx ? { ...r, [field]: value } : r));
@@ -264,6 +300,7 @@ export default function InternshipCertificate() {
     if (!companyId) return toast.error('Please select a company');
     if (!form.intern_name.trim()) return toast.error('Intern name is required');
     if (!form.from_date || !form.to_date) return toast.error('From Date and To Date are required');
+    if (certType === 'salary_cert' && !form.stipend) return toast.error('Monthly stipend is required for salary certificate');
     if (certType === 'attendance' && attRecords.length === 0) {
       return toast.error('Please enter From Date and To Date to generate attendance records');
     }
@@ -275,6 +312,8 @@ export default function InternshipCertificate() {
         company_id: companyId,
         intern: {
           ...form,
+          intern_category:     internCategory,
+          supervisor:          internCategory === 'professional' ? form.supervisor : form.mentor_name,
           skills:              skillsList.join(', '),
           covered_topics:      topicsList.join(', '),
           attendance_records:  attRecords,
@@ -320,24 +359,57 @@ export default function InternshipCertificate() {
 
       <div className="max-w-5xl mx-auto px-4 pb-10">
 
+        {/* ── Intern Category Selector ── */}
+        <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-4 mb-4">
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Intern Category</p>
+          <div className="grid grid-cols-2 gap-3">
+            <button type="button" onClick={() => handleCategoryChange('college')}
+              className={`flex items-center justify-center gap-2 p-3 rounded-xl border-2 font-bold text-sm transition
+                ${internCategory === 'college'
+                  ? 'bg-gradient-to-br from-violet-600 to-purple-700 text-white border-transparent shadow-lg'
+                  : 'bg-white border-gray-200 hover:border-violet-300 hover:bg-violet-50 text-gray-700'}`}>
+              <GraduationCap size={18} /> College Student
+            </button>
+            <button type="button" onClick={() => handleCategoryChange('professional')}
+              className={`flex items-center justify-center gap-2 p-3 rounded-xl border-2 font-bold text-sm transition
+                ${internCategory === 'professional'
+                  ? 'bg-gradient-to-br from-rose-500 to-pink-600 text-white border-transparent shadow-lg'
+                  : 'bg-white border-gray-200 hover:border-rose-300 hover:bg-rose-50 text-gray-700'}`}>
+              <Briefcase size={18} /> Professional
+            </button>
+          </div>
+        </div>
+
         {/* ── Certificate Type Selector ── */}
         <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-4 mb-6">
           <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Select Document Type</p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {CERT_TYPES.map(t => (
-              <button key={t.id} type="button" onClick={() => setCertType(t.id)}
-                className={`relative p-3 rounded-xl border-2 transition text-left
-                  ${certType === t.id ? t.activeCard : t.inactiveCard}`}>
-                <t.icon size={20} className={`mb-2 ${certType === t.id ? 'text-white' : t.text}`} />
-                <div className={`font-bold text-sm leading-tight ${certType === t.id ? 'text-white' : 'text-gray-700'}`}>{t.label}</div>
-                <div className={`text-xs mt-0.5 ${certType === t.id ? 'text-white/80' : 'text-gray-400'}`}>{t.desc}</div>
-                {certType === t.id && (
-                  <div className="absolute top-2 right-2 bg-white/30 rounded-full p-0.5">
-                    <CheckCircle size={12} className="text-white" />
-                  </div>
-                )}
-              </button>
-            ))}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+            {CERT_TYPES.map(t => {
+              const isDisabled = t.professionalOnly && internCategory !== 'professional';
+              return (
+                <button key={t.id} type="button"
+                  onClick={() => !isDisabled && setCertType(t.id)}
+                  title={isDisabled ? 'Available for Professional interns only' : ''}
+                  className={`relative p-3 rounded-xl border-2 transition text-left
+                    ${isDisabled
+                      ? 'opacity-40 cursor-not-allowed bg-gray-50 border-gray-200'
+                      : certType === t.id ? t.activeCard : t.inactiveCard}`}>
+                  <t.icon size={20} className={`mb-2 ${isDisabled ? 'text-gray-400' : certType === t.id ? 'text-white' : t.text}`} />
+                  <div className={`font-bold text-sm leading-tight ${isDisabled ? 'text-gray-400' : certType === t.id ? 'text-white' : 'text-gray-700'}`}>{t.label}</div>
+                  <div className={`text-xs mt-0.5 ${isDisabled ? 'text-gray-300' : certType === t.id ? 'text-white/80' : 'text-gray-400'}`}>{t.desc}</div>
+                  {t.professionalOnly && (
+                    <div className={`text-xs mt-1 font-semibold ${internCategory === 'professional' ? t.text : 'text-gray-300'}`}>
+                      Pro only
+                    </div>
+                  )}
+                  {certType === t.id && !isDisabled && (
+                    <div className="absolute top-2 right-2 bg-white/30 rounded-full p-0.5">
+                      <CheckCircle size={12} className="text-white" />
+                    </div>
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -383,26 +455,60 @@ export default function InternshipCertificate() {
               </Field>
             </SectionWrap>
 
-            {/* Intern Details */}
-            <SectionWrap title="Intern Details" icon={User}
+            {/* Intern / Professional Details */}
+            <SectionWrap
+              title={internCategory === 'professional' ? 'Professional Details' : 'Intern Details'}
+              icon={User}
               gradient={ct.gradient} light={ct.light} border={ct.border}
               open={open.intern} onToggle={() => toggle('intern')}>
               <div className="grid md:grid-cols-2 gap-4">
-                <Field label="Intern Full Name *" color={ct.text}>
+                <Field label="Full Name *" color={ct.text}>
                   <SInput ring={ct.ring} name="intern_name" value={form.intern_name} onChange={ch} placeholder="e.g. Priya Sharma" />
                 </Field>
-                <Field label="Roll No / Register No" color={ct.text}>
-                  <SInput ring={ct.ring} name="roll_no" value={form.roll_no} onChange={ch} placeholder="e.g. 21CS045" />
-                </Field>
-                <Field label="College / University" color={ct.text}>
-                  <SInput ring={ct.ring} name="college" value={form.college} onChange={ch} placeholder="e.g. Anna University" />
-                </Field>
-                <Field label="Course / Degree" color={ct.text}>
-                  <SInput ring={ct.ring} name="course" value={form.course} onChange={ch} placeholder="e.g. B.Tech / BCA" />
-                </Field>
-                <Field label="Branch / Specialization" color={ct.text}>
-                  <SInput ring={ct.ring} name="branch" value={form.branch} onChange={ch} placeholder="e.g. Computer Science" />
-                </Field>
+
+                {/* College-specific fields */}
+                {internCategory === 'college' && <>
+                  <Field label="Roll No / Register No" color={ct.text}>
+                    <SInput ring={ct.ring} name="roll_no" value={form.roll_no} onChange={ch} placeholder="e.g. 21CS045" />
+                  </Field>
+                  <Field label="College / University" color={ct.text}>
+                    <SInput ring={ct.ring} name="college" value={form.college} onChange={ch} placeholder="e.g. Anna University" />
+                  </Field>
+                  <Field label="Course / Degree" color={ct.text}>
+                    <SInput ring={ct.ring} name="course" value={form.course} onChange={ch} placeholder="e.g. B.Tech / BCA" />
+                  </Field>
+                  <Field label="Branch / Specialization" color={ct.text}>
+                    <SInput ring={ct.ring} name="branch" value={form.branch} onChange={ch} placeholder="e.g. Computer Science" />
+                  </Field>
+                </>}
+
+                {/* Professional-specific fields */}
+                {internCategory === 'professional' && <>
+                  <Field label="Mobile No" color={ct.text}>
+                    <SInput ring={ct.ring} name="mobile_no" value={form.mobile_no} onChange={ch} placeholder="e.g. 9876543210" type="tel" />
+                  </Field>
+                  <Field label="Email ID" color={ct.text}>
+                    <SInput ring={ct.ring} name="email_id" value={form.email_id} onChange={ch} placeholder="e.g. priya@email.com" type="email" />
+                  </Field>
+                  <Field label="Date of Birth" color={ct.text}>
+                    <SInput ring={ct.ring} type="date" name="dob" value={form.dob} onChange={ch} />
+                  </Field>
+                  <Field label="PAN No" color={ct.text}>
+                    <SInput ring={ct.ring} name="pan_no" value={form.pan_no} onChange={ch}
+                      placeholder="e.g. ABCDE1234F" style={{ textTransform: 'uppercase' }} />
+                  </Field>
+                  <Field label="Aadhaar No" color={ct.text}>
+                    <SInput ring={ct.ring} name="aadhaar_no" value={form.aadhaar_no} onChange={ch} placeholder="e.g. 1234 5678 9012" />
+                  </Field>
+                  <div className="md:col-span-2">
+                    <Field label="Address" color={ct.text}>
+                      <textarea name="address" value={form.address} onChange={ch} rows={2}
+                        placeholder="e.g. 42, Gandhi Nagar, Chennai - 600001"
+                        className={`w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm bg-white shadow-sm
+                          focus:outline-none focus:ring-2 ${ct.ring} focus:border-transparent transition resize-none`} />
+                    </Field>
+                  </div>
+                </>}
               </div>
             </SectionWrap>
 
@@ -414,34 +520,56 @@ export default function InternshipCertificate() {
                 <Field label="Department / Domain *" color={ct.text}>
                   <SInput ring={ct.ring} name="department" value={form.department} onChange={ch} placeholder="e.g. Software Development" />
                 </Field>
-                {(certType === 'completion' || certType === 'offer') && (
-                  <Field label="Project / Role Title" color={ct.text}>
-                    <SInput ring={ct.ring} name="project_title" value={form.project_title} onChange={ch} placeholder="e.g. React Web App" />
+
+                {internCategory === 'professional' ? (
+                  <Field label="Designation *" color={ct.text}>
+                    <SInput ring={ct.ring} name="designation" value={form.designation} onChange={ch} placeholder="e.g. Software Engineer Intern" />
+                  </Field>
+                ) : (
+                  (certType === 'completion' || certType === 'offer') && (
+                    <Field label="Project / Role Title" color={ct.text}>
+                      <SInput ring={ct.ring} name="project_title" value={form.project_title} onChange={ch} placeholder="e.g. React Web App" />
+                    </Field>
+                  )
+                )}
+
+                {internCategory === 'professional' && certType === 'offer' && (
+                  <Field label="Internship Offer Date" color={ct.text}>
+                    <SInput ring={ct.ring} type="date" name="offer_date" value={form.offer_date} onChange={ch} />
                   </Field>
                 )}
+
                 <Field label="From Date *" color={ct.text}>
                   <SInput ring={ct.ring} type="date" name="from_date" value={form.from_date} onChange={ch} />
                 </Field>
                 <Field label="To Date *" color={ct.text}>
                   <SInput ring={ct.ring} type="date" name="to_date" value={form.to_date} onChange={ch} />
                 </Field>
+
                 {certType === 'confirmation' && (
                   <Field label="Actual Joining Date" color={ct.text}>
                     <SInput ring={ct.ring} type="date" name="joining_date" value={form.joining_date} onChange={ch} />
                   </Field>
                 )}
-                <Field label="Mentor / Supervisor" color={ct.text}>
-                  <SInput ring={ct.ring} name="mentor_name" value={form.mentor_name} onChange={ch} placeholder="e.g. Mr. Ramesh Kumar" />
+
+                <Field label={internCategory === 'professional' ? 'Supervisor' : 'Mentor / Supervisor'} color={ct.text}>
+                  <SInput ring={ct.ring}
+                    name={internCategory === 'professional' ? 'supervisor' : 'mentor_name'}
+                    value={internCategory === 'professional' ? form.supervisor : form.mentor_name}
+                    onChange={ch}
+                    placeholder="e.g. Mr. Ramesh Kumar" />
                 </Field>
-                {/* Offer-specific: stipend */}
-                {certType === 'offer' && (
+
+                {/* Stipend: offer-only for college; all types except attendance for professional */}
+                {(certType === 'offer' || (internCategory === 'professional' && certType !== 'attendance')) && (
                   <Field label="Monthly Stipend (₹)" color={ct.text}>
-                    <SInput ring={ct.ring} name="stipend" value={form.stipend} onChange={ch} placeholder="e.g. 5000" type="number" min="0" />
+                    <SInput ring={ct.ring} name="stipend" value={form.stipend} onChange={ch} placeholder="e.g. 15000" type="number" min="0" />
                   </Field>
                 )}
               </div>
-              {/* Offer joining instructions */}
-              {certType === 'offer' && (
+
+              {/* Offer joining instructions — college only */}
+              {certType === 'offer' && internCategory === 'college' && (
                 <div className="mt-4">
                   <Field label="Joining Instructions (Optional)" color={ct.text}>
                     <textarea name="joining_instructions" value={form.joining_instructions} onChange={ch} rows={2}
@@ -459,7 +587,6 @@ export default function InternshipCertificate() {
                 gradient={ct.gradient} light={ct.light} border={ct.border}
                 open={open.extra} onToggle={() => toggle('extra')}>
                 <div className="space-y-4">
-                  {/* Performance Rating */}
                   <div>
                     <label className={`block text-xs font-semibold uppercase tracking-wide mb-2 ${ct.text}`}>Performance Rating</label>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
@@ -475,7 +602,6 @@ export default function InternshipCertificate() {
                       ))}
                     </div>
                   </div>
-                  {/* Skills */}
                   <div>
                     <label className={`block text-xs font-semibold uppercase tracking-wide mb-2 ${ct.text}`}>Skills & Technologies Learned</label>
                     <div className="flex gap-2 mb-2">
@@ -500,7 +626,6 @@ export default function InternshipCertificate() {
                       </div>
                     )}
                   </div>
-                  {/* Remarks */}
                   <Field label="Remarks / Special Notes" color={ct.text}>
                     <textarea name="remarks" value={form.remarks} onChange={ch} rows={2}
                       placeholder="Optional: achievements or observations..."
@@ -518,7 +643,6 @@ export default function InternshipCertificate() {
                 open={open.extra} onToggle={() => toggle('extra')}>
                 <div className="space-y-4">
 
-                  {/* Summary strip */}
                   {attRecords.length > 0 && (
                     <div className="grid grid-cols-4 gap-2 text-center">
                       <div className="bg-blue-50 border border-blue-200 rounded-xl py-2">
@@ -542,19 +666,17 @@ export default function InternshipCertificate() {
                     </div>
                   )}
 
-                  {/* Hint when no dates yet */}
                   {attRecords.length === 0 && (
                     <div className="text-center py-6 text-sm text-blue-400 bg-blue-50 rounded-xl border border-dashed border-blue-200">
                       Fill <strong>From Date</strong> and <strong>To Date</strong> above to auto-generate the day-wise register
                     </div>
                   )}
 
-                  {/* Date-wise register */}
                   {attRecords.length > 0 && (
                     <div>
                       <div className="flex justify-between items-center mb-2">
                         <label className={`text-xs font-bold uppercase tracking-wide ${ct.text}`}>
-                          Day-wise Attendance Register ({attRecords.length} days)
+                          Day-wise Register ({attRecords.length} days)
                         </label>
                         <div className="flex gap-1 text-xs">
                           <button type="button" onClick={() => setAttRecords(r => r.map(x => x.status === 'W' ? x : { ...x, status: 'P' }))}
@@ -615,7 +737,6 @@ export default function InternshipCertificate() {
                     </div>
                   )}
 
-                  {/* Performance Rating */}
                   <div>
                     <label className={`block text-xs font-semibold uppercase tracking-wide mb-2 ${ct.text}`}>Performance Rating</label>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
@@ -631,8 +752,6 @@ export default function InternshipCertificate() {
                       ))}
                     </div>
                   </div>
-
-                  {/* Remarks */}
                   <Field label="Remarks" color={ct.text}>
                     <textarea name="remarks" value={form.remarks} onChange={ch} rows={2}
                       placeholder="Optional notes..."
@@ -666,30 +785,36 @@ export default function InternshipCertificate() {
 
           {/* ── RIGHT PANEL ── */}
           <div className="space-y-4 lg:sticky lg:top-4 self-start">
+
             {/* Preview */}
             <div className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
               <div className={`bg-gradient-to-r ${ct.gradient} px-4 py-3`}>
                 <h3 className="text-white font-bold text-sm flex items-center gap-2">
                   <Star size={15} /> Preview
                 </h3>
-                <p className="text-white/70 text-xs mt-0.5">{ct.label} — {ct.desc}</p>
+                <p className="text-white/70 text-xs mt-0.5">
+                  {internCategory === 'professional' ? '💼 Professional' : '🎓 College'} — {ct.label}
+                </p>
               </div>
               <div className="p-4 space-y-2.5">
-                <Row label="Intern"     value={form.intern_name  || '—'} />
-                {form.roll_no           && <Row label="Roll No"    value={form.roll_no} />}
-                {form.college           && <Row label="College"    value={form.college} />}
-                {(form.course || form.branch) && (
+                <Row label="Name"       value={form.intern_name || '—'} />
+                {internCategory === 'college' && form.roll_no   && <Row label="Roll No"     value={form.roll_no} />}
+                {internCategory === 'college' && form.college   && <Row label="College"     value={form.college} />}
+                {internCategory === 'college' && (form.course || form.branch) && (
                   <Row label="Course" value={[form.course, form.branch].filter(Boolean).join(' — ')} />
                 )}
-                <Row label="Department" value={form.department    || '—'} />
+                {internCategory === 'professional' && form.designation && <Row label="Designation" value={form.designation} />}
+                {internCategory === 'professional' && form.mobile_no   && <Row label="Mobile"      value={form.mobile_no} />}
+                {internCategory === 'professional' && form.pan_no      && <Row label="PAN"         value={form.pan_no} />}
+                <Row label="Department" value={form.department || '—'} />
                 <Row label="Period"
                   value={form.from_date && form.to_date
                     ? `${fmtD(form.from_date)} → ${fmtD(form.to_date)}`
                     : '—'} />
                 {certType === 'confirmation' && form.joining_date &&
                   <Row label="Joined" value={fmtD(form.joining_date)} />}
-                {certType === 'offer' && form.stipend &&
-                  <Row label="Stipend" value={`₹${form.stipend}/month`} />}
+                {(certType === 'offer' || certType === 'salary_cert' || internCategory === 'professional') && form.stipend &&
+                  <Row label="Stipend" value={`₹${Number(form.stipend).toLocaleString('en-IN')}/month`} />}
                 {(certType === 'completion' || certType === 'attendance') && form.performance && (
                   <Row label="Performance"
                     value={<span className={`font-semibold ${PERFORMANCE_OPTIONS.find(o => o.value === form.performance)?.text || ''}`}>
@@ -702,26 +827,6 @@ export default function InternshipCertificate() {
                       {daysPresent}P / {daysAbsent}A / {totalWorkingDays} days ({attendancePct}%)
                     </span>} />
                 )}
-                {certType === 'completion' && skillsList.length > 0 && (
-                  <div>
-                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1.5">Skills</p>
-                    <div className="flex flex-wrap gap-1">
-                      {skillsList.map(s => (
-                        <span key={s} className={`${ct.light} ${ct.text} border ${ct.border} rounded-full px-2 py-0.5 text-xs font-medium`}>{s}</span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {certType === 'attendance' && topicsList.length > 0 && (
-                  <div>
-                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1.5">Topics</p>
-                    <div className="flex flex-wrap gap-1">
-                      {topicsList.map(s => (
-                        <span key={s} className="bg-blue-50 text-blue-600 border border-blue-100 rounded-full px-2 py-0.5 text-xs font-medium">{s}</span>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
 
@@ -731,15 +836,20 @@ export default function InternshipCertificate() {
                 <GraduationCap size={13} /> Tips
               </p>
               <ul className={`text-xs ${ct.text} space-y-1.5 opacity-80`}>
-                {certType === 'offer' && <>
+                {certType === 'offer' && internCategory === 'college' && <>
                   <li>• Stipend is optional — leave blank if unpaid</li>
                   <li>• Duration is auto-calculated from dates</li>
                   <li>• Includes intern acceptance signature block</li>
                 </>}
+                {certType === 'offer' && internCategory === 'professional' && <>
+                  <li>• Designation required for professional interns</li>
+                  <li>• PAN &amp; Aadhaar used for salary certificate</li>
+                  <li>• Monthly stipend required</li>
+                </>}
                 {certType === 'confirmation' && <>
                   <li>• Joining date defaults to From Date if blank</li>
                   <li>• Confirms the intern has officially started</li>
-                  <li>• Use for university records submission</li>
+                  <li>• Use for HR records submission</li>
                 </>}
                 {certType === 'completion' && <>
                   <li>• Performance badge colour changes per rating</li>
@@ -751,6 +861,12 @@ export default function InternshipCertificate() {
                   <li>• Toggle each day: Present / Absent / Holiday</li>
                   <li>• Enter topics per day for detailed cert</li>
                   <li>• Attendance % auto-calculated from records</li>
+                </>}
+                {certType === 'salary_cert' && <>
+                  <li>• Professional interns only</li>
+                  <li>• Total = Monthly Stipend × Months</li>
+                  <li>• PAN &amp; Aadhaar for income tax records</li>
+                  <li>• Aadhaar shown masked (last 4 digits only)</li>
                 </>}
               </ul>
             </div>

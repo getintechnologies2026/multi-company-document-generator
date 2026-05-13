@@ -560,22 +560,33 @@ exports.generateInternshipCertificate = async (req, res) => {
             : [];
 
         const data = {
-            intern_name:    intern.intern_name    || '',
-            roll_no:        intern.roll_no        || '',
-            college:        intern.college        || '',
-            course:         intern.course         || '',
-            branch:         intern.branch         || '',
-            department:     intern.department     || '',
-            project_title:  intern.project_title  || '',
-            from_date:      fmtDate(intern.from_date),
-            to_date:        fmtDate(intern.to_date),
-            duration_text:  intern.duration_text  || durationText,
-            mentor_name:    intern.mentor_name    || (empRecord ? empRecord.full_name : ''),
-            performance:    intern.performance    || '',
-            skills:         intern.skills         || '',
-            skills_arr:     skillsArr,
-            remarks:        intern.remarks        || '',
-            issue_date:     issueDate,
+            intern_name:     intern.intern_name    || '',
+            roll_no:         intern.roll_no        || '',
+            college:         intern.college        || '',
+            course:          intern.course         || '',
+            branch:          intern.branch         || '',
+            department:      intern.department     || '',
+            project_title:   intern.project_title  || '',
+            from_date:       fmtDate(intern.from_date),
+            to_date:         fmtDate(intern.to_date),
+            duration_text:   intern.duration_text  || durationText,
+            mentor_name:     intern.mentor_name    || (empRecord ? empRecord.full_name : ''),
+            performance:     intern.performance    || '',
+            skills:          intern.skills         || '',
+            skills_arr:      skillsArr,
+            remarks:         intern.remarks        || '',
+            issue_date:      issueDate,
+            // Professional fields
+            designation:     intern.designation    || '',
+            mobile_no:       intern.mobile_no      || '',
+            email_id:        intern.email_id       || '',
+            address:         intern.address        || '',
+            dob:             intern.dob ? fmtDate(intern.dob) : '',
+            pan_no:          intern.pan_no         || '',
+            aadhaar_no:      intern.aadhaar_no     || '',
+            supervisor:      intern.supervisor     || '',
+            offer_date:      intern.offer_date     ? fmtDate(intern.offer_date) : '',
+            intern_category: intern.intern_category || 'college',
         };
 
         // Doc number — year from intern's completion (to_date) or start date
@@ -642,21 +653,32 @@ exports.generateInternshipOffer = async (req, res) => {
         }
 
         const data = {
-            intern_name:          intern.intern_name         || '',
-            roll_no:              intern.roll_no             || '',
-            college:              intern.college             || '',
-            course:               intern.course              || '',
-            branch:               intern.branch              || '',
-            department:           intern.department          || '',
-            project_title:        intern.project_title       || '',
+            intern_name:          intern.intern_name          || '',
+            roll_no:              intern.roll_no              || '',
+            college:              intern.college              || '',
+            course:               intern.course               || '',
+            branch:               intern.branch               || '',
+            department:           intern.department           || '',
+            project_title:        intern.project_title        || '',
             from_date:            fmtDate(intern.from_date),
             to_date:              fmtDate(intern.to_date),
-            duration_text:        intern.duration_text       || durationText,
-            stipend:              intern.stipend             || '',
-            mentor_name:          intern.mentor_name         || '',
+            duration_text:        intern.duration_text        || durationText,
+            stipend:              intern.stipend              || '',
+            mentor_name:          intern.mentor_name          || '',
             joining_instructions: intern.joining_instructions || '',
-            remarks:              intern.remarks             || '',
+            remarks:              intern.remarks              || '',
             issue_date:           issueDate,
+            // Professional fields
+            designation:          intern.designation          || '',
+            mobile_no:            intern.mobile_no            || '',
+            email_id:             intern.email_id             || '',
+            address:              intern.address              || '',
+            dob:                  intern.dob ? fmtDate(intern.dob) : '',
+            pan_no:               intern.pan_no               || '',
+            aadhaar_no:           intern.aadhaar_no           || '',
+            supervisor:           intern.supervisor           || '',
+            offer_date:           intern.offer_date           ? fmtDate(intern.offer_date) : '',
+            intern_category:      intern.intern_category      || 'college',
         };
 
         // Doc number — year from internship start date
@@ -713,19 +735,31 @@ exports.generateInternshipConfirmation = async (req, res) => {
         }
 
         const data = {
-            intern_name:   intern.intern_name  || '',
-            roll_no:       intern.roll_no      || '',
-            college:       intern.college      || '',
-            course:        intern.course       || '',
-            branch:        intern.branch       || '',
-            department:    intern.department   || '',
-            joining_date:  fmtDate(intern.joining_date || intern.from_date),
-            from_date:     fmtDate(intern.from_date),
-            to_date:       fmtDate(intern.to_date),
-            duration_text: intern.duration_text || durationText,
-            mentor_name:   intern.mentor_name  || '',
-            remarks:       intern.remarks      || '',
-            issue_date:    issueDate,
+            intern_name:     intern.intern_name   || '',
+            roll_no:         intern.roll_no       || '',
+            college:         intern.college       || '',
+            course:          intern.course        || '',
+            branch:          intern.branch        || '',
+            department:      intern.department    || '',
+            joining_date:    fmtDate(intern.joining_date || intern.from_date),
+            from_date:       fmtDate(intern.from_date),
+            to_date:         fmtDate(intern.to_date),
+            duration_text:   intern.duration_text || durationText,
+            stipend:         intern.stipend       || '',
+            mentor_name:     intern.mentor_name   || '',
+            remarks:         intern.remarks       || '',
+            issue_date:      issueDate,
+            // Professional fields
+            designation:     intern.designation   || '',
+            mobile_no:       intern.mobile_no     || '',
+            email_id:        intern.email_id      || '',
+            address:         intern.address       || '',
+            dob:             intern.dob ? fmtDate(intern.dob) : '',
+            pan_no:          intern.pan_no        || '',
+            aadhaar_no:      intern.aadhaar_no    || '',
+            supervisor:      intern.supervisor    || '',
+            offer_date:      intern.offer_date    ? fmtDate(intern.offer_date) : '',
+            intern_category: intern.intern_category || 'college',
         };
 
         // Doc number — year from internship joining / start date
@@ -847,6 +881,14 @@ exports.generateInternshipAttendance = async (req, res) => {
             attendance_records:  attendanceRecords,
             remarks:             intern.remarks        || '',
             issue_date:          issueDate,
+            // Professional fields
+            designation:         intern.designation    || '',
+            mobile_no:           intern.mobile_no      || '',
+            email_id:            intern.email_id       || '',
+            address:             intern.address        || '',
+            pan_no:              intern.pan_no         || '',
+            supervisor:          intern.supervisor     || '',
+            intern_category:     intern.intern_category || 'college',
         };
 
         const prefix   = company.doc_number_prefix || 'DOC';
@@ -877,6 +919,93 @@ exports.generateInternshipAttendance = async (req, res) => {
             pdf_path:   filename,
             url:        `/generated/${filename}`,
         });
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ error: e.message });
+    }
+};
+
+exports.generateInternshipSalaryCertificate = async (req, res) => {
+    try {
+        const { company_id, employee_id, intern } = req.body;
+        if (!company_id) return res.status(400).json({ error: 'company_id required' });
+        if (!intern || !intern.intern_name) return res.status(400).json({ error: 'intern_name required' });
+        if (!intern.stipend) return res.status(400).json({ error: 'stipend required for salary certificate' });
+
+        const [companies] = await db.query('SELECT * FROM companies WHERE id = ?', [company_id]);
+        if (!companies.length) return res.status(404).json({ error: 'Company not found' });
+        const company = companies[0];
+
+        const fmtDate  = d => d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' }) : '';
+        const today    = new Date();
+        const issueDate = fmtDate(today.toISOString().split('T')[0]);
+
+        // Duration
+        const fromDate = intern.from_date ? new Date(intern.from_date) : null;
+        const toDate   = intern.to_date   ? new Date(intern.to_date)   : null;
+        let durationText = '';
+        let totalMonths  = 1;
+        if (fromDate && toDate) {
+            const diffDays = Math.round((toDate - fromDate) / (1000 * 60 * 60 * 24)) + 1;
+            const months   = Math.floor(diffDays / 30);
+            const days     = diffDays % 30;
+            totalMonths    = months || 1;
+            const parts    = [];
+            if (months > 0) parts.push(`${months} Month${months > 1 ? 's' : ''}`);
+            if (days   > 0) parts.push(`${days} Day${days   > 1 ? 's' : ''}`);
+            durationText = parts.join(' ') || '1 Day';
+        }
+
+        const monthly     = Number(intern.stipend || 0);
+        const totalStipend = monthly * totalMonths;
+
+        // Mask Aadhaar — show only last 4 digits
+        const rawAadhaar    = String(intern.aadhaar_no || '').replace(/\s/g, '');
+        const maskedAadhaar = rawAadhaar.length >= 4
+            ? 'XXXX XXXX ' + rawAadhaar.slice(-4)
+            : rawAadhaar;
+
+        const data = {
+            intern_name:     intern.intern_name  || '',
+            designation:     intern.designation  || '',
+            department:      intern.department   || '',
+            mobile_no:       intern.mobile_no    || '',
+            email_id:        intern.email_id     || '',
+            address:         intern.address      || '',
+            dob:             intern.dob ? fmtDate(intern.dob) : '',
+            pan_no:          intern.pan_no       || '',
+            aadhaar_no:      maskedAadhaar,
+            from_date:       fmtDate(intern.from_date),
+            to_date:         fmtDate(intern.to_date),
+            duration_text:   durationText,
+            stipend:         monthly,
+            total_stipend:   totalStipend,
+            total_months:    totalMonths,
+            supervisor:      intern.supervisor   || intern.mentor_name || '',
+            offer_date:      intern.offer_date   ? fmtDate(intern.offer_date) : '',
+            issue_date:      issueDate,
+        };
+
+        const prefix   = company.doc_number_prefix || 'DOC';
+        const year     = docYear(intern.from_date || intern.to_date);
+        const [cnt]    = await db.query(
+            "SELECT COUNT(*) as c FROM documents WHERE company_id = ? AND doc_type = 'internship_salary_cert'",
+            [company_id]
+        );
+        const seq        = String(cnt[0].c + 1).padStart(4, '0');
+        const doc_number = `${prefix}/INS/${year}/${seq}`;
+        const filename   = `${doc_number.replace(/\//g, '_')}.pdf`;
+        const outPath    = path.join(__dirname, '..', '..', 'generated', filename);
+
+        await generatePDF('internship_salary_cert', { company, employee: {}, data, doc_number }, outPath);
+
+        const [r] = await db.query(
+            `INSERT INTO documents (doc_number, doc_type, company_id, employee_id, employee_name, issue_date, pdf_path, extra_data, created_by)
+             VALUES (?, 'internship_salary_cert', ?, ?, ?, CURDATE(), ?, ?, ?)`,
+            [doc_number, company_id, employee_id || null, data.intern_name, filename, JSON.stringify(data), req.user.id]
+        );
+
+        res.json({ id: r.insertId, doc_number, pdf_path: filename, url: `/generated/${filename}` });
     } catch (e) {
         console.error(e);
         res.status(500).json({ error: e.message });
