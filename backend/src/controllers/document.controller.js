@@ -638,6 +638,9 @@ exports.generateInternshipOffer = async (req, res) => {
         const today    = new Date();
         const issueDate = fmtDate(today.toISOString().split('T')[0]);
 
+        // Use offer_date as the letter date; fall back to today
+        const offerDateFmt = intern.offer_date ? fmtDate(intern.offer_date) : issueDate;
+
         // Duration
         const fromDate = intern.from_date ? new Date(intern.from_date) : null;
         const toDate   = intern.to_date   ? new Date(intern.to_date)   : null;
@@ -667,7 +670,8 @@ exports.generateInternshipOffer = async (req, res) => {
             mentor_name:          intern.mentor_name          || '',
             joining_instructions: intern.joining_instructions || '',
             remarks:              intern.remarks              || '',
-            issue_date:           issueDate,
+            issue_date:           offerDateFmt,              // letter date = offer date, not server date
+            ref_no:               intern.ref_no              || '',
             // Professional fields
             designation:          intern.designation          || '',
             mobile_no:            intern.mobile_no            || '',
@@ -681,9 +685,9 @@ exports.generateInternshipOffer = async (req, res) => {
             intern_category:      intern.intern_category      || 'college',
         };
 
-        // Doc number — year from internship start date
+        // Doc number — year from offer date (preferred) → from_date → to_date
         const prefix   = company.doc_number_prefix || 'DOC';
-        const year     = docYear(intern.from_date || intern.to_date);
+        const year     = docYear(intern.offer_date || intern.from_date || intern.to_date);
         const [cnt]    = await db.query(
             "SELECT COUNT(*) as c FROM documents WHERE company_id = ? AND doc_type = 'internship_offer'", [company_id]
         );

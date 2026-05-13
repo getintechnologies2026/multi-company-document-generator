@@ -1,4 +1,4 @@
-<!-- internship_offer.hbs -->
+<!-- internship_offer.hbs  —  2-page design -->
 <!DOCTYPE html>
 <html><head><meta charset="utf-8">
 <style>
@@ -43,6 +43,7 @@
   /* ── Body text ── */
   .body-text { font-size: 13.5px; line-height: 1.9; text-align: justify; margin-bottom: 14px; }
   .body-text strong { color: #7c2d12; }
+  .body-text p + p { margin-top: 10px; }
 
   /* ── Details table ── */
   .detail-table { width: 100%; border-collapse: collapse; margin: 14px 0; }
@@ -50,14 +51,28 @@
   .detail-table tr:nth-child(even) td { background: #fff7ed; }
   .detail-table td:first-child { font-weight: 700; color: #c2410c; width: 38%; background: #ffedd5; }
 
+  /* ── Page break ── */
+  .pg-break { page-break-after: always; height: 0; line-height: 0; font-size: 0; }
+
+  /* ── Page 2 mini header ── */
+  .mini-header { background: #fff7ed; border-bottom: 2px solid #fed7aa; padding: 10px 0 10px; margin-bottom: 16px; overflow: hidden; }
+  .mini-header .m-cname { float: left; font-size: 15px; font-weight: 800; color: #c2410c; line-height: 1.4; }
+  .mini-header .m-pageinfo { float: right; font-size: 10px; color: #6b7280; text-align: right; line-height: 1.6; }
+
+  /* ── Page 2 section title bar ── */
+  .sec-title {
+    background: linear-gradient(90deg, #7c2d12, #f97316); color: #fff;
+    padding: 9px 14px; border-radius: 6px; margin-bottom: 14px;
+    font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
+  }
+
   /* ── Terms box ── */
   .terms-box { background: #fff7ed; border-left: 4px solid #f97316; border-radius: 6px; padding: 12px 16px; margin: 14px 0; font-size: 12px; color: #374151; }
-  .terms-box strong { color: #c2410c; }
   .terms-box ul { margin: 6px 0 2px; padding-left: 18px; }
-  .terms-box li { margin-bottom: 4px; line-height: 1.6; }
+  .terms-box li { margin-bottom: 5px; line-height: 1.65; }
 
   /* ── Signature section — float layout ── */
-  .sig-section { margin-top: 40px; padding-top: 32px; overflow: hidden; }
+  .sig-section { margin-top: 36px; padding-top: 28px; overflow: hidden; }
   .seal-block { float: left; text-align: center; }
   .seal-block img { max-height: 70px; display: block; }
   .seal-text { font-size: 10px; color: #9ca3af; margin-top: 4px; }
@@ -92,6 +107,10 @@
 </head>
 <body>
 
+<!-- ══════════════════════════════════════════════════════ -->
+<!--  PAGE 1 — Details                                      -->
+<!-- ══════════════════════════════════════════════════════ -->
+
 <div class="top-bar"></div>
 
 <div class="frame">
@@ -120,10 +139,10 @@
     <div class="t-sub">Official Offer for Internship Programme</div>
   </div>
 
-  <!-- Ref Row: ref left, date right via table -->
+  <!-- Ref Row: ref left, offer date right via table -->
   <table class="ref-table">
     <tr>
-      <td>Ref No: <strong>{{doc_number}}</strong></td>
+      <td>Ref No: <strong>{{#if data.ref_no}}{{data.ref_no}}{{else}}{{doc_number}}{{/if}}</strong></td>
       <td>Date: <strong>{{data.issue_date}}</strong></td>
     </tr>
   </table>
@@ -142,12 +161,12 @@
     <div class="salute">Dear {{data.intern_name}},</div>
   </div>
 
-  <!-- Opening Para -->
+  <!-- Opening Paragraphs -->
   <div class="body-text">
     <p>
       We are pleased to offer you an internship at <strong>{{company.name}}</strong>{{#if data.department}}
       in the <strong>{{data.department}}</strong> department{{/if}}. We were impressed with your profile
-      and believe you will make a valuable contribution to our team during your time with us.
+      and are confident you will make a valuable contribution to our team during your time with us.
     </p>
     <p>
       Your internship is scheduled to commence on <strong>{{data.from_date}}</strong> and conclude on
@@ -156,7 +175,7 @@
     </p>
   </div>
 
-  <!-- Details Table -->
+  <!-- Offer Details Table -->
   <table class="detail-table">
     <tr><td>Intern Name</td><td><strong>{{data.intern_name}}</strong></td></tr>
     {{#if data.designation}}<tr><td>Designation</td><td>{{data.designation}}</td></tr>{{/if}}
@@ -172,29 +191,69 @@
     <tr><td>Internship End Date</td><td><strong>{{data.to_date}}</strong></td></tr>
     <tr><td>Duration</td><td>{{data.duration_text}}</td></tr>
     {{#if data.stipend}}<tr><td>Monthly Stipend</td><td><strong>&#8377;{{data.stipend}}</strong> per month</td></tr>{{/if}}
-    {{#if data.mentor_name}}<tr><td>Reporting To</td><td>{{data.mentor_name}}</td></tr>{{/if}}
+    <tr><td>Reporting To / Supervisor</td><td>
+      {{#if data.supervisor}}{{data.supervisor}}{{else}}{{#if data.mentor_name}}{{data.mentor_name}}{{else}}&mdash;{{/if}}{{/if}}
+    </td></tr>
     <tr><td>Work Location</td><td>{{company.address}}{{#if company.city}}, {{company.city}}{{/if}}{{#if company.state}}, {{company.state}}{{/if}}</td></tr>
+    <tr><td>Offer Date</td><td>{{data.issue_date}}</td></tr>
   </table>
+
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!--  PAGE BREAK                                            -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="pg-break"></div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!--  PAGE 2 — Terms, Signature & Acceptance                -->
+<!-- ══════════════════════════════════════════════════════ -->
+
+<div class="top-bar"></div>
+
+<div class="frame">
+<div class="inner">
+
+  <!-- Page 2 mini header -->
+  <div class="mini-header">
+    <div class="m-cname">{{company.name}}</div>
+    <div class="m-pageinfo">
+      Ref: {{#if data.ref_no}}{{data.ref_no}}{{else}}{{doc_number}}{{/if}}&nbsp;&nbsp;|&nbsp;&nbsp;Date: {{data.issue_date}}<br>
+      Internship Offer Letter &mdash; Page 2 of 2
+    </div>
+  </div>
+
+  <!-- Section Title -->
+  <div class="sec-title">Terms &amp; Conditions of Internship</div>
 
   <!-- Terms Box -->
   <div class="terms-box">
-    <strong>Terms &amp; Conditions:</strong>
     <ul>
-      <li>This internship is offered for academic / training purposes and does not constitute an employment relationship.</li>
-      <li>You are expected to maintain professional conduct and adhere to all company policies and guidelines throughout the internship period.</li>
-      <li>Either party may terminate this internship arrangement by giving reasonable prior written notice.</li>
+      <li>This internship is offered for professional training and development purposes and does not constitute, in any manner, an employment contract or relationship with <strong>{{company.name}}</strong>.</li>
+      <li>The intern shall devote full attention and effort during designated working hours and maintain professional conduct throughout the internship period.</li>
+      <li>All information, data, processes, and business matters of <strong>{{company.name}}</strong> shall be treated as strictly confidential and shall not be disclosed to any third party during or after the internship.</li>
+      <li>Any intellectual property, work product, or deliverables created during the internship shall be the exclusive property of <strong>{{company.name}}</strong>.</li>
+      <li>The intern is expected to comply with all company policies, code of conduct, and applicable laws and regulations.</li>
+      <li>Either party may terminate this internship arrangement by giving reasonable prior written notice to the other party.</li>
+      {{#if data.stipend}}<li>The monthly stipend of <strong>&#8377;{{data.stipend}}</strong> is the gross amount and is subject to applicable statutory deductions as per prevailing laws.</li>{{/if}}
       {{#if data.joining_instructions}}<li>{{data.joining_instructions}}</li>{{/if}}
-      <li>Confidentiality of company information and proprietary data must be strictly maintained.</li>
+      <li>The intern shall report to the designated supervisor and adhere to the prescribed schedule and work plan for the internship period.</li>
     </ul>
   </div>
 
-  <!-- Closing Para -->
+  <!-- Closing Paragraph -->
   <div class="body-text">
     <p>
-      We look forward to welcoming you to <strong>{{company.name}}</strong> and are confident this internship
-      will be a rewarding and enriching experience for you. Please confirm your acceptance of this offer by
-      signing the duplicate copy of this letter and returning it to us at the earliest convenience.
+      We look forward to welcoming you to <strong>{{company.name}}</strong> and are confident that this
+      internship will be a rewarding and enriching experience. We encourage you to make the most of this
+      opportunity for your professional growth.
     </p>
+    <p>
+      Please confirm your acceptance of this offer by signing the acceptance section below and returning
+      a copy to us at the earliest. This offer is valid for <strong>7 days</strong> from the date of issue.
+    </p>
+    {{#if data.remarks}}<p style="font-size:12px; color:#6b7280; margin-top:8px;"><em>Note: {{data.remarks}}</em></p>{{/if}}
   </div>
 
   <!-- Signature Section: seal left, sig right via float -->
@@ -222,7 +281,8 @@
     <div class="accept-title">Acceptance by Intern</div>
     <p style="margin: 0; font-size: 12px;">
       I, <strong>{{data.intern_name}}</strong>, hereby accept the internship offer extended by
-      <strong>{{company.name}}</strong> and agree to abide by all the terms and conditions mentioned above.
+      <strong>{{company.name}}</strong> and agree to abide by all the terms and conditions stated above.
+      I confirm that the details mentioned in this offer letter are correct to the best of my knowledge.
     </p>
     <!-- Sign row: three equal columns via table -->
     <table class="sign-table">

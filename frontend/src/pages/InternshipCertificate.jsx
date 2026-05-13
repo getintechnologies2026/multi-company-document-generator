@@ -202,6 +202,8 @@ export default function InternshipCertificate() {
     designation: '',
     offer_date: '',
     supervisor: '',
+    // Offer letter
+    ref_no: '',
   });
 
   useEffect(() => {
@@ -533,10 +535,16 @@ export default function InternshipCertificate() {
                   )
                 )}
 
-                {internCategory === 'professional' && certType === 'offer' && (
-                  <Field label="Internship Offer Date" color={ct.text}>
-                    <SInput ring={ct.ring} type="date" name="offer_date" value={form.offer_date} onChange={ch} />
-                  </Field>
+                {certType === 'offer' && (
+                  <>
+                    <Field label="Offer Date" color={ct.text}>
+                      <SInput ring={ct.ring} type="date" name="offer_date" value={form.offer_date} onChange={ch} />
+                    </Field>
+                    <Field label="Reference No (Optional)" color={ct.text}>
+                      <SInput ring={ct.ring} name="ref_no" value={form.ref_no} onChange={ch}
+                        placeholder="e.g. REF/2025/001" />
+                    </Field>
+                  </>
                 )}
 
                 <Field label="From Date *" color={ct.text}>
