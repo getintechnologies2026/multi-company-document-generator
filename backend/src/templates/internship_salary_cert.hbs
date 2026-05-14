@@ -166,8 +166,6 @@
     <p>
       During the internship period, <strong>{{data.intern_name}}</strong> was entitled to a monthly
       stipend of <strong>&#8377;{{data.stipend}}</strong> as per the internship agreement.
-      The total stipend paid for the entire internship tenure amounts to
-      <strong>&#8377;{{data.total_stipend}}</strong>.
     </p>
     <p>
       This certificate is issued upon request for the purpose of income tax filings, financial records,
@@ -177,9 +175,9 @@
 
     <!-- Stipend Highlight -->
     <div class="stipend-highlight">
-      <div class="sh-label">Total Stipend Paid</div>
-      <div class="sh-amount">&#8377;{{data.total_stipend}}</div>
-      <div class="sh-sub">{{data.duration_text}} &nbsp;|&nbsp; &#8377;{{data.stipend}} / Month</div>
+      <div class="sh-label">Monthly Stipend</div>
+      <div class="sh-amount">&#8377;{{data.stipend}}</div>
+      <div class="sh-sub">Per Month &nbsp;|&nbsp; {{data.duration_text}}</div>
     </div>
 
     <!-- Internship Details Summary Box -->
@@ -241,10 +239,6 @@
         <tr>
           <td class="key">Monthly Stipend</td>
           <td class="val"><strong>&#8377;{{data.stipend}}</strong></td>
-        </tr>
-        <tr>
-          <td class="key">Total Stipend Paid</td>
-          <td class="val"><strong>&#8377;{{data.total_stipend}}</strong></td>
         </tr>
         {{#if data.pan_no}}
         <tr>
