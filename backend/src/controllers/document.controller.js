@@ -1022,6 +1022,183 @@ exports.generateInternshipSalaryCertificate = async (req, res) => {
     }
 };
 
+exports.generateInternshipAll = async (req, res) => {
+    try {
+        const { company_id, employee_id, intern } = req.body;
+        if (!company_id) return res.status(400).json({ error: 'company_id required' });
+        if (!intern || !intern.intern_name) return res.status(400).json({ error: 'intern_name required' });
+
+        const [companies] = await db.query('SELECT * FROM companies WHERE id = ?', [company_id]);
+        if (!companies.length) return res.status(404).json({ error: 'Company not found' });
+        const company = companies[0];
+
+        const fmtDate   = d => d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' }) : '';
+        const today     = new Date();
+        const issueDate = fmtDate(today.toISOString().split('T')[0]);
+
+        // Duration
+        const fromDate = intern.from_date ? new Date(intern.from_date) : null;
+        const toDate   = intern.to_date   ? new Date(intern.to_date)   : null;
+        let durationText = '';
+        let totalMonths  = 1;
+        if (fromDate && toDate) {
+            const diffDays = Math.round((toDate - fromDate) / (1000 * 60 * 60 * 24));
+            const months   = Math.floor(diffDays / 30);
+            const days     = diffDays % 30;
+            totalMonths    = months || 1;
+            const parts    = [];
+            if (months > 0) parts.push(`${months} Month${months > 1 ? 's' : ''}`);
+            if (days   > 0) parts.push(`${days} Day${days   > 1 ? 's' : ''}`);
+            durationText = parts.join(' ') || '1 Day';
+        }
+
+        const prefix  = company.doc_number_prefix || 'DOC';
+        const results = {};
+
+        // Always generate these 4; salary cert only if professional + stipend
+        const DOCS = [
+            { key: 'offer',        docType: 'internship_offer',       code: 'IOF' },
+            { key: 'confirmation', docType: 'internship_confirmation', code: 'ICF' },
+            { key: 'completion',   docType: 'internship_certificate',  code: 'INT' },
+            { key: 'attendance',   docType: 'internship_attendance',   code: 'INA' },
+        ];
+        if (intern.intern_category === 'professional' && intern.stipend) {
+            DOCS.push({ key: 'salary_cert', docType: 'internship_salary_cert', code: 'INS' });
+        }
+
+        for (const { key, docType, code } of DOCS) {
+            try {
+                const refDate =
+                    key === 'offer'        ? (intern.offer_date   || intern.from_date || intern.to_date) :
+                    key === 'completion'   ? (intern.cert_date    || intern.to_date   || intern.from_date) :
+                    key === 'confirmation' ? (intern.joining_date || intern.from_date || intern.to_date) :
+                    (intern.from_date || intern.to_date);
+
+                const year = docYear(refDate);
+                const [cnt] = await db.query(
+                    'SELECT COUNT(*) as c FROM documents WHERE company_id = ? AND doc_type = ?',
+                    [company_id, docType]
+                );
+                const seq        = String(cnt[0].c + 1).padStart(4, '0');
+                const doc_number = `${prefix}/${code}/${year}/${seq}`;
+                const filename   = `${doc_number.replace(/\//g, '_')}.pdf`;
+                const outPath    = path.join(__dirname, '..', '..', 'generated', filename);
+
+                const skillsArr = intern.skills
+                    ? intern.skills.split(',').map(s => s.trim()).filter(Boolean)
+                    : [];
+
+                const data = {
+                    intern_name:          intern.intern_name    || '',
+                    roll_no:              intern.roll_no        || '',
+                    college:              intern.college        || '',
+                    course:               intern.course         || '',
+                    branch:               intern.branch         || '',
+                    department:           intern.department     || '',
+                    project_title:        intern.project_title  || '',
+                    from_date:            fmtDate(intern.from_date),
+                    to_date:              fmtDate(intern.to_date),
+                    duration_text:        intern.duration_text  || durationText,
+                    stipend:              intern.stipend        || '',
+                    mentor_name:          intern.mentor_name    || '',
+                    supervisor:           intern.supervisor     || '',
+                    joining_instructions: intern.joining_instructions || '',
+                    joining_date:         fmtDate(intern.joining_date || intern.from_date),
+                    remarks:              intern.remarks        || '',
+                    performance:          intern.performance    || '',
+                    skills:               intern.skills         || '',
+                    skills_arr:           skillsArr,
+                    designation:          intern.designation    || '',
+                    employee_no:          intern.employee_no    || '',
+                    mobile_no:            intern.mobile_no      || '',
+                    email_id:             intern.email_id       || '',
+                    address:              intern.address        || '',
+                    dob:                  intern.dob ? fmtDate(intern.dob) : '',
+                    pan_no:               intern.pan_no         || '',
+                    aadhaar_no:           intern.aadhaar_no     || '',
+                    offer_date:           intern.offer_date     ? fmtDate(intern.offer_date) : '',
+                    intern_category:      intern.intern_category || 'college',
+                    ref_no:               intern.ref_no         || '',
+                    cert_ref_no:          intern.cert_ref_no    || '',
+                    issue_date:           issueDate,
+                };
+
+                // Per-type issue_date overrides
+                if (key === 'offer')      data.issue_date = intern.offer_date ? fmtDate(intern.offer_date) : issueDate;
+                if (key === 'completion') data.issue_date = intern.cert_date  ? fmtDate(intern.cert_date)  : issueDate;
+
+                // Attendance-specific
+                if (key === 'attendance') {
+                    const totalDays = Number(intern.total_working_days) || 0;
+                    const present   = Number(intern.days_present)       || 0;
+                    const absent    = Math.max(0, totalDays - present);
+                    const pct       = totalDays > 0 ? Math.round((present / totalDays) * 100) : 0;
+                    data.total_working_days = totalDays;
+                    data.days_present       = present;
+                    data.days_absent        = absent;
+                    data.attendance_pct     = pct;
+                    data.attendance_records = Array.isArray(intern.attendance_records) ? intern.attendance_records : [];
+                    data.covered_topics     = intern.covered_topics || '';
+                    data.topics_arr         = [];
+                }
+
+                // Salary cert-specific
+                if (key === 'salary_cert') {
+                    const monthly      = Number(intern.stipend || 0);
+                    const totalStipend = monthly * totalMonths;
+                    const rawAadhaar   = String(intern.aadhaar_no || '').replace(/\s/g, '');
+                    data.aadhaar_no    = rawAadhaar.length >= 4 ? 'XXXX XXXX ' + rawAadhaar.slice(-4) : rawAadhaar;
+                    data.total_stipend = totalStipend;
+                    data.total_months  = totalMonths;
+                    data.issue_date    = issueDate;
+                }
+
+                await generatePDF(docType, { company, employee: {}, data, doc_number }, outPath);
+
+                const [r] = await db.query(
+                    `INSERT INTO documents
+                     (doc_number, doc_type, company_id, employee_id, employee_name, issue_date,
+                      pdf_path, extra_data, created_by)
+                     VALUES (?, ?, ?, ?, ?, CURDATE(), ?, ?, ?)`,
+                    [doc_number, docType, company_id, employee_id || null,
+                     data.intern_name, filename, JSON.stringify(data), req.user.id]
+                );
+                results[key] = { id: r.insertId, doc_number, filename, url: `/generated/${filename}` };
+            } catch (err) {
+                console.error(`generateInternshipAll [${key}]:`, err.message);
+                results[key] = { error: err.message };
+            }
+        }
+
+        // ZIP all successful PDFs
+        const successFiles = Object.values(results).filter(r => r.filename);
+        let zipUrl = null;
+        if (successFiles.length > 1) {
+            const internName = (intern.intern_name || 'Intern').replace(/\s+/g, '_');
+            const zipName    = `Internship_${internName}_${Date.now()}.zip`;
+            const zipPath    = path.join(__dirname, '..', '..', 'generated', zipName);
+            await new Promise((resolve, reject) => {
+                const output  = fs.createWriteStream(zipPath);
+                const archive = archiver('zip', { zlib: { level: 9 } });
+                output.on('close', resolve);
+                archive.on('error', reject);
+                archive.pipe(output);
+                successFiles.forEach(r => {
+                    const fp = path.join(__dirname, '..', '..', 'generated', r.filename);
+                    if (fs.existsSync(fp)) archive.file(fp, { name: r.filename });
+                });
+                archive.finalize();
+            });
+            zipUrl = `/generated/${zipName}`;
+        }
+
+        res.json({ success: true, documents: results, zipUrl });
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ error: e.message });
+    }
+};
+
 exports.download = async (req, res) => {
     const [rows] = await db.query('SELECT * FROM documents WHERE id = ?', [req.params.id]);
     if (!rows.length) return res.status(404).json({ error: 'Not found' });

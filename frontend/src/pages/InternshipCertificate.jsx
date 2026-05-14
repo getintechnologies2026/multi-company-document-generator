@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 import {
   GraduationCap, Building2, User, Briefcase, Award, Star,
   CheckCircle, Loader, Download, ChevronDown, ChevronUp,
-  X, Plus, Eye, CalendarCheck, Send, ClipboardCheck, IndianRupee,
+  X, Plus, Eye, CalendarCheck, Send, ClipboardCheck, IndianRupee, Layers,
 } from 'lucide-react';
 import api from '../services/api';
 
@@ -82,6 +82,20 @@ const CERT_TYPES = [
     inactiveCard: 'bg-white border-gray-200 hover:border-rose-300 hover:bg-rose-50',
     professionalOnly: true,
   },
+  {
+    id: 'all',
+    label: 'All Documents',
+    icon: Layers,
+    gradient: 'from-slate-700 to-slate-900',
+    light: 'bg-slate-50',
+    border: 'border-slate-200',
+    text: 'text-slate-700',
+    ring: 'focus:ring-slate-400',
+    desc: 'Generate all at once',
+    endpoint: '/documents/generate-internship-all',
+    activeCard: 'bg-gradient-to-br from-slate-700 to-slate-900 text-white border-transparent shadow-lg',
+    inactiveCard: 'bg-white border-gray-200 hover:border-slate-400 hover:bg-slate-50',
+  },
 ];
 
 const PERFORMANCE_OPTIONS = [
@@ -155,6 +169,7 @@ export default function InternshipCertificate() {
   const [certType, setCertType]         = useState('offer');
   const [generating, setGenerating]     = useState(false);
   const [result, setResult]             = useState(null);
+  const [allResults, setAllResults]     = useState(null);
 
   // Skills tags (completion cert)
   const [skillInput, setSkillInput]     = useState('');
@@ -168,7 +183,7 @@ export default function InternshipCertificate() {
   const [attRecords, setAttRecords]     = useState([]);
 
   // Section open/close
-  const [open, setOpen] = useState({ company: true, intern: true, internship: true, extra: true });
+  const [open, setOpen] = useState({ company: true, intern: true, internship: true, extra: true, attendance: true });
   const toggle = k => setOpen(o => ({ ...o, [k]: !o[k] }));
 
   // Form state — common + college + professional fields
@@ -226,6 +241,7 @@ export default function InternshipCertificate() {
   const handleCategoryChange = (cat) => {
     setInternCategory(cat);
     setResult(null);
+    setAllResults(null);
     // Salary cert is professional-only — switch away if moving to college
     if (cat === 'college' && certType === 'salary_cert') {
       setCertType('offer');
@@ -313,7 +329,13 @@ export default function InternshipCertificate() {
 
     setGenerating(true);
     setResult(null);
+    setAllResults(null);
     try {
+      // For 'all' mode: attendance data comes from manual form fields (no day-wise table)
+      const isAll = certType === 'all';
+      const manualTotalDays   = Number(form.total_working_days) || 0;
+      const manualDaysPresent = Number(form.days_present) || 0;
+
       const payload = {
         company_id: companyId,
         intern: {
@@ -322,16 +344,24 @@ export default function InternshipCertificate() {
           supervisor:          internCategory === 'professional' ? form.supervisor : form.mentor_name,
           skills:              skillsList.join(', '),
           covered_topics:      topicsList.join(', '),
-          attendance_records:  attRecords,
-          attendance_pct:      attendancePct,
-          total_working_days:  totalWorkingDays,
-          days_present:        daysPresent,
-          days_absent:         daysAbsent,
+          attendance_records:  isAll ? [] : attRecords,
+          attendance_pct:      isAll ? (manualTotalDays > 0 ? Math.round((manualDaysPresent / manualTotalDays) * 100) : 0) : attendancePct,
+          total_working_days:  isAll ? manualTotalDays  : totalWorkingDays,
+          days_present:        isAll ? manualDaysPresent : daysPresent,
+          days_absent:         isAll ? Math.max(0, manualTotalDays - manualDaysPresent) : daysAbsent,
         },
       };
-      const { data } = await api.post(ct.endpoint, payload);
-      setResult({ ...data, certType });
-      toast.success(`${ct.label} generated!`);
+
+      if (isAll) {
+        const { data } = await api.post('/documents/generate-internship-all', payload);
+        setAllResults(data);
+        const ok = Object.values(data.documents).filter(d => !d.error).length;
+        toast.success(`${ok} document${ok !== 1 ? 's' : ''} generated!`);
+      } else {
+        const { data } = await api.post(ct.endpoint, payload);
+        setResult({ ...data, certType });
+        toast.success(`${ct.label} generated!`);
+      }
     } catch (err) {
       toast.error(err.response?.data?.error || 'Generation failed');
     } finally {
@@ -389,7 +419,7 @@ export default function InternshipCertificate() {
         {/* ── Certificate Type Selector ── */}
         <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-4 mb-6">
           <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Select Document Type</p>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
             {CERT_TYPES.map(t => {
               const isDisabled = t.professionalOnly && internCategory !== 'professional';
               return (
@@ -441,6 +471,56 @@ export default function InternshipCertificate() {
                   <Download size={15} /> Download
                 </a>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── All-documents result panel ── */}
+        {allResults && (
+          <div className="mb-6 bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
+            <div className="px-5 py-3 bg-gradient-to-r from-slate-700 to-slate-900 flex items-center justify-between flex-wrap gap-3">
+              <div className="flex items-center gap-2">
+                <CheckCircle size={20} className="text-white" />
+                <span className="font-bold text-white text-sm">All Documents Generated!</span>
+              </div>
+              {allResults.zipUrl && (
+                <a href={allResults.zipUrl} download
+                  className="flex items-center gap-1.5 bg-white/20 border border-white/40 hover:bg-white/30
+                    text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">
+                  <Download size={13} /> Download All (ZIP)
+                </a>
+              )}
+            </div>
+            <div className="p-4 grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+              {Object.entries(allResults.documents).map(([key, doc]) => {
+                const def = CERT_TYPES.find(t => t.id === key) || { label: key, gradient: 'from-gray-400 to-gray-600', text: 'text-gray-600', icon: CheckCircle };
+                const IconComp = def.icon;
+                return (
+                  <div key={key} className={`rounded-xl border p-3 shadow-sm ${doc.error ? 'border-red-200 bg-red-50' : 'border-gray-100 bg-white'}`}>
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <IconComp size={13} className={doc.error ? 'text-red-400' : def.text} />
+                      <span className={`text-xs font-bold uppercase tracking-wide ${doc.error ? 'text-red-500' : def.text}`}>{def.label}</span>
+                    </div>
+                    {doc.error ? (
+                      <p className="text-xs text-red-400 mt-1">{doc.error}</p>
+                    ) : (
+                      <>
+                        <p className="text-xs font-mono text-gray-400 mb-2 truncate">{doc.doc_number}</p>
+                        <div className="flex gap-1.5">
+                          <a href={doc.url} target="_blank" rel="noreferrer"
+                            className={`flex-1 text-center text-xs font-semibold py-1.5 rounded-lg text-white bg-gradient-to-r ${def.gradient}`}>
+                            <Eye size={11} className="inline mr-0.5" />View
+                          </a>
+                          <a href={doc.url} download
+                            className="flex-1 text-center text-xs font-semibold py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-600">
+                            <Download size={11} className="inline mr-0.5" />Save
+                          </a>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
@@ -535,31 +615,31 @@ export default function InternshipCertificate() {
                     <SInput ring={ct.ring} name="designation" value={form.designation} onChange={ch} placeholder="e.g. Software Engineer Intern" />
                   </Field>
                 ) : (
-                  (certType === 'completion' || certType === 'offer') && (
+                  (certType === 'completion' || certType === 'offer' || certType === 'all') && (
                     <Field label="Project / Role Title" color={ct.text}>
                       <SInput ring={ct.ring} name="project_title" value={form.project_title} onChange={ch} placeholder="e.g. React Web App" />
                     </Field>
                   )
                 )}
 
-                {certType === 'offer' && (
+                {(certType === 'offer' || certType === 'all') && (
                   <>
                     <Field label="Offer Date" color={ct.text}>
                       <SInput ring={ct.ring} type="date" name="offer_date" value={form.offer_date} onChange={ch} />
                     </Field>
-                    <Field label="Reference No (Optional)" color={ct.text}>
+                    <Field label="Offer Ref No (Optional)" color={ct.text}>
                       <SInput ring={ct.ring} name="ref_no" value={form.ref_no} onChange={ch}
                         placeholder="e.g. REF/2025/001" />
                     </Field>
                   </>
                 )}
 
-                {certType === 'completion' && (
+                {(certType === 'completion' || certType === 'all') && (
                   <>
                     <Field label="Certificate Date" color={ct.text}>
                       <SInput ring={ct.ring} type="date" name="cert_date" value={form.cert_date} onChange={ch} />
                     </Field>
-                    <Field label="Reference No (Optional)" color={ct.text}>
+                    <Field label="Cert Ref No (Optional)" color={ct.text}>
                       <SInput ring={ct.ring} name="cert_ref_no" value={form.cert_ref_no} onChange={ch}
                         placeholder="e.g. INT/2025/001" />
                     </Field>
@@ -573,7 +653,7 @@ export default function InternshipCertificate() {
                   <SInput ring={ct.ring} type="date" name="to_date" value={form.to_date} onChange={ch} />
                 </Field>
 
-                {certType === 'confirmation' && (
+                {(certType === 'confirmation' || certType === 'all') && (
                   <Field label="Actual Joining Date" color={ct.text}>
                     <SInput ring={ct.ring} type="date" name="joining_date" value={form.joining_date} onChange={ch} />
                   </Field>
@@ -587,8 +667,8 @@ export default function InternshipCertificate() {
                     placeholder="e.g. Mr. Ramesh Kumar" />
                 </Field>
 
-                {/* Stipend: offer-only for college; all types except attendance for professional */}
-                {(certType === 'offer' || (internCategory === 'professional' && certType !== 'attendance')) && (
+                {/* Stipend: offer/all for college; all types except attendance for professional */}
+                {(certType === 'offer' || certType === 'all' || (internCategory === 'professional' && certType !== 'attendance')) && (
                   <Field label="Monthly Stipend (₹)" color={ct.text}>
                     <SInput ring={ct.ring} name="stipend" value={form.stipend} onChange={ch} placeholder="e.g. 15000" type="number" min="0" />
                   </Field>
@@ -596,7 +676,7 @@ export default function InternshipCertificate() {
               </div>
 
               {/* Offer joining instructions — college only */}
-              {certType === 'offer' && internCategory === 'college' && (
+              {(certType === 'offer' || certType === 'all') && internCategory === 'college' && (
                 <div className="mt-4">
                   <Field label="Joining Instructions (Optional)" color={ct.text}>
                     <textarea name="joining_instructions" value={form.joining_instructions} onChange={ch} rows={2}
@@ -608,8 +688,8 @@ export default function InternshipCertificate() {
               )}
             </SectionWrap>
 
-            {/* Performance & Skills — completion cert */}
-            {certType === 'completion' && (
+            {/* Performance & Skills — completion cert & all */}
+            {(certType === 'completion' || certType === 'all') && (
               <SectionWrap title="Performance & Skills" icon={Award}
                 gradient={ct.gradient} light={ct.light} border={ct.border}
                 open={open.extra} onToggle={() => toggle('extra')}>
@@ -789,8 +869,29 @@ export default function InternshipCertificate() {
               </SectionWrap>
             )}
 
-            {/* Remarks — for offer / confirmation */}
-            {(certType === 'offer' || certType === 'confirmation') && (
+            {/* Attendance Summary — all mode (simple manual inputs, no day-wise table) */}
+            {certType === 'all' && (
+              <SectionWrap title="Attendance Summary" icon={CalendarCheck}
+                gradient={ct.gradient} light={ct.light} border={ct.border}
+                open={open.attendance} onToggle={() => toggle('attendance')}>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <Field label="Total Working Days" color={ct.text}>
+                    <SInput ring={ct.ring} type="number" name="total_working_days"
+                      value={form.total_working_days} onChange={ch} placeholder="e.g. 60" min="0" />
+                  </Field>
+                  <Field label="Days Present" color={ct.text}>
+                    <SInput ring={ct.ring} type="number" name="days_present"
+                      value={form.days_present} onChange={ch} placeholder="e.g. 58" min="0" />
+                  </Field>
+                </div>
+                <p className="text-xs text-gray-400 mt-3 italic">
+                  Used for the Attendance Certificate. Leave blank if not applicable.
+                </p>
+              </SectionWrap>
+            )}
+
+            {/* Remarks — for offer / confirmation / all */}
+            {(certType === 'offer' || certType === 'confirmation' || certType === 'all') && (
               <div className={`${ct.light} border ${ct.border} rounded-2xl p-5`}>
                 <Field label="Remarks / Notes" color={ct.text}>
                   <textarea name="remarks" value={form.remarks} onChange={ch} rows={2}
