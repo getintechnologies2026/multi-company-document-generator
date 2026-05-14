@@ -38,6 +38,7 @@ const CERT_TYPES = [
     endpoint: '/documents/generate-internship-confirmation',
     activeCard: 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white border-transparent shadow-lg',
     inactiveCard: 'bg-white border-gray-200 hover:border-emerald-300 hover:bg-emerald-50',
+    collegeOnly: true,
   },
   {
     id: 'completion',
@@ -183,7 +184,7 @@ export default function InternshipCertificate() {
   const [attRecords, setAttRecords]     = useState([]);
 
   // Section open/close
-  const [open, setOpen] = useState({ company: true, intern: true, internship: true, extra: true, attendance: true });
+  const [open, setOpen] = useState({ company: true, intern: true, internship: true, extra: true, attendance: true, salary_cert: true });
   const toggle = k => setOpen(o => ({ ...o, [k]: !o[k] }));
 
   // Form state — common + college + professional fields
@@ -250,6 +251,10 @@ export default function InternshipCertificate() {
     setAllResults(null);
     // Salary cert is professional-only — switch away if moving to college
     if (cat === 'college' && certType === 'salary_cert') {
+      setCertType('offer');
+    }
+    // Confirmation is college-only — switch away if moving to professional
+    if (cat === 'professional' && certType === 'confirmation') {
       setCertType('offer');
     }
   };
@@ -426,7 +431,7 @@ export default function InternshipCertificate() {
         <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-4 mb-6">
           <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Select Document Type</p>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-            {CERT_TYPES.map(t => {
+            {CERT_TYPES.filter(t => !(t.collegeOnly && internCategory === 'professional')).map(t => {
               const isDisabled = t.professionalOnly && internCategory !== 'professional';
               return (
                 <button key={t.id} type="button"
@@ -652,18 +657,6 @@ export default function InternshipCertificate() {
                   </>
                 )}
 
-                {(certType === 'salary_cert' || certType === 'all') && (
-                  <>
-                    <Field label="Salary Cert Issue Date" color={ct.text}>
-                      <SInput ring={ct.ring} type="date" name="salary_cert_date" value={form.salary_cert_date} onChange={ch} />
-                    </Field>
-                    <Field label="Salary Cert Ref No (Optional)" color={ct.text}>
-                      <SInput ring={ct.ring} name="salary_cert_ref_no" value={form.salary_cert_ref_no} onChange={ch}
-                        placeholder="e.g. INS/2025/001" />
-                    </Field>
-                  </>
-                )}
-
                 {(certType === 'attendance' || certType === 'all') && (
                   <>
                     <Field label="Attendance Cert Date" color={ct.text}>
@@ -768,6 +761,25 @@ export default function InternshipCertificate() {
                       placeholder="Optional: achievements or observations..."
                       className={`w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm bg-white shadow-sm
                         focus:outline-none focus:ring-2 ${ct.ring} focus:border-transparent transition resize-none`} />
+                  </Field>
+                </div>
+              </SectionWrap>
+            )}
+
+            {/* Salary Certificate Details — salary_cert & all (professional only) */}
+            {(certType === 'salary_cert' || certType === 'all') && internCategory === 'professional' && (
+              <SectionWrap title="Salary Certificate Details" icon={IndianRupee}
+                gradient="from-rose-500 to-pink-600" light="bg-rose-50" border="border-rose-200"
+                open={open.salary_cert} onToggle={() => toggle('salary_cert')}>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <Field label="Certificate Issue Date" color="text-rose-700">
+                    <SInput ring="focus:ring-rose-400" type="date" name="salary_cert_date"
+                      value={form.salary_cert_date} onChange={ch} />
+                  </Field>
+                  <Field label="Salary Cert Ref No (Optional)" color="text-rose-700">
+                    <SInput ring="focus:ring-rose-400" name="salary_cert_ref_no"
+                      value={form.salary_cert_ref_no} onChange={ch}
+                      placeholder="e.g. INS/2025/001" />
                   </Field>
                 </div>
               </SectionWrap>

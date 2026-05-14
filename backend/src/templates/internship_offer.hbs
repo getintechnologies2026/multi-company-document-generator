@@ -169,8 +169,7 @@
       and are confident you will make a valuable contribution to our team during your time with us.
     </p>
     <p>
-      Your internship is scheduled to commence on <strong>{{data.from_date}}</strong> and conclude on
-      <strong>{{data.to_date}}</strong>{{#if data.duration_text}} ({{data.duration_text}}){{/if}}.
+      Your internship is scheduled to commence on <strong>{{data.from_date}}</strong>.
       Please find the complete details of your internship offer below.
     </p>
   </div>
@@ -188,8 +187,6 @@
     <tr><td>Department / Domain</td><td>{{data.department}}</td></tr>
     {{#if data.project_title}}<tr><td>Project / Role</td><td>{{data.project_title}}</td></tr>{{/if}}
     <tr><td>Internship Start Date</td><td><strong>{{data.from_date}}</strong></td></tr>
-    <tr><td>Internship End Date</td><td><strong>{{data.to_date}}</strong></td></tr>
-    <tr><td>Duration</td><td>{{data.duration_text}}</td></tr>
     {{#if data.stipend}}<tr><td>Monthly Stipend</td><td><strong>&#8377;{{data.stipend}}</strong> per month</td></tr>{{/if}}
     <tr><td>Reporting To / Supervisor</td><td>
       {{#if data.supervisor}}{{data.supervisor}}{{else}}{{#if data.mentor_name}}{{data.mentor_name}}{{else}}&mdash;{{/if}}{{/if}}

@@ -17,6 +17,27 @@ function docYear(dateStr) {
     return isNaN(y) ? new Date().getFullYear() : y;
 }
 
+/**
+ * Calendar-accurate duration between two Date objects.
+ * Returns a string like "3 Months", "2 Months 15 Days", "20 Days", "0 Days".
+ */
+function calDuration(fromDate, toDate) {
+    if (!fromDate || !toDate) return '';
+    let months = (toDate.getFullYear() - fromDate.getFullYear()) * 12
+               + (toDate.getMonth() - fromDate.getMonth());
+    let days   = toDate.getDate() - fromDate.getDate();
+    if (days < 0) {
+        months--;
+        // Days in the month before toDate
+        days += new Date(toDate.getFullYear(), toDate.getMonth(), 0).getDate();
+    }
+    if (months < 0) months = 0;
+    const parts = [];
+    if (months > 0) parts.push(`${months} Month${months > 1 ? 's' : ''}`);
+    if (days   > 0) parts.push(`${days} Day${days   > 1 ? 's' : ''}`);
+    return parts.join(' ') || '0 Days';
+}
+
 exports.list = async (req, res) => {
     const { company_id, doc_type, employee_id, search } = req.query;
     let sql = `SELECT d.*, c.name as company_name, u.name as created_by_name
@@ -535,19 +556,9 @@ exports.generateInternshipCertificate = async (req, res) => {
         }
 
         // ── Duration text ──
-        const fromDate = intern.from_date ? new Date(intern.from_date) : null;
-        const toDate   = intern.to_date   ? new Date(intern.to_date)   : null;
-        let durationText = '';
-        if (fromDate && toDate) {
-            const diffMs    = toDate - fromDate;
-            const diffDays  = Math.round(diffMs / (1000 * 60 * 60 * 24));
-            const months    = Math.floor(diffDays / 30);
-            const days      = diffDays % 30;
-            const parts = [];
-            if (months > 0) parts.push(`${months} Month${months > 1 ? 's' : ''}`);
-            if (days   > 0) parts.push(`${days} Day${days   > 1 ? 's' : ''}`);
-            durationText = parts.join(' ') || '1 Day';
-        }
+        const fromDate   = intern.from_date ? new Date(intern.from_date) : null;
+        const toDate     = intern.to_date   ? new Date(intern.to_date)   : null;
+        const durationText = calDuration(fromDate, toDate);
 
         // ── Format dates for display ──
         const fmtDate = d => d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' }) : '';
@@ -647,18 +658,9 @@ exports.generateInternshipOffer = async (req, res) => {
         const offerDateFmt = intern.offer_date ? fmtDate(intern.offer_date) : issueDate;
 
         // Duration
-        const fromDate = intern.from_date ? new Date(intern.from_date) : null;
-        const toDate   = intern.to_date   ? new Date(intern.to_date)   : null;
-        let durationText = '';
-        if (fromDate && toDate) {
-            const diffDays = Math.round((toDate - fromDate) / (1000 * 60 * 60 * 24));
-            const months   = Math.floor(diffDays / 30);
-            const days     = diffDays % 30;
-            const parts    = [];
-            if (months > 0) parts.push(`${months} Month${months > 1 ? 's' : ''}`);
-            if (days   > 0) parts.push(`${days} Day${days   > 1 ? 's' : ''}`);
-            durationText = parts.join(' ') || '1 Day';
-        }
+        const fromDate     = intern.from_date ? new Date(intern.from_date) : null;
+        const toDate       = intern.to_date   ? new Date(intern.to_date)   : null;
+        const durationText = calDuration(fromDate, toDate);
 
         const data = {
             intern_name:          intern.intern_name          || '',
@@ -670,7 +672,7 @@ exports.generateInternshipOffer = async (req, res) => {
             project_title:        intern.project_title        || '',
             from_date:            fmtDate(intern.from_date),
             to_date:              fmtDate(intern.to_date),
-            duration_text:        intern.duration_text        || durationText,
+            duration_text:        durationText,
             stipend:              intern.stipend              || '',
             mentor_name:          intern.mentor_name          || '',
             joining_instructions: intern.joining_instructions || '',
@@ -730,18 +732,9 @@ exports.generateInternshipConfirmation = async (req, res) => {
         const today    = new Date();
         const issueDate = fmtDate(today.toISOString().split('T')[0]);
 
-        const fromDate = intern.from_date ? new Date(intern.from_date) : null;
-        const toDate   = intern.to_date   ? new Date(intern.to_date)   : null;
-        let durationText = '';
-        if (fromDate && toDate) {
-            const diffDays = Math.round((toDate - fromDate) / (1000 * 60 * 60 * 24));
-            const months   = Math.floor(diffDays / 30);
-            const days     = diffDays % 30;
-            const parts    = [];
-            if (months > 0) parts.push(`${months} Month${months > 1 ? 's' : ''}`);
-            if (days   > 0) parts.push(`${days} Day${days   > 1 ? 's' : ''}`);
-            durationText = parts.join(' ') || '1 Day';
-        }
+        const fromDate     = intern.from_date ? new Date(intern.from_date) : null;
+        const toDate       = intern.to_date   ? new Date(intern.to_date)   : null;
+        const durationText = calDuration(fromDate, toDate);
 
         const data = {
             intern_name:     intern.intern_name   || '',
@@ -753,7 +746,7 @@ exports.generateInternshipConfirmation = async (req, res) => {
             joining_date:    fmtDate(intern.joining_date || intern.from_date),
             from_date:       fmtDate(intern.from_date),
             to_date:         fmtDate(intern.to_date),
-            duration_text:   intern.duration_text || durationText,
+            duration_text:   durationText,
             stipend:         intern.stipend       || '',
             mentor_name:     intern.mentor_name   || '',
             remarks:         intern.remarks       || '',
@@ -937,20 +930,18 @@ exports.generateInternshipSalaryCertificate = async (req, res) => {
         const todayIST = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric', ...IST });
         const issueDate = intern.salary_cert_date ? fmtDate(intern.salary_cert_date) : todayIST;
 
-        // Duration — calendar-month accurate, no +1 bias
-        const fromDate = intern.from_date ? new Date(intern.from_date) : null;
-        const toDate   = intern.to_date   ? new Date(intern.to_date)   : null;
-        let durationText = '';
-        let totalMonths  = 1;
+        // Duration — calendar-accurate
+        const fromDate     = intern.from_date ? new Date(intern.from_date) : null;
+        const toDate       = intern.to_date   ? new Date(intern.to_date)   : null;
+        const durationText = calDuration(fromDate, toDate);
+        // totalMonths for stipend calculation
+        let totalMonths = 1;
         if (fromDate && toDate) {
-            const diffDays = Math.round((toDate - fromDate) / (1000 * 60 * 60 * 24));
-            const months   = Math.floor(diffDays / 30);
-            const days     = diffDays % 30;
-            totalMonths    = months || 1;
-            const parts    = [];
-            if (months > 0) parts.push(`${months} Month${months > 1 ? 's' : ''}`);
-            if (days   > 0) parts.push(`${days} Day${days   > 1 ? 's' : ''}`);
-            durationText = parts.join(' ') || '1 Day';
+            let m = (toDate.getFullYear() - fromDate.getFullYear()) * 12
+                  + (toDate.getMonth() - fromDate.getMonth());
+            const d = toDate.getDate() - fromDate.getDate();
+            if (d < 0) m--;
+            totalMonths = Math.max(1, m);
         }
 
         const monthly     = Number(intern.stipend || 0);
@@ -1025,20 +1016,18 @@ exports.generateInternshipAll = async (req, res) => {
         const fmtDate   = d => d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric', ...IST_ALL }) : '';
         const issueDate = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric', ...IST_ALL });
 
-        // Duration
-        const fromDate = intern.from_date ? new Date(intern.from_date) : null;
-        const toDate   = intern.to_date   ? new Date(intern.to_date)   : null;
-        let durationText = '';
-        let totalMonths  = 1;
+        // Duration — calendar-accurate
+        const fromDate     = intern.from_date ? new Date(intern.from_date) : null;
+        const toDate       = intern.to_date   ? new Date(intern.to_date)   : null;
+        const durationText = calDuration(fromDate, toDate);
+        // totalMonths for stipend calculation
+        let totalMonths = 1;
         if (fromDate && toDate) {
-            const diffDays = Math.round((toDate - fromDate) / (1000 * 60 * 60 * 24));
-            const months   = Math.floor(diffDays / 30);
-            const days     = diffDays % 30;
-            totalMonths    = months || 1;
-            const parts    = [];
-            if (months > 0) parts.push(`${months} Month${months > 1 ? 's' : ''}`);
-            if (days   > 0) parts.push(`${days} Day${days   > 1 ? 's' : ''}`);
-            durationText = parts.join(' ') || '1 Day';
+            let m = (toDate.getFullYear() - fromDate.getFullYear()) * 12
+                  + (toDate.getMonth() - fromDate.getMonth());
+            const d = toDate.getDate() - fromDate.getDate();
+            if (d < 0) m--;
+            totalMonths = Math.max(1, m);
         }
 
         const prefix  = company.doc_number_prefix || 'DOC';
