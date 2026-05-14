@@ -816,23 +816,10 @@ exports.generateInternshipAttendance = async (req, res) => {
             if (emps.length) empRecord = emps[0];
         }
 
-        // Duration text
-        const fromDate = intern.from_date ? new Date(intern.from_date) : null;
-        const toDate   = intern.to_date   ? new Date(intern.to_date)   : null;
-        let durationText = '';
-        if (fromDate && toDate) {
-            const diffDays = Math.round((toDate - fromDate) / (1000 * 60 * 60 * 24));
-            const months   = Math.floor(diffDays / 30);
-            const days     = diffDays % 30;
-            const parts    = [];
-            if (months > 0) parts.push(`${months} Month${months > 1 ? 's' : ''}`);
-            if (days   > 0) parts.push(`${days} Day${days   > 1 ? 's' : ''}`);
-            durationText = parts.join(' ') || '1 Day';
-        }
-
-        const fmtDate  = d => d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' }) : '';
-        const today    = new Date();
-        const issueDate = fmtDate(today.toISOString().split('T')[0]);
+        const IST_ATT  = { timeZone: 'Asia/Kolkata' };
+        const fmtDate  = d => d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric', ...IST_ATT }) : '';
+        const todayIST = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric', ...IST_ATT });
+        const issueDate = intern.att_date ? fmtDate(intern.att_date) : todayIST;
 
         // Attendance records (date-wise)
         const attendanceRecords = Array.isArray(intern.attendance_records)
@@ -878,7 +865,6 @@ exports.generateInternshipAttendance = async (req, res) => {
             department:          intern.department     || '',
             from_date:           fmtDate(intern.from_date),
             to_date:             fmtDate(intern.to_date),
-            duration_text:       intern.duration_text  || durationText,
             mentor_name:         intern.mentor_name    || (empRecord ? empRecord.full_name : ''),
             total_working_days:  totalDays,
             days_present:        daysPresent,
@@ -889,6 +875,7 @@ exports.generateInternshipAttendance = async (req, res) => {
             topics_arr:          topicsArr,
             attendance_records:  attendanceRecords,
             remarks:             intern.remarks        || '',
+            att_ref_no:          intern.att_ref_no     || '',
             issue_date:          issueDate,
             // Professional fields
             designation:         intern.designation    || '',
@@ -901,7 +888,7 @@ exports.generateInternshipAttendance = async (req, res) => {
         };
 
         const prefix   = company.doc_number_prefix || 'DOC';
-        const year     = docYear(intern.from_date || intern.to_date);
+        const year     = docYear(intern.att_date || intern.from_date || intern.to_date);
         const [cnt]    = await db.query(
             "SELECT COUNT(*) as c FROM documents WHERE company_id = ? AND doc_type = 'internship_attendance'",
             [company_id]
@@ -1075,6 +1062,7 @@ exports.generateInternshipAll = async (req, res) => {
                     key === 'completion'   ? (intern.cert_date         || intern.to_date   || intern.from_date) :
                     key === 'confirmation' ? (intern.joining_date      || intern.from_date || intern.to_date) :
                     key === 'salary_cert'  ? (intern.salary_cert_date  || intern.from_date || intern.to_date) :
+                    key === 'attendance'   ? (intern.att_date          || intern.from_date || intern.to_date) :
                     (intern.from_date || intern.to_date);
 
                 const year = docYear(refDate);
@@ -1143,6 +1131,9 @@ exports.generateInternshipAll = async (req, res) => {
                     data.attendance_records = Array.isArray(intern.attendance_records) ? intern.attendance_records : [];
                     data.covered_topics     = intern.covered_topics || '';
                     data.topics_arr         = [];
+                    data.att_ref_no         = intern.att_ref_no || '';
+                    data.issue_date         = intern.att_date ? fmtDate(intern.att_date) : issueDate;
+                    delete data.duration_text;
                 }
 
                 // Salary cert-specific

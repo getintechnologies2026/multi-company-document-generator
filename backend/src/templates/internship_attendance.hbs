@@ -160,7 +160,7 @@
   <!-- Ref Row: ref left, date right via table -->
   <table class="ref-table">
     <tr>
-      <td>Ref No: <strong>{{doc_number}}</strong></td>
+      <td>Ref No: <strong>{{#if data.att_ref_no}}{{data.att_ref_no}}{{else}}{{doc_number}}{{/if}}</strong></td>
       <td>Date: <strong>{{data.issue_date}}</strong></td>
     </tr>
   </table>
@@ -176,7 +176,7 @@
       pursuing <strong>{{data.course}}{{#if data.branch}} &mdash; {{data.branch}}{{/if}}</strong>{{/if}},
       has completed an internship programme at <strong>{{company.name}}</strong>
       {{#if data.department}}in the <strong>{{data.department}}</strong> department{{/if}}
-      from <strong>{{data.from_date}}</strong> to <strong>{{data.to_date}}</strong>{{#if data.duration_text}} ({{data.duration_text}}){{/if}}.
+      from <strong>{{data.from_date}}</strong> to <strong>{{data.to_date}}</strong>.
       The attendance record for the internship period is certified as follows.
     </p>
   </div>
@@ -191,7 +191,7 @@
     {{#if data.mobile_no}}<tr><td>Mobile No</td><td>{{data.mobile_no}}</td></tr>{{/if}}
     {{#if data.email_id}}<tr><td>Email ID</td><td>{{data.email_id}}</td></tr>{{/if}}
     <tr><td>Department / Domain</td><td>{{data.department}}</td></tr>
-    <tr><td>Internship Period</td><td><strong>{{data.from_date}}</strong> to <strong>{{data.to_date}}</strong>{{#if data.duration_text}} ({{data.duration_text}}){{/if}}</td></tr>
+    <tr><td>Internship Period</td><td><strong>{{data.from_date}}</strong> to <strong>{{data.to_date}}</strong></td></tr>
     {{#if data.mentor_name}}<tr><td>Reporting To</td><td>{{data.mentor_name}}</td></tr>{{/if}}
     {{#if data.supervisor}}<tr><td>Supervisor</td><td>{{data.supervisor}}</td></tr>{{/if}}
   </table>
