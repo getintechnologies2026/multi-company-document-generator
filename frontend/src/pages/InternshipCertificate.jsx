@@ -200,10 +200,14 @@ export default function InternshipCertificate() {
     pan_no: '',
     aadhaar_no: '',
     designation: '',
+    employee_no: '',
     offer_date: '',
     supervisor: '',
     // Offer letter
     ref_no: '',
+    // Completion cert
+    cert_date: '',
+    cert_ref_no: '',
   });
 
   useEffect(() => {
@@ -486,6 +490,9 @@ export default function InternshipCertificate() {
 
                 {/* Professional-specific fields */}
                 {internCategory === 'professional' && <>
+                  <Field label="Employee No" color={ct.text}>
+                    <SInput ring={ct.ring} name="employee_no" value={form.employee_no} onChange={ch} placeholder="e.g. EMP-2025-001" />
+                  </Field>
                   <Field label="Mobile No" color={ct.text}>
                     <SInput ring={ct.ring} name="mobile_no" value={form.mobile_no} onChange={ch} placeholder="e.g. 9876543210" type="tel" />
                   </Field>
@@ -543,6 +550,18 @@ export default function InternshipCertificate() {
                     <Field label="Reference No (Optional)" color={ct.text}>
                       <SInput ring={ct.ring} name="ref_no" value={form.ref_no} onChange={ch}
                         placeholder="e.g. REF/2025/001" />
+                    </Field>
+                  </>
+                )}
+
+                {certType === 'completion' && (
+                  <>
+                    <Field label="Certificate Date" color={ct.text}>
+                      <SInput ring={ct.ring} type="date" name="cert_date" value={form.cert_date} onChange={ch} />
+                    </Field>
+                    <Field label="Reference No (Optional)" color={ct.text}>
+                      <SInput ring={ct.ring} name="cert_ref_no" value={form.cert_ref_no} onChange={ch}
+                        placeholder="e.g. INT/2025/001" />
                     </Field>
                   </>
                 )}

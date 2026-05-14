@@ -171,7 +171,7 @@
   <!-- Ref row: ref left, date right via table -->
   <table class="ref-table">
     <tr>
-      <td>Ref: <strong style="color:#5b21b6;">{{doc_number}}</strong></td>
+      <td>Ref: <strong style="color:#5b21b6;">{{#if data.cert_ref_no}}{{data.cert_ref_no}}{{else}}{{doc_number}}{{/if}}</strong></td>
       <td>Date: <strong style="color:#5b21b6;">{{data.issue_date}}</strong></td>
     </tr>
   </table>
@@ -205,6 +205,9 @@
     {{/if}}
     {{#if data.course}}
     <tr><td>Course / Degree</td><td>{{data.course}}{{#if data.branch}} &mdash; {{data.branch}}{{/if}}</td></tr>
+    {{/if}}
+    {{#if data.employee_no}}
+    <tr><td>Employee No</td><td>{{data.employee_no}}</td></tr>
     {{/if}}
     {{#if data.designation}}
     <tr><td>Designation</td><td>{{data.designation}}</td></tr>

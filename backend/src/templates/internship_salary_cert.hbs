@@ -188,6 +188,12 @@
           <td class="key">Name</td>
           <td class="val"><strong>{{data.intern_name}}</strong></td>
         </tr>
+        {{#if data.employee_no}}
+        <tr>
+          <td class="key">Employee No</td>
+          <td class="val">{{data.employee_no}}</td>
+        </tr>
+        {{/if}}
         {{#if data.designation}}
         <tr>
           <td class="key">Designation</td>

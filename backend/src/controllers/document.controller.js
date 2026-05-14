@@ -554,6 +554,9 @@ exports.generateInternshipCertificate = async (req, res) => {
         const today   = new Date();
         const issueDate = fmtDate(today.toISOString().split('T')[0]);
 
+        // Use cert_date as the letter date; fall back to today
+        const certDateFmt = intern.cert_date ? fmtDate(intern.cert_date) : issueDate;
+
         // Skills array
         const skillsArr = intern.skills
             ? intern.skills.split(',').map(s => s.trim()).filter(Boolean)
@@ -575,9 +578,11 @@ exports.generateInternshipCertificate = async (req, res) => {
             skills:          intern.skills         || '',
             skills_arr:      skillsArr,
             remarks:         intern.remarks        || '',
-            issue_date:      issueDate,
+            issue_date:      certDateFmt,           // cert date (user-entered) or today
+            cert_ref_no:     intern.cert_ref_no    || '',
             // Professional fields
             designation:     intern.designation    || '',
+            employee_no:     intern.employee_no    || '',
             mobile_no:       intern.mobile_no      || '',
             email_id:        intern.email_id       || '',
             address:         intern.address        || '',
@@ -589,9 +594,9 @@ exports.generateInternshipCertificate = async (req, res) => {
             intern_category: intern.intern_category || 'college',
         };
 
-        // Doc number — year from intern's completion (to_date) or start date
+        // Doc number — year from cert date (preferred) → to_date → from_date
         const prefix   = company.doc_number_prefix || 'DOC';
-        const year     = docYear(intern.to_date || intern.from_date);
+        const year     = docYear(intern.cert_date || intern.to_date || intern.from_date);
         const [cnt]    = await db.query(
             "SELECT COUNT(*) as c FROM documents WHERE company_id = ? AND doc_type = 'internship_certificate'",
             [company_id]
@@ -972,6 +977,7 @@ exports.generateInternshipSalaryCertificate = async (req, res) => {
         const data = {
             intern_name:     intern.intern_name  || '',
             designation:     intern.designation  || '',
+            employee_no:     intern.employee_no  || '',
             department:      intern.department   || '',
             mobile_no:       intern.mobile_no    || '',
             email_id:        intern.email_id     || '',
