@@ -945,17 +945,18 @@ exports.generateInternshipSalaryCertificate = async (req, res) => {
         if (!companies.length) return res.status(404).json({ error: 'Company not found' });
         const company = companies[0];
 
-        const fmtDate  = d => d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' }) : '';
-        const today    = new Date();
-        const issueDate = fmtDate(today.toISOString().split('T')[0]);
+        const IST = { timeZone: 'Asia/Kolkata' };
+        const fmtDate  = d => d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric', ...IST }) : '';
+        const todayIST = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric', ...IST });
+        const issueDate = intern.salary_cert_date ? fmtDate(intern.salary_cert_date) : todayIST;
 
-        // Duration
+        // Duration — calendar-month accurate, no +1 bias
         const fromDate = intern.from_date ? new Date(intern.from_date) : null;
         const toDate   = intern.to_date   ? new Date(intern.to_date)   : null;
         let durationText = '';
         let totalMonths  = 1;
         if (fromDate && toDate) {
-            const diffDays = Math.round((toDate - fromDate) / (1000 * 60 * 60 * 24)) + 1;
+            const diffDays = Math.round((toDate - fromDate) / (1000 * 60 * 60 * 24));
             const months   = Math.floor(diffDays / 30);
             const days     = diffDays % 30;
             totalMonths    = months || 1;
@@ -975,29 +976,30 @@ exports.generateInternshipSalaryCertificate = async (req, res) => {
             : rawAadhaar;
 
         const data = {
-            intern_name:     intern.intern_name  || '',
-            designation:     intern.designation  || '',
-            employee_no:     intern.employee_no  || '',
-            department:      intern.department   || '',
-            mobile_no:       intern.mobile_no    || '',
-            email_id:        intern.email_id     || '',
-            address:         intern.address      || '',
-            dob:             intern.dob ? fmtDate(intern.dob) : '',
-            pan_no:          intern.pan_no       || '',
-            aadhaar_no:      maskedAadhaar,
-            from_date:       fmtDate(intern.from_date),
-            to_date:         fmtDate(intern.to_date),
-            duration_text:   durationText,
-            stipend:         monthly,
-            total_stipend:   totalStipend,
-            total_months:    totalMonths,
-            supervisor:      intern.supervisor   || intern.mentor_name || '',
-            offer_date:      intern.offer_date   ? fmtDate(intern.offer_date) : '',
-            issue_date:      issueDate,
+            intern_name:        intern.intern_name        || '',
+            designation:        intern.designation        || '',
+            employee_no:        intern.employee_no        || '',
+            department:         intern.department         || '',
+            mobile_no:          intern.mobile_no          || '',
+            email_id:           intern.email_id           || '',
+            address:            intern.address            || '',
+            dob:                intern.dob ? fmtDate(intern.dob) : '',
+            pan_no:             intern.pan_no             || '',
+            aadhaar_no:         maskedAadhaar,
+            from_date:          fmtDate(intern.from_date),
+            to_date:            fmtDate(intern.to_date),
+            duration_text:      durationText,
+            stipend:            monthly,
+            total_stipend:      totalStipend,
+            total_months:       totalMonths,
+            supervisor:         intern.supervisor         || intern.mentor_name || '',
+            offer_date:         intern.offer_date         ? fmtDate(intern.offer_date) : '',
+            salary_cert_ref_no: intern.salary_cert_ref_no || '',
+            issue_date:         issueDate,
         };
 
         const prefix   = company.doc_number_prefix || 'DOC';
-        const year     = docYear(intern.from_date || intern.to_date);
+        const year     = docYear(intern.salary_cert_date || intern.from_date || intern.to_date);
         const [cnt]    = await db.query(
             "SELECT COUNT(*) as c FROM documents WHERE company_id = ? AND doc_type = 'internship_salary_cert'",
             [company_id]
@@ -1032,9 +1034,9 @@ exports.generateInternshipAll = async (req, res) => {
         if (!companies.length) return res.status(404).json({ error: 'Company not found' });
         const company = companies[0];
 
-        const fmtDate   = d => d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' }) : '';
-        const today     = new Date();
-        const issueDate = fmtDate(today.toISOString().split('T')[0]);
+        const IST_ALL   = { timeZone: 'Asia/Kolkata' };
+        const fmtDate   = d => d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric', ...IST_ALL }) : '';
+        const issueDate = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric', ...IST_ALL });
 
         // Duration
         const fromDate = intern.from_date ? new Date(intern.from_date) : null;
@@ -1069,9 +1071,10 @@ exports.generateInternshipAll = async (req, res) => {
         for (const { key, docType, code } of DOCS) {
             try {
                 const refDate =
-                    key === 'offer'        ? (intern.offer_date   || intern.from_date || intern.to_date) :
-                    key === 'completion'   ? (intern.cert_date    || intern.to_date   || intern.from_date) :
-                    key === 'confirmation' ? (intern.joining_date || intern.from_date || intern.to_date) :
+                    key === 'offer'        ? (intern.offer_date        || intern.from_date || intern.to_date) :
+                    key === 'completion'   ? (intern.cert_date         || intern.to_date   || intern.from_date) :
+                    key === 'confirmation' ? (intern.joining_date      || intern.from_date || intern.to_date) :
+                    key === 'salary_cert'  ? (intern.salary_cert_date  || intern.from_date || intern.to_date) :
                     (intern.from_date || intern.to_date);
 
                 const year = docYear(refDate);
@@ -1147,10 +1150,11 @@ exports.generateInternshipAll = async (req, res) => {
                     const monthly      = Number(intern.stipend || 0);
                     const totalStipend = monthly * totalMonths;
                     const rawAadhaar   = String(intern.aadhaar_no || '').replace(/\s/g, '');
-                    data.aadhaar_no    = rawAadhaar.length >= 4 ? 'XXXX XXXX ' + rawAadhaar.slice(-4) : rawAadhaar;
-                    data.total_stipend = totalStipend;
-                    data.total_months  = totalMonths;
-                    data.issue_date    = issueDate;
+                    data.aadhaar_no         = rawAadhaar.length >= 4 ? 'XXXX XXXX ' + rawAadhaar.slice(-4) : rawAadhaar;
+                    data.total_stipend      = totalStipend;
+                    data.total_months       = totalMonths;
+                    data.salary_cert_ref_no = intern.salary_cert_ref_no || '';
+                    data.issue_date         = intern.salary_cert_date ? fmtDate(intern.salary_cert_date) : issueDate;
                 }
 
                 await generatePDF(docType, { company, employee: {}, data, doc_number }, outPath);

@@ -223,6 +223,9 @@ export default function InternshipCertificate() {
     // Completion cert
     cert_date: '',
     cert_ref_no: '',
+    // Salary cert
+    salary_cert_date: '',
+    salary_cert_ref_no: '',
   });
 
   useEffect(() => {
@@ -642,6 +645,18 @@ export default function InternshipCertificate() {
                     <Field label="Cert Ref No (Optional)" color={ct.text}>
                       <SInput ring={ct.ring} name="cert_ref_no" value={form.cert_ref_no} onChange={ch}
                         placeholder="e.g. INT/2025/001" />
+                    </Field>
+                  </>
+                )}
+
+                {(certType === 'salary_cert' || certType === 'all') && (
+                  <>
+                    <Field label="Salary Cert Issue Date" color={ct.text}>
+                      <SInput ring={ct.ring} type="date" name="salary_cert_date" value={form.salary_cert_date} onChange={ch} />
+                    </Field>
+                    <Field label="Salary Cert Ref No (Optional)" color={ct.text}>
+                      <SInput ring={ct.ring} name="salary_cert_ref_no" value={form.salary_cert_ref_no} onChange={ch}
+                        placeholder="e.g. INS/2025/001" />
                     </Field>
                   </>
                 )}
