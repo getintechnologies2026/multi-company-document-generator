@@ -22,15 +22,16 @@ Handlebars.registerHelper('inc', (n)    => Number(n) + 1);
 
 // ── Template map ──────────────────────────────────────────
 const TEMPLATE_FILES = {
-    offer_letter:              'offer_letter.hbs',
-    payslip:                   'payslip.hbs',
-    experience_letter:         'experience_letter.hbs',
-    relieving_letter:          'relieving_letter.hbs',
-    salary_increment:          'salary_increment.hbs',
-    internship_certificate:    'internship_certificate.hbs',
-    internship_attendance:     'internship_attendance.hbs',
-    internship_offer:          'internship_offer.hbs',
-    internship_confirmation:   'internship_confirmation.hbs',
+    offer_letter:                'offer_letter.hbs',
+    payslip:                     'payslip.hbs',
+    experience_letter:           'experience_letter.hbs',
+    relieving_letter:            'relieving_letter.hbs',
+    salary_increment:            'salary_increment.hbs',
+    internship_certificate:      'internship_certificate.hbs',
+    internship_attendance:       'internship_attendance.hbs',
+    internship_offer:            'internship_offer.hbs',
+    internship_confirmation:     'internship_confirmation.hbs',
+    internship_salary_cert:      'internship_salary_cert.hbs',
 };
 
 // ── Template renderer ─────────────────────────────────────
