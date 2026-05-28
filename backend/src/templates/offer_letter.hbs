@@ -12,7 +12,6 @@
       font-size: 12.5px;
       line-height: 1.55;
       background: #fff;
-      padding-bottom: 38px;
     }
 
     /* ── Page wrapper — breaks after each page, no clipping ── */
@@ -216,12 +215,6 @@
     .signature-block .sig-designation { font-size: 11px; color: #475569; }
     .signature-block .sig-company { font-size: 11px; color: #1e40af; font-weight: 600; }
 
-    /* ── Footer — fixed at bottom of every page ── */
-    .footer {
-      position: fixed; bottom: 0; left: 0; right: 0;
-      border-top: 1px solid #bfdbfe; padding: 5px 28px;
-      text-align: center; font-size: 9.5px; color: #64748b; background: #f8faff; line-height: 1.4;
-    }
 
     /* ── Page header repeated (pages 2-4) ── */
     .page-header {
@@ -836,10 +829,6 @@
 
 </div><!-- end page 4 -->
 
-<!-- Single fixed footer — appears at bottom of every page -->
-<div class="footer">
-  {{company.name}} &nbsp;|&nbsp; {{company.address}}{{#if company.city}}, {{company.city}}{{/if}}{{#if company.state}}, {{company.state}}{{/if}} &nbsp;|&nbsp; {{company.email}} &nbsp;|&nbsp; Doc No: {{doc_number}}
-</div>
 
 </body>
 </html>

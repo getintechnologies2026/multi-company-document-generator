@@ -68,17 +68,24 @@ if (WKHTMLTOPDF_BIN) {
 }
 
 // ── wkhtmltopdf PDF generation ────────────────────────────
-function generateWithWkhtmltopdf(html, outputPath) {
+function generateWithWkhtmltopdf(html, outputPath, options = {}) {
     return new Promise((resolve, reject) => {
         const tmpHtml = path.join(os.tmpdir(), `docgen_${Date.now()}_${Math.random().toString(36).slice(2)}.html`);
         fs.writeFileSync(tmpHtml, html, 'utf8');
+
+        // If caller supplies footer HTML, write it to a temp file and use --footer-html
+        let tmpFooter = null;
+        if (options.footerHtml) {
+            tmpFooter = path.join(os.tmpdir(), `docgen_ftr_${Date.now()}.html`);
+            fs.writeFileSync(tmpFooter, options.footerHtml, 'utf8');
+        }
 
         const args = [
             '--quiet',
             '--page-size',    'A4',
             '--margin-top',   '0mm',
             '--margin-right', '0mm',
-            '--margin-bottom','0mm',
+            '--margin-bottom', tmpFooter ? '12mm' : '0mm',
             '--margin-left',  '0mm',
             '--print-media-type',
             '--enable-local-file-access',
@@ -86,12 +93,15 @@ function generateWithWkhtmltopdf(html, outputPath) {
             '--no-stop-slow-scripts',
             '--load-error-handling', 'ignore',
             '--load-media-error-handling', 'ignore',
-            tmpHtml,
-            outputPath,
         ];
+
+        if (tmpFooter) args.push('--footer-html', tmpFooter);
+
+        args.push(tmpHtml, outputPath);
 
         execFile(WKHTMLTOPDF_BIN, args, { timeout: 90000 }, (err) => {
             try { fs.unlinkSync(tmpHtml); } catch {}
+            if (tmpFooter) { try { fs.unlinkSync(tmpFooter); } catch {} }
             // wkhtmltopdf returns exit code 1 for warnings but still writes the file
             if (fs.existsSync(outputPath) && fs.statSync(outputPath).size > 0) {
                 resolve();
@@ -128,17 +138,18 @@ async function createBrowser() {
 /**
  * Generate a PDF from a document type and context.
  *
- * @param {string}  docType
- * @param {object}  ctx
- * @param {string}  outputPath
+ * @param {string}      docType
+ * @param {object}      ctx
+ * @param {string}      outputPath
  * @param {object|null} sharedBrowser  — ignored when wkhtmltopdf is used
+ * @param {object}      options        — { footerHtml?: string }
  */
-async function generatePDF(docType, ctx, outputPath, sharedBrowser = null) {
+async function generatePDF(docType, ctx, outputPath, sharedBrowser = null, options = {}) {
     const html = renderTemplate(docType, ctx);
 
     // ① wkhtmltopdf — works on OpenVZ/LXC containers, no Chrome needed
     if (WKHTMLTOPDF_BIN) {
-        await generateWithWkhtmltopdf(html, outputPath);
+        await generateWithWkhtmltopdf(html, outputPath, options);
         return outputPath;
     }
 

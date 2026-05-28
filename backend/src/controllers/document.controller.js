@@ -59,6 +59,25 @@ exports.list = async (req, res) => {
     res.json(rows);
 };
 
+/**
+ * Build the footer HTML string for offer letters.
+ * Passed to wkhtmltopdf via --footer-html so it appears at the bottom of every page.
+ */
+function offerFooterHtml(company, doc_number) {
+    const addr = [company.address, company.city, company.state].filter(Boolean).join(', ');
+    return `<!DOCTYPE html><html><head><meta charset="utf-8">
+<style>
+  body { margin:0; padding:4px 28px 3px; font-family:'Segoe UI',Arial,sans-serif;
+         font-size:9px; color:#64748b; background:#f8faff;
+         border-top:1px solid #bfdbfe; text-align:center; line-height:1.3; }
+</style>
+</head><body>
+  <strong>${company.name}</strong> &nbsp;|&nbsp; ${addr}
+  &nbsp;|&nbsp; ${company.email || ''}
+  &nbsp;|&nbsp; Doc No: ${doc_number}
+</body></html>`;
+}
+
 exports.get = async (req, res) => {
     const [rows] = await db.query('SELECT * FROM documents WHERE id = ?', [req.params.id]);
     if (!rows.length) return res.status(404).json({ error: 'Document not found' });
@@ -115,7 +134,8 @@ exports.generate = async (req, res) => {
         // Render PDF
         const filename = `${doc_number.replace(/\//g, '_')}.pdf`;
         const outPath = path.join(__dirname, '..', '..', 'generated', filename);
-        await generatePDF(doc_type, { company, employee: empData, data, doc_number }, outPath);
+        const pdfOpts = doc_type === 'offer_letter' ? { footerHtml: offerFooterHtml(company, doc_number) } : {};
+        await generatePDF(doc_type, { company, employee: empData, data, doc_number }, outPath, null, pdfOpts);
 
         // Insert record
         const [r] = await db.query(
@@ -212,7 +232,8 @@ exports.generateAll = async (req, res) => {
                     const filename = `${doc_number.replace(/\//g, '_')}.pdf`;
                     const outPath = path.join(__dirname, '..', '..', 'generated', filename);
 
-                    await generatePDF(doc_type, { company, employee: empData, data, doc_number }, outPath, browser);
+                    const pdfOpts = doc_type === 'offer_letter' ? { footerHtml: offerFooterHtml(company, doc_number) } : {};
+                    await generatePDF(doc_type, { company, employee: empData, data, doc_number }, outPath, browser, pdfOpts);
 
                     const [r] = await db.query(
                         `INSERT INTO documents
