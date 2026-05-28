@@ -14,8 +14,9 @@
       background: #fff;
     }
 
-    /* ── Page break — zero height so it adds no visible space ── */
-    .page-break { page-break-after: always; height: 0; line-height: 0; font-size: 0; }
+    /* ── Page wrapper — exact A4 height, footer pinned inside ── */
+    .page { position: relative; height: 297mm; page-break-after: always; overflow: hidden; }
+    .page:last-child { page-break-after: auto; }
 
     /* ── Top accent bar ── */
     .top-bar { height: 8px; width: 100%; background: linear-gradient(90deg, #1e3a8a, #3b82f6); }
@@ -36,7 +37,7 @@
     .header-company .company-name { font-size: 14px; font-weight: 700; color: #1e40af; margin-bottom: 1px; }
 
     /* ── Body ── */
-    .body { padding: 10px 28px 8px; }
+    .body { padding: 10px 28px 38px; }
 
     /* ── Confidential banner ── */
     .confidential-bar {
@@ -214,9 +215,10 @@
     .signature-block .sig-designation { font-size: 11px; color: #475569; }
     .signature-block .sig-company { font-size: 11px; color: #1e40af; font-weight: 600; }
 
-    /* ── Footer ── */
+    /* ── Footer — pinned to bottom of each .page wrapper ── */
     .footer {
-      margin-top: 8px; border-top: 1px solid #bfdbfe; padding: 5px 28px;
+      position: absolute; bottom: 0; left: 0; right: 0;
+      border-top: 1px solid #bfdbfe; padding: 5px 28px;
       text-align: center; font-size: 9.5px; color: #64748b; background: #f8faff; line-height: 1.4;
     }
 
@@ -239,7 +241,7 @@
 <!-- ════════════════════════════════════════════════════════════
      PAGE 1 — OFFER DETAILS & EMPLOYMENT TERMS
      ════════════════════════════════════════════════════════════ -->
-
+<div class="page">
 <div class="top-bar"></div>
 
 <div class="header">
@@ -267,7 +269,7 @@
   <table class="meta-table">
     <tr>
       <td><strong>Ref No:</strong> {{doc_number}}</td>
-      <td><strong>Date:</strong> {{#if employee.offer_release_date}}{{employee.offer_release_date}}{{else}}{{today}}{{/if}}</td>
+      <td><strong>Date:</strong> {{#if data.offer_release_date}}{{formatDate data.offer_release_date "DD-MMM-YYYY"}}{{else}}{{today}}{{/if}}</td>
     </tr>
   </table>
 
@@ -329,7 +331,7 @@
     </tr>
     <tr>
       <td>Reporting To</td>
-      <td>{{#if employee.reporting_to}}{{employee.reporting_to}}{{else}}Respective Functional Head{{/if}}</td>
+      <td>{{#if data.reporting_to}}{{data.reporting_to}}{{else}}Respective Functional Head{{/if}}</td>
     </tr>
     <tr>
       <td>Probation Period</td>
@@ -356,18 +358,16 @@
 <div class="footer">
   {{company.name}} &nbsp;|&nbsp; {{company.address}}{{#if company.city}}, {{company.city}}{{/if}} &nbsp;|&nbsp; {{company.email}} &nbsp;|&nbsp; Doc No: {{doc_number}} &nbsp;|&nbsp; <strong>Page 1 of 4</strong>
 </div>
-
-<!-- ════════════ PAGE BREAK ════════════ -->
-<div class="page-break"></div>
+</div><!-- end page 1 -->
 
 <!-- ════════════════════════════════════════════════════════════
      PAGE 2 — COMPENSATION, BENEFITS & LEAVE POLICY
      ════════════════════════════════════════════════════════════ -->
-
+<div class="page">
 <div class="top-bar"></div>
 <div class="page-header">
   <div class="ph-left">{{company.name}} &nbsp;&mdash;&nbsp; Letter of Appointment</div>
-  <div class="ph-right">{{employee.full_name}} &nbsp;|&nbsp; {{today}}</div>
+  <div class="ph-right">{{employee.full_name}} &nbsp;|&nbsp; {{#if data.offer_release_date}}{{formatDate data.offer_release_date "DD-MMM-YYYY"}}{{else}}{{today}}{{/if}}</div>
 </div>
 
 <div class="body">
@@ -545,18 +545,16 @@
 <div class="footer">
   {{company.name}} &nbsp;|&nbsp; {{company.address}}{{#if company.city}}, {{company.city}}{{/if}} &nbsp;|&nbsp; {{company.email}} &nbsp;|&nbsp; Doc No: {{doc_number}} &nbsp;|&nbsp; <strong>Page 2 of 4</strong>
 </div>
-
-<!-- ════════════ PAGE BREAK ════════════ -->
-<div class="page-break"></div>
+</div><!-- end page 2 -->
 
 <!-- ════════════════════════════════════════════════════════════
      PAGE 3 — TERMS & CONDITIONS (CLAUSES 1–12)
      ════════════════════════════════════════════════════════════ -->
-
+<div class="page">
 <div class="top-bar"></div>
 <div class="page-header">
   <div class="ph-left">{{company.name}} &nbsp;&mdash;&nbsp; Letter of Appointment</div>
-  <div class="ph-right">{{employee.full_name}} &nbsp;|&nbsp; {{today}}</div>
+  <div class="ph-right">{{employee.full_name}} &nbsp;|&nbsp; {{#if data.offer_release_date}}{{formatDate data.offer_release_date "DD-MMM-YYYY"}}{{else}}{{today}}{{/if}}</div>
 </div>
 
 <div class="body">
@@ -696,18 +694,16 @@
 <div class="footer">
   {{company.name}} &nbsp;|&nbsp; {{company.address}}{{#if company.city}}, {{company.city}}{{/if}} &nbsp;|&nbsp; {{company.email}} &nbsp;|&nbsp; Doc No: {{doc_number}} &nbsp;|&nbsp; <strong>Page 3 of 4</strong>
 </div>
-
-<!-- ════════════ PAGE BREAK ════════════ -->
-<div class="page-break"></div>
+</div><!-- end page 3 -->
 
 <!-- ════════════════════════════════════════════════════════════
      PAGE 4 — REMAINING TERMS, SIGNATURE & ACCEPTANCE
      ════════════════════════════════════════════════════════════ -->
-
+<div class="page">
 <div class="top-bar"></div>
 <div class="page-header">
   <div class="ph-left">{{company.name}} &nbsp;&mdash;&nbsp; Letter of Appointment</div>
-  <div class="ph-right">{{employee.full_name}} &nbsp;|&nbsp; {{today}}</div>
+  <div class="ph-right">{{employee.full_name}} &nbsp;|&nbsp; {{#if data.offer_release_date}}{{formatDate data.offer_release_date "DD-MMM-YYYY"}}{{else}}{{today}}{{/if}}</div>
 </div>
 
 <div class="body">
@@ -819,7 +815,7 @@
     <div class="acc-title">&#10003; Acceptance of Offer — To Be Signed by Candidate</div>
     <p>
       I, <strong>{{employee.full_name}}</strong>, have read and fully understood the terms and
-      conditions set forth in this Letter of Appointment dated <strong>{{today}}</strong>, issued
+      conditions set forth in this Letter of Appointment dated <strong>{{#if data.offer_release_date}}{{formatDate data.offer_release_date "DD-MMM-YYYY"}}{{else}}{{today}}{{/if}}</strong>, issued
       by <strong>{{company.name}}</strong> for the position of
       <strong>{{#if employee.offered_designation}}{{employee.offered_designation}}{{else}}{{employee.designation}}{{/if}}</strong>.
     </p>
@@ -849,6 +845,7 @@
 <div class="footer">
   {{company.name}} &nbsp;|&nbsp; {{company.address}}{{#if company.city}}, {{company.city}}{{/if}} &nbsp;|&nbsp; {{company.email}} &nbsp;|&nbsp; Doc No: {{doc_number}} &nbsp;|&nbsp; <strong>Page 4 of 4</strong>
 </div>
+</div><!-- end page 4 -->
 
 </body>
 </html>

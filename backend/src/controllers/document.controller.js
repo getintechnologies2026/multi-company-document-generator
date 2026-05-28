@@ -100,6 +100,18 @@ exports.generate = async (req, res) => {
         const seq = String(cnt[0].c + 1).padStart(4, '0');
         const doc_number = `${prefix}/${typeShort}/${year}/${seq}`;
 
+        // For offer letter: compute annual salary columns (monthly × 12)
+        if (doc_type === 'offer_letter') {
+            ['basic','hra','da','conveyance','medical','special_allowance','pf','esi'].forEach(f => {
+                const v = Number(empData[f] || 0);
+                if (v > 0) empData[`${f}_annual`] = Math.round(v * 12);
+            });
+            const grossV = Number(empData.gross || empData.gross_earnings || 0);
+            const netV   = Number(empData.net   || empData.net_pay       || 0);
+            if (grossV > 0) { data.gross_earnings = grossV; data.gross_annual = Math.round(grossV * 12); }
+            if (netV   > 0) { data.net_pay = netV;          data.net_annual   = Math.round(netV   * 12); }
+        }
+
         // Render PDF
         const filename = `${doc_number.replace(/\//g, '_')}.pdf`;
         const outPath = path.join(__dirname, '..', '..', 'generated', filename);
@@ -181,6 +193,19 @@ exports.generateAll = async (req, res) => {
                 try {
                     const data = { ...empData, ...extraData[doc_type] };
                     const year = yearByType[doc_type];
+
+                    // For offer letter: compute annual salary columns (monthly × 12)
+                    if (doc_type === 'offer_letter') {
+                        ['basic','hra','da','conveyance','medical','special_allowance','pf','esi'].forEach(f => {
+                            const v = Number(data[f] || empData[f] || 0);
+                            if (v > 0) { empData[`${f}_annual`] = Math.round(v * 12); data[`${f}_annual`] = Math.round(v * 12); }
+                        });
+                        const grossV = Number(data.gross || empData.gross || 0);
+                        const netV   = Number(data.net   || empData.net   || 0);
+                        if (grossV > 0) { data.gross_earnings = grossV; data.gross_annual = Math.round(grossV * 12); }
+                        if (netV   > 0) { data.net_pay = netV;          data.net_annual   = Math.round(netV   * 12); }
+                    }
+
                     const [cnt] = await db.query('SELECT COUNT(*) as c FROM documents WHERE company_id = ? AND doc_type = ?', [company_id, doc_type]);
                     const seq = String(cnt[0].c + 1).padStart(4, '0');
                     const doc_number = `${prefix}/${typeShorts[doc_type]}/${year}/${seq}`;

@@ -141,7 +141,7 @@ export default function GenerateAll() {
     ctc:'', basic:'', hra:'', da:'', conveyance:'', medical:'', special_allowance:'',
     pf:'', esi:'', professional_tax:'', tds:'',
   });
-  const [offer,       setOffer]      = useState({ joining_date:'', designation:'', ctc:'', offer_release_date:'', notice_period:'1 Month', work_location:'' });
+  const [offer,       setOffer]      = useState({ joining_date:'', designation:'', ctc:'', offer_release_date:'', notice_period:'1 Month', work_location:'', reporting_to:'' });
   const [offerResult, setOfferResult] = useState(null);
   const [genOffer,    setGenOffer]    = useState(false);
 
@@ -310,6 +310,7 @@ export default function GenerateAll() {
           offer_release_date:  offer.offer_release_date || '',
           notice_period:       offer.notice_period || '1 Month',
           work_location:       offer.work_location || '',
+          reporting_to:        offer.reporting_to  || '',
           gross:               salaryGross,
           net:                 salaryNet,
         },
@@ -730,6 +731,10 @@ export default function GenerateAll() {
                           <Field label="Work Location" color={phase.text}>
                             <SInput ring={phase.ring} name="work_location"
                               value={offer.work_location} onChange={ch(setOffer)} placeholder="Leave blank for company address" />
+                          </Field>
+                          <Field label="Reporting To" color={phase.text}>
+                            <SInput ring={phase.ring} name="reporting_to"
+                              value={offer.reporting_to} onChange={ch(setOffer)} placeholder="Respective Functional Head" />
                           </Field>
                         </div>
                         <button onClick={generateOffer} disabled={genOffer}
