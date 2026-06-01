@@ -3,76 +3,76 @@
 <html><head><meta charset="utf-8">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a1a; font-size: 11px; line-height: 1.45; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a1a; font-size: 12px; line-height: 1.5; }
 
   /* ── Top colour bar ── */
   .top-bar { height: 6px; background: linear-gradient(90deg, #7c2d12, #f97316); }
 
   /* ── Outer double-border frame ── */
   .frame { border: 3px double #c2410c; margin: 5px; padding: 2px; }
-  .inner { border: 1px solid #fed7aa; padding: 9px 16px; }
+  .inner { border: 1px solid #fed7aa; padding: 14px 20px; }
 
   /* ── Header — float layout ── */
   .header {
     background: #fff7ed; border-bottom: 2px solid #fed7aa;
-    padding: 5px 0 6px; margin-bottom: 7px; overflow: hidden;
+    padding: 8px 0 9px; margin-bottom: 12px; overflow: hidden;
   }
   .header .logo { float: left; }
-  .header .logo img { max-height: 46px; max-width: 150px; display: block; }
-  .header .logo .logo-text { font-size: 14px; font-weight: 700; color: #c2410c; }
-  .header .company-info { float: right; text-align: right; font-size: 9px; color: #4b5563; }
-  .header .company-info .cname { font-size: 12px; font-weight: 800; color: #c2410c; }
+  .header .logo img { max-height: 55px; max-width: 170px; display: block; }
+  .header .logo .logo-text { font-size: 16px; font-weight: 700; color: #c2410c; }
+  .header .company-info { float: right; text-align: right; font-size: 10px; color: #4b5563; }
+  .header .company-info .cname { font-size: 13px; font-weight: 800; color: #c2410c; }
 
   /* ── Title band ── */
-  .title-band { background: linear-gradient(90deg, #7c2d12, #f97316); color: #fff; text-align: center; padding: 6px 0 5px; border-radius: 5px; margin-bottom: 7px; }
-  .title-band .t-main { font-size: 14px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
-  .title-band .t-sub  { font-size: 8.5px; letter-spacing: 1.5px; opacity: 0.88; margin-top: 1px; }
+  .title-band { background: linear-gradient(90deg, #7c2d12, #f97316); color: #fff; text-align: center; padding: 9px 0 8px; border-radius: 6px; margin-bottom: 11px; }
+  .title-band .t-main { font-size: 15px; font-weight: 800; letter-spacing: 2.5px; text-transform: uppercase; }
+  .title-band .t-sub  { font-size: 9.5px; letter-spacing: 1.5px; opacity: 0.88; margin-top: 2px; }
 
   /* ── Ref row — table layout ── */
   table.ref-table {
     width: 100%; border-collapse: collapse;
-    margin-bottom: 5px; font-size: 9px; color: #6b7280;
+    margin-bottom: 9px; font-size: 10px; color: #6b7280;
   }
   table.ref-table td { border: none; background: none; padding: 0; }
   table.ref-table td:last-child { text-align: right; }
 
   /* ── Addressee block ── */
-  .addr-block { font-size: 9.5px; color: #374151; margin-bottom: 5px; line-height: 1.5; }
-  .addr-block .salute { font-size: 10.5px; font-weight: 700; margin-top: 4px; color: #1a1a1a; }
+  .addr-block { font-size: 11px; color: #374151; margin-bottom: 9px; line-height: 1.55; }
+  .addr-block .salute { font-size: 12px; font-weight: 700; margin-top: 6px; color: #1a1a1a; }
 
   /* ── Body text ── */
-  .body-text { font-size: 10px; line-height: 1.5; text-align: justify; margin-bottom: 5px; }
+  .body-text { font-size: 11px; line-height: 1.6; text-align: justify; margin-bottom: 8px; }
   .body-text strong { color: #7c2d12; }
-  .body-text p + p { margin-top: 3px; }
+  .body-text p + p { margin-top: 5px; }
 
   /* ── Details table ── */
-  .detail-table { width: 100%; border-collapse: collapse; margin: 4px 0; }
-  .detail-table td { padding: 2px 7px; font-size: 9.5px; border: 1px solid #fed7aa; }
+  .detail-table { width: 100%; border-collapse: collapse; margin: 7px 0; }
+  .detail-table td { padding: 4px 9px; font-size: 11px; border: 1px solid #fed7aa; }
   .detail-table tr:nth-child(even) td { background: #fff7ed; }
   .detail-table td:first-child { font-weight: 700; color: #c2410c; width: 38%; background: #ffedd5; }
 
   /* ── Section divider ── */
-  .section-divider { border-top: 1px solid #fed7aa; margin: 5px 0 3px; padding-top: 3px; font-weight: 800; color: #c2410c; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .section-divider { border-top: 1px solid #fed7aa; margin: 9px 0 5px; padding-top: 4px; font-weight: 800; color: #c2410c; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.5px; }
 
   /* ── Terms box ── */
-  .terms-box { background: #fff7ed; border-left: 3px solid #f97316; border-radius: 4px; padding: 4px 8px; margin: 3px 0; font-size: 9px; color: #374151; }
-  .terms-box ul { margin: 0; padding-left: 13px; }
-  .terms-box li { margin-bottom: 1.5px; line-height: 1.4; }
+  .terms-box { background: #fff7ed; border-left: 4px solid #f97316; border-radius: 5px; padding: 7px 11px; margin: 4px 0; font-size: 10.5px; color: #374151; }
+  .terms-box ul { margin: 0; padding-left: 15px; }
+  .terms-box li { margin-bottom: 3px; line-height: 1.45; }
 
   /* ── Signature section — right-aligned only, no seal ── */
-  .sig-section { margin-top: 7px; text-align: right; }
-  .sig-section img { max-height: 38px; max-width: 115px; display: block; margin-left: auto; margin-bottom: 2px; }
-  .sig-line { display: inline-block; border-top: 1.5px solid #374151; padding-top: 3px; margin-top: 3px; min-width: 155px; text-align: center; }
-  .sig-name  { font-weight: 700; font-size: 10px; }
-  .sig-title { font-size: 9px; color: #6b7280; }
+  .sig-section { margin-top: 14px; text-align: right; }
+  .sig-section img { max-height: 44px; max-width: 130px; display: block; margin-left: auto; margin-bottom: 3px; }
+  .sig-line { display: inline-block; border-top: 1.5px solid #374151; padding-top: 4px; margin-top: 4px; min-width: 165px; text-align: center; }
+  .sig-name  { font-weight: 700; font-size: 11px; }
+  .sig-title { font-size: 10px; color: #6b7280; }
 
   /* ── Acceptance block ── */
-  .accept-block { margin-top: 6px; border: 1.5px dashed #f97316; border-radius: 5px; padding: 5px 9px; font-size: 9.5px; color: #374151; background: #fff7ed; }
-  .accept-title { font-weight: 800; color: #c2410c; font-size: 9.5px; margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .accept-block { margin-top: 12px; border: 1.5px dashed #f97316; border-radius: 6px; padding: 8px 12px; font-size: 11px; color: #374151; background: #fff7ed; }
+  .accept-title { font-weight: 800; color: #c2410c; font-size: 11px; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
 
   /* ── Sign row — table layout ── */
   table.sign-table {
-    width: 100%; border-collapse: collapse; margin-top: 11px; font-size: 9px; color: #6b7280;
+    width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 10px; color: #6b7280;
   }
   table.sign-table td {
     border: none; background: none; padding-top: 3px;
@@ -80,7 +80,7 @@
   }
 
   /* ── Footer ── */
-  .footer { margin-top: 6px; border-top: 2px solid #fed7aa; padding-top: 4px; text-align: center; font-size: 8px; color: #9ca3af; }
+  .footer { margin-top: 12px; border-top: 2px solid #fed7aa; padding-top: 5px; text-align: center; font-size: 9px; color: #9ca3af; }
   .footer strong { color: #c2410c; }
 </style>
 </head>
@@ -194,7 +194,7 @@
       internship will be a rewarding and enriching experience. Please confirm your acceptance of this offer
       by signing below. This offer is valid for <strong>7 days</strong> from the date of issue.
     </p>
-    {{#if data.remarks}}<p style="font-size:9px; color:#6b7280; margin-top:3px;"><em>Note: {{data.remarks}}</em></p>{{/if}}
+    {{#if data.remarks}}<p style="font-size:10.5px; color:#6b7280; margin-top:5px;"><em>Note: {{data.remarks}}</em></p>{{/if}}
   </div>
 
   <!-- Signature Section: right-aligned only, no seal -->
@@ -210,7 +210,7 @@
   <!-- Acceptance Block -->
   <div class="accept-block">
     <div class="accept-title">Acceptance by Intern</div>
-    <p style="margin: 0; font-size: 9.5px;">
+    <p style="margin: 0; font-size: 11px;">
       I, <strong>{{data.intern_name}}</strong>, hereby accept the internship offer extended by
       <strong>{{company.name}}</strong> and agree to abide by all the terms and conditions stated above.
       I confirm that the details mentioned in this offer letter are correct to the best of my knowledge.
