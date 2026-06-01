@@ -219,6 +219,8 @@ export default function InternshipCertificate() {
     employee_no: '',
     offer_date: '',
     supervisor: '',
+    // Stipend toggle (offer/all college)
+    has_stipend: 'no',
     // Offer letter
     ref_no: '',
     // Completion cert
@@ -347,10 +349,17 @@ export default function InternshipCertificate() {
       const manualTotalDays   = Number(form.total_working_days) || 0;
       const manualDaysPresent = Number(form.days_present) || 0;
 
+      // For college offer/all: only pass stipend when user explicitly chose "Paid"
+      const resolvedStipend =
+        internCategory === 'college' && (certType === 'offer' || isAll)
+          ? (form.has_stipend === 'yes' ? form.stipend : '')
+          : form.stipend;
+
       const payload = {
         company_id: companyId,
         intern: {
           ...form,
+          stipend:             resolvedStipend,
           intern_category:     internCategory,
           supervisor:          internCategory === 'professional' ? form.supervisor : form.mentor_name,
           skills:              skillsList.join(', '),
@@ -690,11 +699,38 @@ export default function InternshipCertificate() {
                     placeholder="e.g. Mr. Ramesh Kumar" />
                 </Field>
 
-                {/* Stipend: offer/all for college; all types except attendance for professional */}
+                {/* Stipend — college offer/all: radio toggle; professional/other: plain input */}
                 {(certType === 'offer' || certType === 'all' || (internCategory === 'professional' && certType !== 'attendance')) && (
-                  <Field label="Monthly Stipend (₹)" color={ct.text}>
-                    <SInput ring={ct.ring} name="stipend" value={form.stipend} onChange={ch} placeholder="e.g. 15000" type="number" min="0" />
-                  </Field>
+                  internCategory === 'college' && (certType === 'offer' || certType === 'all') ? (
+                    <div className="md:col-span-2">
+                      <label className={`block text-xs font-semibold uppercase tracking-wide mb-2 ${ct.text}`}>Monthly Stipend</label>
+                      <div className="flex gap-3 mb-2">
+                        {[
+                          { val: 'no',  label: 'No Stipend (Unpaid)' },
+                          { val: 'yes', label: 'Paid Stipend (₹)' },
+                        ].map(opt => (
+                          <button key={opt.val} type="button"
+                            onClick={() => setForm(f => ({ ...f, has_stipend: opt.val, ...(opt.val === 'no' ? { stipend: '' } : {}) }))}
+                            className={`px-4 py-2 rounded-lg border-2 text-sm font-semibold transition
+                              ${form.has_stipend === opt.val
+                                ? (opt.val === 'yes'
+                                    ? `bg-gradient-to-r ${ct.gradient} text-white border-transparent shadow`
+                                    : 'bg-gray-600 text-white border-transparent shadow')
+                                : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300'}`}>
+                            {opt.label}
+                          </button>
+                        ))}
+                      </div>
+                      {form.has_stipend === 'yes' && (
+                        <SInput ring={ct.ring} name="stipend" value={form.stipend} onChange={ch}
+                          placeholder="e.g. 15000" type="number" min="0" />
+                      )}
+                    </div>
+                  ) : (
+                    <Field label="Monthly Stipend (₹)" color={ct.text}>
+                      <SInput ring={ct.ring} name="stipend" value={form.stipend} onChange={ch} placeholder="e.g. 15000" type="number" min="0" />
+                    </Field>
+                  )
                 )}
               </div>
 
