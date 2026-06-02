@@ -14,6 +14,7 @@ const ALL_LINKS = [
   { to: '/generate/salary_increment',  label: 'Increment Letter',    icon: TrendingUp,                  color: 'text-teal-300',   permKey: 'salary_increment' },
   { to: '/bulk-payslips',              label: 'Bulk Payslips',       icon: CreditCard,                  color: 'text-amber-300',  permKey: 'bulk_payslips' },
   { to: '/internship-certificate',     label: 'Internship Cert',     icon: GraduationCap,               color: 'text-purple-300', permKey: 'internship_cert' },
+  { to: '/bulk-internship',            label: 'Bulk Internship',     icon: Users,                       color: 'text-violet-300', permKey: 'bulk_internship' },
   { to: '/generate',                   label: 'Single Document',     icon: FilePlus,                    color: 'text-orange-300', permKey: 'generate_documents' },
   { to: '/documents',                  label: 'Documents',           icon: FileText,                    color: 'text-rose-300',   permKey: 'view_documents' },
 ];

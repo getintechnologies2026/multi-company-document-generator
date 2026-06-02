@@ -16,6 +16,7 @@ router.post('/generate-internship-offer', ctrl.generateInternshipOffer);
 router.post('/generate-internship-confirmation', ctrl.generateInternshipConfirmation);
 router.post('/generate-internship-salary-cert', ctrl.generateInternshipSalaryCertificate);
 router.post('/generate-internship-all', ctrl.generateInternshipAll);
+router.post('/generate-internship-bulk', ctrl.generateBulkInternship);
 router.get('/:id/download', ctrl.download);
 router.delete('/:id', ctrl.remove);
 

@@ -1229,6 +1229,158 @@ exports.generateInternshipAll = async (req, res) => {
     }
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Bulk Internship — generate Offer / Certificate / Attendance for many students
+// from the same college in one request, returns per-student results + ZIP URL.
+// ─────────────────────────────────────────────────────────────────────────────
+exports.generateBulkInternship = async (req, res) => {
+    try {
+        const { company_id, doc_types, shared, students } = req.body;
+
+        if (!company_id)                 return res.status(400).json({ error: 'company_id required' });
+        if (!doc_types || !doc_types.length)  return res.status(400).json({ error: 'doc_types array required' });
+        if (!students  || !students.length)   return res.status(400).json({ error: 'students array required' });
+
+        const [companies] = await db.query('SELECT * FROM companies WHERE id = ?', [company_id]);
+        if (!companies.length) return res.status(404).json({ error: 'Company not found' });
+        const company = companies[0];
+
+        const IST      = { timeZone: 'Asia/Kolkata' };
+        const fmtDate  = d => d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric', ...IST }) : '';
+        const issueDate = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric', ...IST });
+
+        const fromDate     = shared.from_date ? new Date(shared.from_date) : null;
+        const toDate       = shared.to_date   ? new Date(shared.to_date)   : null;
+        const durationText = calDuration(fromDate, toDate);
+
+        const prefix = company.doc_number_prefix || 'DOC';
+        const year   = docYear(shared.to_date || shared.from_date);
+
+        const DOC_CFG = {
+            offer:       { template: 'internship_offer',       dbType: 'internship_offer',       code: 'IOF' },
+            certificate: { template: 'internship_certificate', dbType: 'internship_certificate', code: 'INT' },
+            attendance:  { template: 'internship_attendance',  dbType: 'internship_attendance',  code: 'INA' },
+        };
+
+        const results  = [];
+        const allFiles = [];
+
+        const browser = WKHTMLTOPDF_BIN ? null : await createBrowser();
+        try {
+            for (const student of students) {
+                const studentResult = { intern_name: student.intern_name, docs: [] };
+
+                const skillsArr = student.skills
+                    ? student.skills.split(',').map(s => s.trim()).filter(Boolean)
+                    : [];
+
+                for (const docType of doc_types) {
+                    const cfg = DOC_CFG[docType];
+                    if (!cfg) continue;
+
+                    try {
+                        const [cnt] = await db.query(
+                            'SELECT COUNT(*) as c FROM documents WHERE company_id = ? AND doc_type = ?',
+                            [company_id, cfg.dbType]
+                        );
+                        const seq        = String(cnt[0].c + 1).padStart(4, '0');
+                        const doc_number = `${prefix}/${cfg.code}/${year}/${seq}`;
+
+                        const safeName = `${(student.roll_no || '').replace(/[^a-zA-Z0-9]/g, '')}_${(student.intern_name || 'intern').replace(/\s+/g, '_')}`;
+                        const filename = `${doc_number.replace(/\//g, '_')}_${safeName}.pdf`;
+                        const outPath  = path.join(__dirname, '..', '..', 'generated', filename);
+
+                        const data = {
+                            intern_name:     student.intern_name  || '',
+                            roll_no:         student.roll_no      || '',
+                            college:         shared.college       || '',
+                            course:          student.course       || '',
+                            branch:          student.branch       || '',
+                            department:      shared.department    || '',
+                            from_date:       fmtDate(shared.from_date),
+                            to_date:         fmtDate(shared.to_date),
+                            duration_text:   durationText,
+                            supervisor:      shared.supervisor    || '',
+                            mentor_name:     shared.mentor_name   || '',
+                            performance:     student.performance  || '',
+                            skills:          student.skills       || '',
+                            skills_arr:      skillsArr,
+                            mobile_no:       student.mobile_no    || '',
+                            email_id:        student.email_id     || '',
+                            stipend:         shared.has_stipend === 'yes' ? (shared.stipend || '') : '',
+                            issue_date:      issueDate,
+                            intern_category: 'college',
+                        };
+
+                        if (docType === 'attendance') {
+                            const totalDays = Number(student.total_working_days) || 0;
+                            const present   = Number(student.days_present)       || 0;
+                            const absent    = Math.max(0, totalDays - present);
+                            const pct       = totalDays > 0 ? Math.round((present / totalDays) * 100) : 0;
+                            data.total_working_days = totalDays;
+                            data.days_present       = present;
+                            data.days_absent        = absent;
+                            data.attendance_pct     = pct;
+                            data.attendance_records = [];
+                            data.att_ref_no         = '';
+                        }
+
+                        await generatePDF(cfg.template, { company, employee: {}, data, doc_number }, outPath, browser);
+
+                        const [r] = await db.query(
+                            `INSERT INTO documents
+                             (doc_number, doc_type, company_id, employee_id, employee_name,
+                              issue_date, pdf_path, extra_data, created_by)
+                             VALUES (?, ?, ?, NULL, ?, CURDATE(), ?, ?, ?)`,
+                            [doc_number, cfg.dbType, company_id, data.intern_name,
+                             filename, JSON.stringify(data), req.user.id]
+                        );
+
+                        studentResult.docs.push({
+                            doc_type: docType, doc_number,
+                            id: r.insertId, filename,
+                            url: `/generated/${filename}`, success: true,
+                        });
+                        allFiles.push({ filename, outPath });
+                    } catch (err) {
+                        console.error(`generateBulkInternship [${student.intern_name}][${docType}]:`, err.message);
+                        studentResult.docs.push({ doc_type: docType, success: false, error: err.message });
+                    }
+                }
+                results.push(studentResult);
+            }
+        } finally {
+            if (browser) await browser.close();
+        }
+
+        // Bundle all PDFs into a ZIP
+        let zipUrl = null;
+        const successFiles = allFiles.filter(f => fs.existsSync(f.outPath));
+        if (successFiles.length > 0) {
+            const zipName = `BulkInternship_${(company.name || 'Intern').replace(/\s+/g, '_')}_${Date.now()}.zip`;
+            const zipPath = path.join(__dirname, '..', '..', 'generated', zipName);
+            await new Promise((resolve, reject) => {
+                const output  = fs.createWriteStream(zipPath);
+                const archive = archiver('zip', { zlib: { level: 9 } });
+                output.on('close', resolve);
+                archive.on('error', reject);
+                archive.pipe(output);
+                successFiles.forEach(f => {
+                    if (fs.existsSync(f.outPath)) archive.file(f.outPath, { name: f.filename });
+                });
+                archive.finalize();
+            });
+            zipUrl = `/generated/${zipName}`;
+        }
+
+        const totalDocs = results.reduce((s, r) => s + r.docs.filter(d => d.success).length, 0);
+        res.json({ results, zipUrl, total_students: students.length, total_docs: totalDocs });
+    } catch (e) {
+        console.error('generateBulkInternship:', e);
+        res.status(500).json({ error: e.message });
+    }
+};
+
 exports.download = async (req, res) => {
     const [rows] = await db.query('SELECT * FROM documents WHERE id = ?', [req.params.id]);
     if (!rows.length) return res.status(404).json({ error: 'Not found' });

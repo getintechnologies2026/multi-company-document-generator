@@ -11,6 +11,7 @@ import GenerateAll from './pages/GenerateAll';
 import BulkPayslips from './pages/BulkPayslips';
 import Documents from './pages/Documents';
 import InternshipCertificate from './pages/InternshipCertificate';
+import BulkInternship from './pages/BulkInternship';
 import UsersPage from './pages/Users';
 import { useAuth } from './context/AuthContext';
 
@@ -55,6 +56,7 @@ export default function App() {
         <Route path="generate/:type"     element={<PermissionRoute permKey={['generate_documents', 'salary_increment']}><Generate /></PermissionRoute>} />
         <Route path="documents"          element={<PermissionRoute permKey="view_documents"><Documents /></PermissionRoute>} />
         <Route path="internship-certificate" element={<PermissionRoute permKey="internship_cert"><InternshipCertificate /></PermissionRoute>} />
+        <Route path="bulk-internship"        element={<PermissionRoute permKey="bulk_internship"><BulkInternship /></PermissionRoute>} />
         <Route path="users"              element={<AdminRoute><UsersPage /></AdminRoute>} />
       </Route>
       <Route path="*" element={<Navigate to="/" />} />
