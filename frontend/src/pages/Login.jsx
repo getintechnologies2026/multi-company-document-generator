@@ -19,6 +19,26 @@ const FEATURES = [
   { icon: Building2,       label: 'Multi-Company Support',      desc: 'Manage unlimited companies',            color: 'bg-blue-400' },
 ];
 
+// After login, redirect super_admin to dashboard.
+// For limited users, land directly on their first accessible page.
+const getRedirectPath = (user) => {
+  if (!user || user.role === 'super_admin') return '/';
+  const perms = user.permissions;
+  if (!perms) return '/';
+  const routes = [
+    { key: 'internship_cert',    path: '/internship-certificate' },
+    { key: 'generate_all',       path: '/generate-all' },
+    { key: 'bulk_payslips',      path: '/bulk-payslips' },
+    { key: 'salary_increment',   path: '/generate/salary_increment' },
+    { key: 'generate_documents', path: '/generate' },
+    { key: 'view_documents',     path: '/documents' },
+    { key: 'manage_employees',   path: '/employees' },
+    { key: 'manage_companies',   path: '/companies' },
+  ];
+  const first = routes.find(r => perms[r.key]);
+  return first ? first.path : '/';
+};
+
 export default function Login() {
   const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
@@ -31,9 +51,9 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
     try {
-      await login(email, password);
+      const loggedUser = await login(email, password);
       toast.success('Welcome back!');
-      nav('/');
+      nav(getRedirectPath(loggedUser));
     } catch (err) {
       toast.error(err.response?.data?.error || 'Invalid email or password');
     } finally {

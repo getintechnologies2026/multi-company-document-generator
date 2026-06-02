@@ -26,25 +26,36 @@ function AdminRoute({ children }) {
   return children;
 }
 
+// Blocks access to a route if user lacks the required permission(s).
+// permKey can be a string or an array — user needs at least one of them.
+// super_admin bypasses all checks via hasPermission().
+function PermissionRoute({ permKey, children }) {
+  const { user, hasPermission } = useAuth();
+  if (!user) return <Navigate to="/login" />;
+  const keys = Array.isArray(permKey) ? permKey : [permKey];
+  if (!keys.some(k => hasPermission(k))) return <Navigate to="/" />;
+  return children;
+}
+
 export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
         <Route index element={<Dashboard />} />
-        <Route path="companies" element={<Companies />} />
-        <Route path="companies/new" element={<CompanyForm />} />
-        <Route path="companies/:id/edit" element={<CompanyForm />} />
-        <Route path="employees" element={<Employees />} />
-        <Route path="employees/new" element={<EmployeeForm />} />
-        <Route path="employees/:id/edit" element={<EmployeeForm />} />
-        <Route path="generate-all" element={<GenerateAll />} />
-        <Route path="bulk-payslips" element={<BulkPayslips />} />
-        <Route path="generate" element={<Generate />} />
-        <Route path="generate/:type" element={<Generate />} />
-        <Route path="documents" element={<Documents />} />
-        <Route path="internship-certificate" element={<InternshipCertificate />} />
-        <Route path="users" element={<AdminRoute><UsersPage /></AdminRoute>} />
+        <Route path="companies"          element={<PermissionRoute permKey="manage_companies"><Companies /></PermissionRoute>} />
+        <Route path="companies/new"      element={<PermissionRoute permKey="manage_companies"><CompanyForm /></PermissionRoute>} />
+        <Route path="companies/:id/edit" element={<PermissionRoute permKey="manage_companies"><CompanyForm /></PermissionRoute>} />
+        <Route path="employees"          element={<PermissionRoute permKey="manage_employees"><Employees /></PermissionRoute>} />
+        <Route path="employees/new"      element={<PermissionRoute permKey="manage_employees"><EmployeeForm /></PermissionRoute>} />
+        <Route path="employees/:id/edit" element={<PermissionRoute permKey="manage_employees"><EmployeeForm /></PermissionRoute>} />
+        <Route path="generate-all"       element={<PermissionRoute permKey="generate_all"><GenerateAll /></PermissionRoute>} />
+        <Route path="bulk-payslips"      element={<PermissionRoute permKey="bulk_payslips"><BulkPayslips /></PermissionRoute>} />
+        <Route path="generate"           element={<PermissionRoute permKey="generate_documents"><Generate /></PermissionRoute>} />
+        <Route path="generate/:type"     element={<PermissionRoute permKey={['generate_documents', 'salary_increment']}><Generate /></PermissionRoute>} />
+        <Route path="documents"          element={<PermissionRoute permKey="view_documents"><Documents /></PermissionRoute>} />
+        <Route path="internship-certificate" element={<PermissionRoute permKey="internship_cert"><InternshipCertificate /></PermissionRoute>} />
+        <Route path="users"              element={<AdminRoute><UsersPage /></AdminRoute>} />
       </Route>
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
