@@ -1,4 +1,4 @@
-<!-- internship_certificate.hbs  —  single-page design -->
+<!-- internship_certificate.hbs  —  full A4 single-page design -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -30,7 +30,7 @@
   /* ── Certificate title band ── */
   .cert-band {
     background: linear-gradient(90deg, #4c1d95, #8b5cf6);
-    color: #fff; text-align: center; padding: 18px 20px 17px;
+    color: #fff; text-align: center; padding: 22px 20px 21px;
     border-radius: 8px; margin-bottom: 24px;
   }
   .cert-band .cert-title {
@@ -46,19 +46,28 @@
   table.ref-table td:last-child { text-align: right; }
 
   /* ── Certification statement ── */
-  .certify-intro { text-align: center; font-size: 13px; color: #4b5563; font-style: italic; margin: 22px 0 8px; }
+  .certify-intro { text-align: center; font-size: 13px; color: #4b5563; font-style: italic; margin: 28px 0 12px; }
+
+  /* ── Decorative name divider — table layout for wkhtmltopdf ── */
+  table.name-divider-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+  table.name-divider-table td { border: none; background: none; padding: 0; vertical-align: middle; }
+  .divider-line { border-top: 1.5px solid #c4b5fd; }
+  .divider-star { text-align: center; padding: 0 10px; color: #8b5cf6; font-size: 14px; white-space: nowrap; }
+
   .intern-name {
-    text-align: center; font-size: 28px; font-weight: 800;
-    color: #5b21b6; letter-spacing: 1.5px; margin: 8px 0 20px;
+    text-align: center; font-size: 32px; font-weight: 800;
+    color: #5b21b6; letter-spacing: 2px; margin: 12px 0 12px;
   }
+  /* Line below intern name */
+  .name-underline { border-top: 1.5px solid #c4b5fd; margin-bottom: 26px; }
 
   /* ── Body text ── */
   .body-text { font-size: 13px; line-height: 1.85; text-align: justify; margin-bottom: 16px; }
   .body-text p { margin: 6px 0; }
 
   /* ── Details table ── */
-  .detail-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 12.5px; }
-  .detail-table tr td { padding: 10px 14px; border: 1px solid #ede9fe; vertical-align: top; }
+  .detail-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  .detail-table tr td { padding: 13px 16px; border: 1px solid #ede9fe; vertical-align: top; }
   .detail-table tr:nth-child(even) td { background: #f5f3ff; }
   .detail-table tr td:first-child { font-weight: 700; color: #5b21b6; background: #ede9fe; width: 34%; white-space: nowrap; }
   .detail-table tr td:last-child { color: #374151; }
@@ -92,18 +101,34 @@
   }
 
   /* ── Closing text ── */
-  .closing-text { font-size: 13px; line-height: 1.9; text-align: justify; margin: 22px 0 16px; }
+  .closing-text { font-size: 13px; line-height: 1.9; text-align: justify; margin: 30px 0 20px; }
 
-  /* ── Signature section — right-aligned only, no seal ── */
-  .sig-section { margin-top: 60px; text-align: right; }
-  .sig-section img.sig-img { max-height: 54px; max-width: 150px; display: block; margin-left: auto; margin-bottom: 4px; }
+  /* ── Certification Declaration block (always visible) ── */
+  .cert-declaration {
+    background: #f5f3ff; border: 1px solid #ddd6fe;
+    border-left: 4px solid #7c3aed;
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px; margin: 0 0 18px;
+    font-size: 11.5px; color: #4b5563; line-height: 1.75;
+  }
+  .cert-declaration strong { color: #5b21b6; }
+
+  /* ── Signature + Date/Place row — table layout ── */
+  table.sign-row-table {
+    width: 100%; border-collapse: collapse; margin-top: 80px;
+  }
+  table.sign-row-table td { border: none; background: none; padding: 0; vertical-align: bottom; }
+  .sign-left { font-size: 12px; color: #6b7280; line-height: 2.2; }
+  .sign-left .field-line { display: inline-block; width: 140px; border-bottom: 1px solid #9ca3af; margin-left: 6px; }
+  .sign-right { text-align: right; }
+  .sign-right img.sig-img { max-height: 54px; max-width: 150px; display: block; margin-left: auto; margin-bottom: 4px; }
   .sig-line { display: inline-block; border-top: 1.5px solid #5b21b6; padding-top: 6px; margin-top: 6px; min-width: 200px; text-align: center; }
   .sig-name  { font-weight: 700; font-size: 13px; color: #1e1b4b; }
   .sig-title { font-size: 11.5px; color: #6b7280; }
 
   /* ── Footer ── */
   .footer {
-    margin-top: 24px; border-top: 2px solid #c4b5fd;
+    margin-top: 20px; border-top: 2px solid #c4b5fd;
     padding-top: 8px; text-align: center; font-size: 10px; color: #9ca3af;
   }
   .footer strong { color: #7c3aed; }
@@ -133,12 +158,12 @@
     </div>
   </div>
 
-  <!-- Title band — no subtitle -->
+  <!-- Title band -->
   <div class="cert-band">
     <div class="cert-title">Internship Completion Certificate</div>
   </div>
 
-  <!-- Ref row: ref left, date right via table -->
+  <!-- Ref row -->
   <table class="ref-table">
     <tr>
       <td>Ref: <strong style="color:#5b21b6;">{{#if data.cert_ref_no}}{{data.cert_ref_no}}{{else}}{{doc_number}}{{/if}}</strong></td>
@@ -146,8 +171,22 @@
     </tr>
   </table>
 
+  <!-- Certification statement -->
   <p class="certify-intro">This is to certify that</p>
+
+  <!-- Decorative line above intern name -->
+  <table class="name-divider-table">
+    <tr>
+      <td width="45%"><div class="divider-line"></div></td>
+      <td><div class="divider-star">&#10022;</div></td>
+      <td width="45%"><div class="divider-line"></div></td>
+    </tr>
+  </table>
+
   <div class="intern-name">{{data.intern_name}}</div>
+
+  <!-- Line below intern name -->
+  <div class="name-underline"></div>
 
   <div class="body-text">
     <p>
@@ -229,17 +268,37 @@
     </p>
   </div>
 
-  <!-- Signature: right-aligned only, no seal -->
-  <div class="sig-section">
-    {{#if company.signature_url}}
-      <img class="sig-img" src="{{company.signature_url}}" alt="Signature" />
-    {{/if}}
-    <div class="sig-line">
-      <div class="sig-name">{{company.signatory_name}}</div>
-      <div class="sig-title">{{company.signatory_designation}}</div>
-      <div class="sig-title">{{company.name}}</div>
-    </div>
+  <!-- Certification Declaration — always visible -->
+  <div class="cert-declaration">
+    This certificate is issued upon successful completion of the internship programme at
+    <strong>{{company.name}}</strong> and is duly authenticated by the authorised signatory.
+    It is valid for official and academic submission purposes. For verification, please contact us at
+    {{#if company.email}}<strong>{{company.email}}</strong>{{/if}}{{#if company.phone}} or <strong>{{company.phone}}</strong>{{/if}}.
   </div>
+
+  <!-- Sign row: Date/Place left, Signature right — table layout -->
+  <table class="sign-row-table">
+    <tr>
+      <td width="50%">
+        <div class="sign-left">
+          <div>Date: <span class="field-line">&nbsp;</span></div>
+          <div>Place: <span class="field-line">&nbsp;</span></div>
+        </div>
+      </td>
+      <td width="50%">
+        <div class="sign-right">
+          {{#if company.signature_url}}
+            <img class="sig-img" src="{{company.signature_url}}" alt="Signature" />
+          {{/if}}
+          <div class="sig-line">
+            <div class="sig-name">{{company.signatory_name}}</div>
+            <div class="sig-title">{{company.signatory_designation}}</div>
+            <div class="sig-title">{{company.name}}</div>
+          </div>
+        </div>
+      </td>
+    </tr>
+  </table>
 
   <div class="footer">
     <strong>{{company.name}}</strong> |
