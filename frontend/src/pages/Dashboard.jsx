@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Building2, Users, FileText, FilePlus, Layers, TrendingUp, CreditCard, Sparkles, Award, LogOut, GraduationCap } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
 
 const TYPE_LABELS = {
   offer_letter:           'Offer Letter',
@@ -15,6 +16,8 @@ const TYPE_LABELS = {
 const COLORS = ['#1d4ed8', '#10b981', '#f59e0b', '#ef4444', '#0d9488', '#7c3aed'];
 
 export default function Dashboard() {
+  const { user } = useAuth();
+  const isSuperAdmin = user?.role === 'super_admin';
   const [stats, setStats] = useState(null);
 
   useEffect(() => {
@@ -141,8 +144,8 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Recent Documents */}
-        <div className="bg-white rounded-2xl shadow-md overflow-hidden">
+        {/* Recent Documents — super_admin only */}
+        {isSuperAdmin && <div className="bg-white rounded-2xl shadow-md overflow-hidden">
           <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
             <h2 className="font-bold text-gray-800 flex items-center gap-2"><FileText size={16} className="text-gray-500" /> Recent Documents</h2>
             <Link to="/documents" className="text-xs text-blue-600 hover:text-blue-800 font-medium">View all →</Link>
@@ -184,7 +187,7 @@ export default function Dashboard() {
               </tbody>
             </table>
           </div>
-        </div>
+        </div>}
       </div>
     </div>
   );
