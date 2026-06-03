@@ -134,8 +134,8 @@ export default function GenerateAll() {
 
   /* ── Phase 1 – Joining ── */
   const [emp, setEmp] = useState({
-    full_name:'', email:'', mobile:'', designation:'', department:'', emp_code:'',
-    pan:'', uan:'', pf_no:'', date_of_joining:'', employment_type:'Full-Time',
+    full_name:'', email:'', phone:'', designation:'', department:'', emp_code:'',
+    pan:'', aadhaar:'', uan:'', pf_no:'', date_of_joining:'', employment_type:'Full-Time',
     bank_name:'', bank_account:'', ifsc_code:'',
   });
   const [salary, setSalary] = useState({
@@ -197,9 +197,10 @@ export default function GenerateAll() {
     if (!e) return;
     const fmt = d => d ? d.split('T')[0] : '';
     setEmp({
-      full_name: e.full_name||'', email: e.email||'', mobile: e.mobile||'',
+      full_name: e.full_name||'', email: e.email||'', phone: e.phone||'',
       designation: e.designation||'', department: e.department||'',
-      emp_code: e.emp_code||'', pan: e.pan||'', uan: e.uan||'', pf_no: e.pf_no||'',
+      emp_code: e.emp_code||'', pan: e.pan||'', aadhaar: e.aadhaar||'',
+      uan: e.uan||'', pf_no: e.pf_no||'',
       date_of_joining: fmt(e.date_of_joining), employment_type: e.employment_type||'Full-Time',
       bank_name: e.bank_name||'', bank_account: e.bank_account||'', ifsc_code: e.ifsc_code||'',
     });
@@ -208,7 +209,14 @@ export default function GenerateAll() {
       conveyance: e.conveyance||'', medical: e.medical||'', special_allowance: e.special_allowance||'',
       pf: e.pf||'', esi: e.esi||'', professional_tax: e.professional_tax||'', tds: e.tds||'',
     });
-    setOffer(o => ({ ...o, joining_date: fmt(e.date_of_joining), designation: e.designation||'', ctc: e.ctc||'' }));
+    setOffer(o => ({
+      ...o,
+      joining_date:  fmt(e.date_of_joining),
+      designation:   e.designation||'',
+      ctc:           e.ctc||'',
+      reporting_to:  e.reporting_manager||'',
+      notice_period: e.notice_period_days ? `${e.notice_period_days} Days` : o.notice_period,
+    }));
     setExit(ex => ({ ...ex, relieving_designation: e.designation||'', relieving_ctc: e.ctc||'' }));
     toast.success('Employee details auto-filled!');
   }, [employeeId]); // eslint-disable-line
@@ -630,7 +638,7 @@ export default function GenerateAll() {
                             ['designation','Designation','Software Engineer'],
                             ['department','Department','Technology'],
                             ['email','Email ID','rajesh@company.com'],
-                            ['mobile','Mobile No','9876543210'],
+                            ['phone','Mobile No','9876543210'],
                           ].map(([name, label, ph]) => (
                             <Field key={name} label={label} color={phase.text}>
                               <SInput ring={phase.ring} name={name} value={emp[name]} onChange={ch(setEmp)} placeholder={ph} />
@@ -652,6 +660,10 @@ export default function GenerateAll() {
                                   : <><Zap size={12} /> Generate</>}
                               </button>
                             </div>
+                          </Field>
+                          {/* Aadhaar */}
+                          <Field label="Aadhaar Number" color={phase.text}>
+                            <SInput ring={phase.ring} name="aadhaar" value={emp.aadhaar} onChange={ch(setEmp)} placeholder="XXXX XXXX XXXX" />
                           </Field>
                           <Field label="Date of Joining" color={phase.text}>
                             <SInput ring={phase.ring} type="date" name="date_of_joining" value={emp.date_of_joining} onChange={ch(setEmp)} />

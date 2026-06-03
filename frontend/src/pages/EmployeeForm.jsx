@@ -60,8 +60,6 @@ function calcBreakdown(annualCtc, tpl) {
 const initial = {
   company_id: '', emp_code: '', full_name: '', father_name: '', dob: '', gender: '',
   email: '', phone: '', address: '',
-  blood_group: '', nationality: 'Indian', marital_status: '',
-  emergency_contact_name: '', emergency_contact_phone: '',
   designation: '', department: '', date_of_joining: '', date_of_leaving: '',
   employment_type: 'Full-Time', status: 'Active',
   reporting_manager: '', location: '', notice_period_days: '',
@@ -380,29 +378,6 @@ export default function EmployeeForm() {
                     placeholder="House No, Street, Area, City..."
                     className="w-full pl-8 pr-3 py-2.5 border border-gray-200 rounded-xl text-sm bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-transparent transition resize-none placeholder:text-gray-300" />
                 </div>
-              </Field>
-            </div>
-            <Field label="Blood Group" color="text-violet-700">
-              <SSelect ring="focus:ring-violet-400" name="blood_group" value={form.blood_group} onChange={oc}>
-                <option value="">Select</option>
-                {['A+','A-','B+','B-','AB+','AB-','O+','O-'].map(g => <option key={g}>{g}</option>)}
-              </SSelect>
-            </Field>
-            <Field label="Nationality" color="text-violet-700">
-              <SInput ring="focus:ring-violet-400" name="nationality" value={form.nationality} onChange={oc} placeholder="Indian" />
-            </Field>
-            <Field label="Marital Status" color="text-violet-700">
-              <SSelect ring="focus:ring-violet-400" name="marital_status" value={form.marital_status} onChange={oc}>
-                <option value="">Select</option>
-                <option>Single</option><option>Married</option><option>Divorced</option><option>Widowed</option>
-              </SSelect>
-            </Field>
-            <Field label="Emergency Contact Name" color="text-violet-700">
-              <SInput ring="focus:ring-violet-400" icon={User} name="emergency_contact_name" value={form.emergency_contact_name} onChange={oc} placeholder="Parent / Spouse name" />
-            </Field>
-            <div className="md:col-span-2">
-              <Field label="Emergency Contact Phone" color="text-violet-700">
-                <SInput ring="focus:ring-violet-400" icon={Phone} name="emergency_contact_phone" value={form.emergency_contact_phone} onChange={oc} placeholder="+91-XXXXX XXXXX" />
               </Field>
             </div>
           </div>
