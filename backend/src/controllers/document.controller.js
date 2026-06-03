@@ -514,10 +514,14 @@ exports.generateSalaryIncrement = async (req, res) => {
         // Build template data
         const today = new Date();
         const issueDate = today.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
+        // Letter Release Date — user-chosen date the letter is dated; falls back to today
+        const releaseDate = increment.release_date
+            ? new Date(increment.release_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })
+            : issueDate;
 
         const data = {
             increment_date:    increment.increment_date || issueDate,
-            issue_date:        issueDate,
+            issue_date:        releaseDate,
             increment_type:    incType,
             increment_value:   incValue,
             increment_label:   incrementLabel,

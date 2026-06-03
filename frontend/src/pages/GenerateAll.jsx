@@ -176,7 +176,7 @@ export default function GenerateAll() {
   });
 
   /* ── Phase 3 – Increments (multiple rows) ── */
-  const [incRows,   setIncRows]   = useState([{ id: Date.now(), increment_date:'', new_designation:'', new_ctc:'' }]);
+  const [incRows,   setIncRows]   = useState([{ id: Date.now(), increment_date:'', release_date:'', new_designation:'', new_ctc:'' }]);
   const [incResults, setIncResults] = useState([]);
   const [genInc,    setGenInc]    = useState(false);
 
@@ -424,7 +424,7 @@ export default function GenerateAll() {
   /* ════════════════════════════════════════════════════════════ */
   /*  Phase 3 — Multiple Increment Letters                        */
   /* ════════════════════════════════════════════════════════════ */
-  const addIncRow    = () => setIncRows(r => [...r, { id: Date.now(), increment_date:'', new_designation:'', new_ctc:'' }]);
+  const addIncRow    = () => setIncRows(r => [...r, { id: Date.now(), increment_date:'', release_date:'', new_designation:'', new_ctc:'' }]);
   const removeIncRow = id  => setIncRows(r => r.filter(x => x.id !== id));
   const updateIncRow = (id, field, val) => setIncRows(r => r.map(x => x.id === id ? { ...x, [field]: val } : x));
 
@@ -455,6 +455,7 @@ export default function GenerateAll() {
           employee: { ...emp, ...salary, ctc: row.fromCtc, designation: row.new_designation || emp.designation },
           increment: {
             increment_date:  row.increment_date,
+            release_date:    row.release_date,
             increment_type:  'flat',
             increment_value: flatMonthly,
           },
@@ -1054,10 +1055,9 @@ export default function GenerateAll() {
                                     <SInput ring="focus:ring-emerald-400" type="date" value={row.increment_date}
                                       onChange={e => updateIncRow(row.id, 'increment_date', e.target.value)} />
                                   </Field>
-                                  <Field label="New Designation (after increment)" color="text-emerald-700">
-                                    <SInput ring="focus:ring-emerald-400" value={row.new_designation}
-                                      onChange={e => updateIncRow(row.id, 'new_designation', e.target.value)}
-                                      placeholder={emp.designation || 'Senior Engineer'} />
+                                  <Field label="Letter Release Date" color="text-emerald-700">
+                                    <SInput ring="focus:ring-emerald-400" type="date" value={row.release_date}
+                                      onChange={e => updateIncRow(row.id, 'release_date', e.target.value)} />
                                   </Field>
                                   <Field label="New Annual CTC *" color="text-emerald-700">
                                     <div className="relative">
@@ -1066,6 +1066,11 @@ export default function GenerateAll() {
                                         onChange={e => updateIncRow(row.id, 'new_ctc', e.target.value)}
                                         className="pl-7" placeholder={row.fromCtc > 0 ? String(row.fromCtc + 60000) : '600000'} />
                                     </div>
+                                  </Field>
+                                  <Field label="New Designation (after increment)" color="text-emerald-700">
+                                    <SInput ring="focus:ring-emerald-400" value={row.new_designation}
+                                      onChange={e => updateIncRow(row.id, 'new_designation', e.target.value)}
+                                      placeholder={emp.designation || 'Senior Engineer'} />
                                   </Field>
                                 </div>
 
