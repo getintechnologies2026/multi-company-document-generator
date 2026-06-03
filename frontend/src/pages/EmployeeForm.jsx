@@ -168,6 +168,7 @@ export default function EmployeeForm() {
   const [form, setForm] = useState(initial);
   const [companies, setCompanies] = useState([]);
   const [saving, setSaving] = useState(false);
+  const [genCode, setGenCode] = useState(false);
   const [activeTpl, setActiveTpl] = useState('standard');
   const [tplConfig, setTplConfig] = useState({ ...TEMPLATES.standard });
   const [showTplDetails, setShowTplDetails] = useState(false);
@@ -183,6 +184,20 @@ export default function EmployeeForm() {
   }, [id]);
 
   const oc = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+
+  /* ── Auto-generate employee code ── */
+  const generateEmpCode = async () => {
+    if (!form.company_id) return toast.error('Select a company first');
+    setGenCode(true);
+    try {
+      const { data } = await api.get(`/employees/next-code?company_id=${form.company_id}`);
+      setForm(f => ({ ...f, emp_code: data.emp_code }));
+    } catch {
+      toast.error('Could not generate employee code');
+    } finally {
+      setGenCode(false);
+    }
+  };
 
   /* ── Apply CTC Breakdown ── */
   const applyCtc = useCallback((ctcVal, tpl) => {
@@ -310,7 +325,19 @@ export default function EmployeeForm() {
               </Field>
             </div>
             <Field label="Employee Code" color="text-blue-700">
-              <SInput ring="focus:ring-blue-400" icon={Hash} name="emp_code" value={form.emp_code} onChange={oc} placeholder="EMP001" />
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <SInput ring="focus:ring-blue-400" icon={Hash} name="emp_code" value={form.emp_code} onChange={oc} placeholder="Auto-generate or type manually" />
+                </div>
+                <button type="button" onClick={generateEmpCode} disabled={genCode || !form.company_id}
+                  title={!form.company_id ? 'Select a company first' : 'Auto-generate employee code'}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-white shadow-sm transition disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                  style={{ background: 'linear-gradient(135deg, #3b82f6, #2563eb)' }}>
+                  {genCode
+                    ? <><Loader size={12} className="animate-spin" /> Generating</>
+                    : <><Zap size={12} /> Generate</>}
+                </button>
+              </div>
             </Field>
           </div>
         </Section>
