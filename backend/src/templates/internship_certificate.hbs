@@ -1,130 +1,108 @@
-<!-- internship_certificate.hbs  —  full A4 single-page design -->
+<!-- internship_certificate.hbs — single A4 page, JS fills remaining space -->
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', Arial, sans-serif; color: #1e1b4b; font-size: 14px; line-height: 1.85; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; color: #1e1b4b; font-size: 12.5px; line-height: 1.7; }
 
-  /* ── Top gradient bar ── */
-  .top-bar { height: 10px; background: linear-gradient(90deg, #4c1d95, #8b5cf6); }
+  .top-bar { height: 8px; background: linear-gradient(90deg, #4c1d95, #8b5cf6); }
 
-  /* ── Outer decorative frame ── */
   .outer-frame { border: 3px double #5b21b6; margin: 6px; padding: 3px; }
-  .inner-frame  { border: 1px solid #c4b5fd; padding: 26px 32px; }
+  .inner-frame  { border: 1px solid #c4b5fd; padding: 18px 24px; }
 
-  /* ── Header — float layout ── */
+  /* Header */
   .header {
-    background: #f5f3ff; padding: 13px 32px 14px;
+    background: #f5f3ff; padding: 11px 24px 12px;
     border-bottom: 2px solid #c4b5fd;
-    margin: -26px -32px 22px;
-    overflow: hidden;
+    margin: -18px -24px 18px; overflow: hidden;
   }
   .header .logo { float: left; }
-  .header .logo img { max-height: 64px; max-width: 190px; display: block; }
-  .header .logo .logo-text { font-size: 20px; font-weight: 800; color: #5b21b6; }
-  .header .company-info { float: right; text-align: right; font-size: 11px; color: #4b5563; }
-  .header .company-info .cname { font-size: 15px; font-weight: 700; color: #5b21b6; margin-bottom: 2px; }
+  .header .logo img { max-height: 58px; max-width: 180px; display: block; }
+  .header .logo .logo-text { font-size: 18px; font-weight: 800; color: #5b21b6; }
+  .header .company-info { float: right; text-align: right; font-size: 10.5px; color: #4b5563; }
+  .header .company-info .cname { font-size: 14px; font-weight: 700; color: #5b21b6; margin-bottom: 2px; }
 
-  /* ── Certificate title band ── */
+  /* Title band */
   .cert-band {
     background: linear-gradient(90deg, #4c1d95, #8b5cf6);
-    color: #fff; text-align: center; padding: 20px 20px 19px;
-    border-radius: 8px; margin-bottom: 22px;
+    color: #fff; text-align: center; padding: 14px 20px 13px;
+    border-radius: 8px; margin-bottom: 16px;
   }
-  .cert-band .cert-title {
-    font-size: 20px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase;
-  }
+  .cert-band .cert-title { font-size: 18px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; }
 
-  /* ── Ref row ── */
-  table.ref-table {
-    width: 100%; border-collapse: collapse;
-    margin-bottom: 14px; font-size: 12px; color: #6b7280;
-  }
+  /* Ref row */
+  table.ref-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 11px; color: #6b7280; }
   table.ref-table td { border: none; background: none; padding: 0; }
   table.ref-table td:last-child { text-align: right; }
 
-  /* ── Certification statement ── */
-  .certify-intro { text-align: center; font-size: 13.5px; color: #4b5563; font-style: italic; margin: 20px 0 10px; }
+  /* Certify intro */
+  .certify-intro { text-align: center; font-size: 12px; color: #4b5563; font-style: italic; margin: 14px 0 6px; }
 
-  /* ── Decorative name divider ── */
+  /* Decorative name divider */
   table.name-divider-table { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
   table.name-divider-table td { border: none; background: none; padding: 0; vertical-align: middle; }
   .divider-line { border-top: 1.5px solid #c4b5fd; }
-  .divider-star { text-align: center; padding: 0 10px; color: #8b5cf6; font-size: 14px; white-space: nowrap; }
+  .divider-star { text-align: center; padding: 0 10px; color: #8b5cf6; font-size: 13px; white-space: nowrap; }
 
-  /* ── Intern name ── */
-  .intern-name {
-    text-align: center; font-size: 36px; font-weight: 800;
-    color: #5b21b6; letter-spacing: 2px; margin: 10px 0 10px;
-  }
-  .name-underline { border-top: 1.5px solid #c4b5fd; margin-bottom: 18px; }
+  /* Intern name */
+  .intern-name { text-align: center; font-size: 26px; font-weight: 800; color: #5b21b6; letter-spacing: 1.5px; margin: 6px 0 6px; }
+  .name-underline { border-top: 1.5px solid #c4b5fd; margin-bottom: 14px; }
 
-  /* ── Body text ── */
-  .body-text { font-size: 13.5px; line-height: 1.85; text-align: justify; margin-bottom: 14px; }
+  /* Body text */
+  .body-text { font-size: 12px; line-height: 1.75; text-align: justify; margin-bottom: 12px; }
   .body-text p { margin: 4px 0; }
 
-  /* ── Details table ── */
-  .detail-table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 13px; }
-  .detail-table tr td { padding: 11px 15px; border: 1px solid #ede9fe; vertical-align: top; }
+  /* Details table */
+  .detail-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 11.5px; }
+  .detail-table tr td { padding: 6px 11px; border: 1px solid #ede9fe; vertical-align: top; }
   .detail-table tr:nth-child(even) td { background: #f5f3ff; }
   .detail-table tr td:first-child { font-weight: 700; color: #5b21b6; background: #ede9fe; width: 34%; white-space: nowrap; }
   .detail-table tr td:last-child { color: #374151; }
 
-  /* ── Performance badge ── */
-  .perf-section { text-align: center; margin: 18px 0 16px; }
-  .perf-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #7c3aed; margin-bottom: 8px; }
-  .perf-badge {
-    display: inline-block; padding: 8px 32px; border-radius: 50px;
-    font-weight: 800; font-size: 14px; letter-spacing: 1px;
-  }
+  /* Performance badge */
+  .perf-section { text-align: center; margin: 12px 0 10px; }
+  .perf-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #7c3aed; margin-bottom: 6px; }
+  .perf-badge { display: inline-block; padding: 6px 26px; border-radius: 50px; font-weight: 800; font-size: 12.5px; letter-spacing: 1px; }
   .perf-Excellent    { background: #d1fae5; color: #065f46; border: 2px solid #6ee7b7; }
   .perf-Good         { background: #dbeafe; color: #1e40af; border: 2px solid #93c5fd; }
   .perf-Satisfactory { background: #fef3c7; color: #92400e; border: 2px solid #fcd34d; }
 
-  /* ── Skills tags ── */
-  .skills-section { margin: 12px 0 14px; }
-  .skills-heading { font-size: 11px; font-weight: 700; color: #5b21b6; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  /* Skills */
+  .skills-section { margin: 8px 0 10px; }
+  .skills-heading { font-size: 10px; font-weight: 700; color: #5b21b6; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
   .skill-tag {
-    display: inline-block;
-    background: #ede9fe; color: #5b21b6; border: 1px solid #c4b5fd;
-    border-radius: 20px; padding: 3px 12px; font-size: 11.5px; font-weight: 600;
-    margin: 2px 4px 2px 0;
+    display: inline-block; background: #ede9fe; color: #5b21b6; border: 1px solid #c4b5fd;
+    border-radius: 20px; padding: 2px 11px; font-size: 10.5px; font-weight: 600; margin: 2px 4px 2px 0;
   }
 
-  /* ── Remarks box ── */
+  /* Remarks */
   .remarks-box {
     background: #f5f3ff; border-left: 4px solid #8b5cf6;
-    border-radius: 0 6px 6px 0; padding: 10px 14px;
-    margin: 12px 0; font-size: 13px; color: #374151;
+    border-radius: 0 6px 6px 0; padding: 8px 12px; margin: 8px 0; font-size: 11.5px; color: #374151;
   }
 
-  /* ── Closing text ── */
-  .closing-text { font-size: 13.5px; line-height: 1.9; text-align: justify; margin: 20px 0 14px; }
+  /* Closing text */
+  .closing-text { font-size: 12px; line-height: 1.75; text-align: justify; margin: 12px 0 10px; }
 
-  /* ── Certification Declaration block (always present) ── */
+  /* Declaration — always visible, fills space meaningfully */
   .cert-declaration {
-    background: #f5f3ff; border: 1px solid #ddd6fe;
-    border-left: 4px solid #7c3aed;
-    border-radius: 0 6px 6px 0;
-    padding: 13px 17px; margin: 0 0 16px;
-    font-size: 12px; color: #4b5563; line-height: 1.8;
+    background: #f5f3ff; border: 1px solid #ddd6fe; border-left: 4px solid #7c3aed;
+    border-radius: 0 6px 6px 0; padding: 9px 13px; margin: 0 0 10px;
+    font-size: 11px; color: #4b5563; line-height: 1.7;
   }
   .cert-declaration strong { color: #5b21b6; }
 
-  /* ── Signature — right-aligned, large top margin fills remaining page space ── */
-  .sig-section { margin-top: 150px; text-align: right; }
-  .sig-section img.sig-img { max-height: 52px; max-width: 145px; display: block; margin-left: auto; margin-bottom: 4px; }
-  .sig-line { display: inline-block; border-top: 1.5px solid #5b21b6; padding-top: 6px; margin-top: 6px; min-width: 195px; text-align: center; }
-  .sig-name  { font-weight: 700; font-size: 13px; color: #1e1b4b; }
-  .sig-title { font-size: 11.5px; color: #6b7280; }
+  /* Signature — margin-top set by JS to fill remaining page space */
+  .sig-section { margin-top: 15px; text-align: right; }
+  .sig-section img.sig-img { max-height: 50px; max-width: 140px; display: block; margin-left: auto; margin-bottom: 3px; }
+  .sig-line { display: inline-block; border-top: 1.5px solid #5b21b6; padding-top: 5px; margin-top: 5px; min-width: 185px; text-align: center; }
+  .sig-name  { font-weight: 700; font-size: 12.5px; color: #1e1b4b; }
+  .sig-title { font-size: 11px; color: #6b7280; }
 
-  /* ── Footer ── */
-  .footer {
-    margin-top: 18px; border-top: 2px solid #c4b5fd;
-    padding-top: 7px; text-align: center; font-size: 10px; color: #9ca3af;
-  }
+  /* Footer */
+  .footer { margin-top: 14px; border-top: 2px solid #c4b5fd; padding-top: 6px; text-align: center; font-size: 9.5px; color: #9ca3af; }
   .footer strong { color: #7c3aed; }
 </style>
 </head>
@@ -134,7 +112,6 @@
 <div class="outer-frame">
 <div class="inner-frame">
 
-  <!-- Header -->
   <div class="header">
     <div class="logo">
       {{#if company.logo_url}}
@@ -151,12 +128,10 @@
     </div>
   </div>
 
-  <!-- Title band -->
   <div class="cert-band">
     <div class="cert-title">Internship Completion Certificate</div>
   </div>
 
-  <!-- Ref row -->
   <table class="ref-table">
     <tr>
       <td>Ref: <strong style="color:#5b21b6;">{{#if data.cert_ref_no}}{{data.cert_ref_no}}{{else}}{{doc_number}}{{/if}}</strong></td>
@@ -166,7 +141,6 @@
 
   <p class="certify-intro">This is to certify that</p>
 
-  <!-- Decorative divider above name -->
   <table class="name-divider-table">
     <tr>
       <td width="44%"><div class="divider-line"></div></td>
@@ -193,36 +167,16 @@
       <td><strong>{{data.from_date}}</strong> to <strong>{{data.to_date}}</strong>{{#if data.duration_text}} &nbsp;({{data.duration_text}}){{/if}}</td>
     </tr>
     <tr><td>Department / Domain</td><td>{{data.department}}</td></tr>
-    {{#if data.roll_no}}
-    <tr><td>Roll No / Register No</td><td>{{data.roll_no}}</td></tr>
-    {{/if}}
-    {{#if data.project_title}}
-    <tr><td>Project / Role</td><td>{{data.project_title}}</td></tr>
-    {{/if}}
-    {{#if data.college}}
-    <tr><td>Institution</td><td>{{data.college}}</td></tr>
-    {{/if}}
-    {{#if data.course}}
-    <tr><td>Course / Degree</td><td>{{data.course}}{{#if data.branch}} &mdash; {{data.branch}}{{/if}}</td></tr>
-    {{/if}}
-    {{#if data.employee_no}}
-    <tr><td>Employee No</td><td>{{data.employee_no}}</td></tr>
-    {{/if}}
-    {{#if data.designation}}
-    <tr><td>Designation</td><td>{{data.designation}}</td></tr>
-    {{/if}}
-    {{#if data.supervisor}}
-    <tr><td>Supervisor</td><td>{{data.supervisor}}</td></tr>
-    {{/if}}
-    {{#if data.mobile_no}}
-    <tr><td>Mobile No</td><td>{{data.mobile_no}}</td></tr>
-    {{/if}}
-    {{#if data.email_id}}
-    <tr><td>Email ID</td><td>{{data.email_id}}</td></tr>
-    {{/if}}
-    {{#if data.pan_no}}
-    <tr><td>PAN No</td><td>{{data.pan_no}}</td></tr>
-    {{/if}}
+    {{#if data.roll_no}}<tr><td>Roll No / Register No</td><td>{{data.roll_no}}</td></tr>{{/if}}
+    {{#if data.project_title}}<tr><td>Project / Role</td><td>{{data.project_title}}</td></tr>{{/if}}
+    {{#if data.college}}<tr><td>Institution</td><td>{{data.college}}</td></tr>{{/if}}
+    {{#if data.course}}<tr><td>Course / Degree</td><td>{{data.course}}{{#if data.branch}} &mdash; {{data.branch}}{{/if}}</td></tr>{{/if}}
+    {{#if data.employee_no}}<tr><td>Employee No</td><td>{{data.employee_no}}</td></tr>{{/if}}
+    {{#if data.designation}}<tr><td>Designation</td><td>{{data.designation}}</td></tr>{{/if}}
+    {{#if data.supervisor}}<tr><td>Supervisor</td><td>{{data.supervisor}}</td></tr>{{/if}}
+    {{#if data.mobile_no}}<tr><td>Mobile No</td><td>{{data.mobile_no}}</td></tr>{{/if}}
+    {{#if data.email_id}}<tr><td>Email ID</td><td>{{data.email_id}}</td></tr>{{/if}}
+    {{#if data.pan_no}}<tr><td>PAN No</td><td>{{data.pan_no}}</td></tr>{{/if}}
   </table>
 
   {{#if data.performance}}
@@ -235,9 +189,7 @@
   {{#if data.skills_arr}}
   <div class="skills-section">
     <div class="skills-heading">Skills &amp; Technologies</div>
-    <div class="skills-wrap">
-      {{#each data.skills_arr}}<span class="skill-tag">{{this}}</span>{{/each}}
-    </div>
+    <div>{{#each data.skills_arr}}<span class="skill-tag">{{this}}</span>{{/each}}</div>
   </div>
   {{/if}}
 
@@ -253,21 +205,18 @@
         {{#if (eq data.performance "Good")}}good dedication, sound technical skills, and a consistently professional attitude throughout the engagement{{/if}}
         {{#if (eq data.performance "Satisfactory")}}satisfactory commitment and a genuine willingness to learn and grow professionally{{/if}}
       {{else}}commendable dedication and a professional attitude{{/if}}.
-      We wish <strong>{{data.intern_name}}</strong> all the very best in all future academic
-      and professional endeavours.
+      We wish <strong>{{data.intern_name}}</strong> all the very best in all future academic and professional endeavours.
     </p>
   </div>
 
-  <!-- Certification Declaration — always visible -->
-  <div class="cert-declaration">
+  <div class="cert-declaration" id="cert-decl">
     This certificate is issued upon successful completion of the internship programme at
     <strong>{{company.name}}</strong> and is duly authenticated by the authorised signatory.
-    It is valid for official and academic submission purposes. For verification, contact
+    It is valid for official and academic submission. For verification contact
     {{#if company.email}}<strong>{{company.email}}</strong>{{/if}}{{#if company.phone}} or <strong>{{company.phone}}</strong>{{/if}}.
   </div>
 
-  <!-- Signature -->
-  <div class="sig-section">
+  <div class="sig-section" id="sig-section">
     {{#if company.signature_url}}
       <img class="sig-img" src="{{company.signature_url}}" alt="Signature" />
     {{/if}}
@@ -278,7 +227,7 @@
     </div>
   </div>
 
-  <div class="footer">
+  <div class="footer" id="cert-footer">
     <strong>{{company.name}}</strong> |
     {{company.address}}{{#if company.city}}, {{company.city}}{{/if}} |
     {{company.email}}{{#if company.phone}} | {{company.phone}}{{/if}}
@@ -286,5 +235,31 @@
 
 </div>
 </div>
+
+<script>
+// Dynamically set sig-section margin-top so the certificate fills one full A4 page.
+// wkhtmltopdf renders at 794 x 1122px (A4, 96dpi, 0mm margins) and runs this JS
+// with --javascript-delay 300 before generating the PDF.
+window.onload = function () {
+  var PAGE_H = 1122;
+
+  var decl = document.getElementById('cert-decl');
+  var sig  = document.getElementById('sig-section');
+  var foot = document.getElementById('cert-footer');
+  if (!decl || !sig || !foot) return;
+
+  // Walk offsetParent chain to get absolute Y of declaration's bottom edge
+  var absTop = 0, el = decl;
+  while (el) { absTop += el.offsetTop || 0; el = el.offsetParent; }
+  var declBottom = absTop + decl.offsetHeight;
+
+  // Space required below declaration: sig + footer margin(14) + footer + inner pad(18) + frame(12)
+  var needed = sig.offsetHeight + 14 + foot.offsetHeight + 18 + 12;
+
+  // Remaining space becomes the sig-section top margin
+  var margin = PAGE_H - declBottom - needed;
+  sig.style.marginTop = (margin > 15 ? margin : 15) + 'px';
+};
+</script>
 </body>
 </html>
