@@ -15,6 +15,24 @@ const MONTHS = ['January','February','March','April','May','June',
 const inrFmt = n => Number(n || 0).toLocaleString('en-IN', { minimumFractionDigits: 0 });
 const inr2   = n => Number(n || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 });
 
+/* Actual number of calendar days in a given month (index 0-11) + year */
+const daysInMonth = (monthIdx, year) => new Date(year, monthIdx + 1, 0).getDate();
+
+/* Build a payslip month row with correct working days for that calendar month */
+function makeMonthRow(monthIdx, year) {
+  const wd = daysInMonth(monthIdx, year);
+  return { pay_month: MONTHS[monthIdx], pay_year: year, working_days: wd, paid_days: wd, lop_days: 0 };
+}
+
+/* Recompute paid_days + net_pay for a row from its LOP + the full monthly net */
+function recalcRow(row, fullNet) {
+  const wd  = Number(row.working_days) || 0;
+  const lop = Math.min(Number(row.lop_days) || 0, wd);
+  const paid = Math.max(0, wd - lop);
+  const perDay = wd > 0 ? Number(fullNet) / wd : 0;
+  return { ...row, lop_days: lop, paid_days: paid, net_pay: (perDay * paid).toFixed(2) };
+}
+
 /* ─────────────────────── lifecycle phases ─────────────────────── */
 const PHASES = [
   {
@@ -64,28 +82,28 @@ function buildPayslipRows(type, count, joinDate) {
   if (type === 'last') {
     for (let i = count; i >= 1; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      rows.push({ pay_month: MONTHS[d.getMonth()], pay_year: d.getFullYear(), working_days: 30, paid_days: 30, lop_days: 0 });
+      rows.push(makeMonthRow(d.getMonth(), d.getFullYear()));
     }
   } else if (type === 'curryear') {
     const y = now.getFullYear();
     for (let m = 0; m < now.getMonth(); m++)
-      rows.push({ pay_month: MONTHS[m], pay_year: y, working_days: 30, paid_days: 30, lop_days: 0 });
+      rows.push(makeMonthRow(m, y));
   } else if (type === 'prevyear') {
     const y = now.getFullYear() - 1;
     for (let m = 0; m < 12; m++)
-      rows.push({ pay_month: MONTHS[m], pay_year: y, working_days: 30, paid_days: 30, lop_days: 0 });
+      rows.push(makeMonthRow(m, y));
   } else if (type === 'finyear') {
     const startY = now.getMonth() >= 3 ? now.getFullYear() : now.getFullYear() - 1;
     for (let i = 0; i < 12; i++) {
       const d = new Date(startY, 3 + i, 1);
       if (d > now) break;
-      rows.push({ pay_month: MONTHS[d.getMonth()], pay_year: d.getFullYear(), working_days: 30, paid_days: 30, lop_days: 0 });
+      rows.push(makeMonthRow(d.getMonth(), d.getFullYear()));
     }
   } else if (type === 'tenure' && joinDate) {
     let start = new Date(joinDate);
     start = new Date(start.getFullYear(), start.getMonth(), 1);
     while (start < now && rows.length < 120) {
-      rows.push({ pay_month: MONTHS[start.getMonth()], pay_year: start.getFullYear(), working_days: 30, paid_days: 30, lop_days: 0 });
+      rows.push(makeMonthRow(start.getMonth(), start.getFullYear()));
       start.setMonth(start.getMonth() + 1);
     }
   }
@@ -142,7 +160,7 @@ export default function GenerateAll() {
     ctc:'', basic:'', hra:'', da:'', conveyance:'', medical:'', special_allowance:'',
     pf:'', esi:'', professional_tax:'', tds:'',
   });
-  const [offer,       setOffer]      = useState({ joining_date:'', designation:'', ctc:'', offer_release_date:'', notice_period:'1 Month', work_location:'', reporting_to:'' });
+  const [offer,       setOffer]      = useState({ joining_date:'', designation:'', ctc:'', offer_release_date:'', notice_period:'1 Month', work_location:'', reporting_to:'', reporting_designation:'' });
   const [offerResult, setOfferResult] = useState(null);
   const [genOffer,    setGenOffer]    = useState(false);
 
@@ -221,15 +239,14 @@ export default function GenerateAll() {
     toast.success('Employee details auto-filled!');
   }, [employeeId]); // eslint-disable-line
 
-  /* ── sync payslip rows when salary changes ── */
+  /* ── sync payslip rows when salary changes — respects each row's LOP ── */
   useEffect(() => {
     if (!psMonthRows.length) return;
-    setPsMonthRows(rows => rows.map(r => ({
+    setPsMonthRows(rows => rows.map(r => recalcRow({
       ...r,
       gross_earnings: salaryGross.toFixed(2),
       total_deductions: salaryDed.toFixed(2),
-      net_pay: salaryNet.toFixed(2),
-    })));
+    }, salaryNet)));
   }, [salaryGross, salaryDed, salaryNet]); // eslint-disable-line
 
   const ch     = setter => e => setter(p => ({ ...p, [e.target.name]: e.target.value }));
@@ -282,13 +299,12 @@ export default function GenerateAll() {
       toast.error(opt.type === 'tenure' && !incRow.increment_date ? 'Fill increment date first' : 'No months found');
       return;
     }
-    const monthRows = rows.map(r => ({
+    const monthRows = rows.map(r => recalcRow({
       ...r,
       gross_earnings: scaledGross.toFixed(2),
       total_deductions: scaledDed.toFixed(2),
-      net_pay: scaledNet.toFixed(2),
       amount_in_words: '',
-    }));
+    }, scaledNet));
     updIncPs(idx, { monthRows, activeQuick: opt.id, results: null, scaledSal, scaledGross, scaledDed, scaledNet });
     toast(`${rows.length} month${rows.length > 1 ? 's' : ''} loaded`, { icon: '📅' });
   };
@@ -333,7 +349,8 @@ export default function GenerateAll() {
           offer_release_date:  offer.offer_release_date || '',
           notice_period:       offer.notice_period || '1 Month',
           work_location:       offer.work_location || '',
-          reporting_to:        offer.reporting_to  || '',
+          reporting_to:          offer.reporting_to          || '',
+          reporting_designation: offer.reporting_designation || '',
           gross:               salaryGross,
           net:                 salaryNet,
         },
@@ -356,13 +373,12 @@ export default function GenerateAll() {
         ? 'Fill Date of Joining first' : 'No months found');
       return;
     }
-    setPsMonthRows(rows.map(r => ({
+    setPsMonthRows(rows.map(r => recalcRow({
       ...r,
       gross_earnings: salaryGross.toFixed(2),
       total_deductions: salaryDed.toFixed(2),
-      net_pay: salaryNet.toFixed(2),
       amount_in_words: '',
-    })));
+    }, salaryNet)));
     setPsResults(null);
     toast(`${rows.length} month${rows.length > 1 ? 's' : ''} loaded`, { icon: '📅' });
   };
@@ -371,13 +387,12 @@ export default function GenerateAll() {
     const rows = [];
     let y = psCustomFrom.year, m = psCustomFrom.month;
     while (y < psCustomTo.year || (y === psCustomTo.year && m <= psCustomTo.month)) {
-      rows.push({
-        pay_month: MONTHS[m], pay_year: y, working_days: 30, paid_days: 30, lop_days: 0,
+      rows.push(recalcRow({
+        ...makeMonthRow(m, y),
         gross_earnings: salaryGross.toFixed(2),
         total_deductions: salaryDed.toFixed(2),
-        net_pay: salaryNet.toFixed(2),
         amount_in_words: '',
-      });
+      }, salaryNet));
       m++; if (m > 11) { m = 0; y++; }
       if (rows.length > 60) break;
     }
@@ -779,6 +794,10 @@ export default function GenerateAll() {
                             <SInput ring={phase.ring} name="reporting_to"
                               value={offer.reporting_to} onChange={ch(setOffer)} placeholder="Respective Functional Head" />
                           </Field>
+                          <Field label="Reporting Person Designation" color={phase.text}>
+                            <SInput ring={phase.ring} name="reporting_designation"
+                              value={offer.reporting_designation} onChange={ch(setOffer)} placeholder="e.g. Engineering Manager" />
+                          </Field>
                         </div>
                         <button onClick={generateOffer} disabled={genOffer}
                           className="mt-4 w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-white shadow transition disabled:opacity-60 text-sm"
@@ -896,15 +915,24 @@ export default function GenerateAll() {
                                     <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-cyan-50/40'}>
                                       <td className="px-3 py-2 text-xs text-gray-400">{idx + 1}</td>
                                       <td className="px-3 py-2 font-semibold text-cyan-700 whitespace-nowrap">{row.pay_month} {row.pay_year}</td>
-                                      {[
-                                        ['working_days','cyan'],['paid_days','cyan'],['lop_days','red'],
-                                      ].map(([field, color]) => (
-                                        <td key={field} className="px-3 py-2 text-center">
-                                          <input type="number" value={row[field]}
-                                            onChange={e => setPsMonthRows(rows => rows.map((r,i) => i===idx ? {...r,[field]:e.target.value} : r))}
-                                            className={`w-14 px-1.5 py-1 border border-${color}-200 rounded text-center text-xs focus:outline-none focus:ring-1 focus:ring-${color}-400`} />
-                                        </td>
-                                      ))}
+                                      {/* Working Days — editable, recalculates */}
+                                      <td className="px-3 py-2 text-center">
+                                        <input type="number" value={row.working_days}
+                                          onChange={e => setPsMonthRows(rows => rows.map((r,i) => i===idx ? recalcRow({...r, working_days:e.target.value}, salaryNet) : r))}
+                                          className="w-14 px-1.5 py-1 border border-cyan-200 rounded text-center text-xs focus:outline-none focus:ring-1 focus:ring-cyan-400" />
+                                      </td>
+                                      {/* Paid Days — auto-derived (read-only) */}
+                                      <td className="px-3 py-2 text-center">
+                                        <span className="inline-block w-14 px-1.5 py-1 bg-gray-100 text-gray-600 rounded text-center text-xs font-semibold" title="Auto = Working − LOP">
+                                          {row.paid_days}
+                                        </span>
+                                      </td>
+                                      {/* LOP Days — editable, recalculates */}
+                                      <td className="px-3 py-2 text-center">
+                                        <input type="number" value={row.lop_days}
+                                          onChange={e => setPsMonthRows(rows => rows.map((r,i) => i===idx ? recalcRow({...r, lop_days:e.target.value}, salaryNet) : r))}
+                                          className="w-14 px-1.5 py-1 border border-red-200 rounded text-center text-xs focus:outline-none focus:ring-1 focus:ring-red-400" />
+                                      </td>
                                       <td className="px-3 py-2 text-right font-bold text-emerald-700 text-xs whitespace-nowrap">
                                         ₹{inr2(row.net_pay)}
                                       </td>
@@ -1230,13 +1258,24 @@ export default function GenerateAll() {
                                             <tr key={mIdx} className={mIdx % 2 === 0 ? 'bg-white' : 'bg-violet-50/40'}>
                                               <td className="px-3 py-2 text-xs text-gray-400">{mIdx + 1}</td>
                                               <td className="px-3 py-2 font-semibold text-violet-700 whitespace-nowrap">{row.pay_month} {row.pay_year}</td>
-                                              {[['working_days','violet'],['paid_days','violet'],['lop_days','red']].map(([field, color]) => (
-                                                <td key={field} className="px-3 py-2 text-center">
-                                                  <input type="number" value={row[field]}
-                                                    onChange={e => updIncPs(idx, { monthRows: ps.monthRows.map((r, i) => i === mIdx ? { ...r, [field]: e.target.value } : r) })}
-                                                    className={`w-14 px-1.5 py-1 border border-${color}-200 rounded text-center text-xs focus:outline-none focus:ring-1 focus:ring-${color}-400`} />
-                                                </td>
-                                              ))}
+                                              {/* Working Days — editable, recalculates */}
+                                              <td className="px-3 py-2 text-center">
+                                                <input type="number" value={row.working_days}
+                                                  onChange={e => updIncPs(idx, { monthRows: ps.monthRows.map((r, i) => i === mIdx ? recalcRow({ ...r, working_days: e.target.value }, ps.scaledNet) : r) })}
+                                                  className="w-14 px-1.5 py-1 border border-violet-200 rounded text-center text-xs focus:outline-none focus:ring-1 focus:ring-violet-400" />
+                                              </td>
+                                              {/* Paid Days — auto-derived (read-only) */}
+                                              <td className="px-3 py-2 text-center">
+                                                <span className="inline-block w-14 px-1.5 py-1 bg-gray-100 text-gray-600 rounded text-center text-xs font-semibold" title="Auto = Working − LOP">
+                                                  {row.paid_days}
+                                                </span>
+                                              </td>
+                                              {/* LOP Days — editable, recalculates */}
+                                              <td className="px-3 py-2 text-center">
+                                                <input type="number" value={row.lop_days}
+                                                  onChange={e => updIncPs(idx, { monthRows: ps.monthRows.map((r, i) => i === mIdx ? recalcRow({ ...r, lop_days: e.target.value }, ps.scaledNet) : r) })}
+                                                  className="w-14 px-1.5 py-1 border border-red-200 rounded text-center text-xs focus:outline-none focus:ring-1 focus:ring-red-400" />
+                                              </td>
                                               <td className="px-3 py-2 text-right font-bold text-emerald-700 text-xs whitespace-nowrap">
                                                 ₹{inr2(row.net_pay)}
                                               </td>
