@@ -14,9 +14,15 @@
       background: #fff;
     }
 
-    /* ── Page wrapper — breaks after each page, no clipping ── */
-    .page { page-break-after: always; }
-    .page:last-child { page-break-after: auto; }
+    /* ── Natural content flow — no forced page breaks (avoids empty gaps) ── */
+    .page { }
+    /* Keep tables, clauses and signature blocks from splitting across pages */
+    table.details-table, table.salary-table, table.leave-table,
+    .benefits-box, .tc-block, .acceptance-box, .signature-block,
+    .note-box {
+      page-break-inside: avoid;
+    }
+    .section-heading, .tc-heading, .tc-clause-title { page-break-after: avoid; }
 
     /* ── Top accent bar ── */
     .top-bar { height: 8px; width: 100%; background: linear-gradient(90deg, #1e3a8a, #3b82f6); }
@@ -355,11 +361,6 @@
      PAGE 2 — COMPENSATION, BENEFITS & LEAVE POLICY
      ════════════════════════════════════════════════════════════ -->
 <div class="page">
-<div class="top-bar"></div>
-<div class="page-header">
-  <div class="ph-left">{{company.name}} &nbsp;&mdash;&nbsp; Letter of Appointment</div>
-  <div class="ph-right">{{employee.full_name}} &nbsp;|&nbsp; {{#if data.offer_release_date}}{{formatDate data.offer_release_date "DD-MMM-YYYY"}}{{else}}{{today}}{{/if}}</div>
-</div>
 
 <div class="body">
 
@@ -539,11 +540,6 @@
      PAGE 3 — TERMS & CONDITIONS (CLAUSES 1–12)
      ════════════════════════════════════════════════════════════ -->
 <div class="page">
-<div class="top-bar"></div>
-<div class="page-header">
-  <div class="ph-left">{{company.name}} &nbsp;&mdash;&nbsp; Letter of Appointment</div>
-  <div class="ph-right">{{employee.full_name}} &nbsp;|&nbsp; {{#if data.offer_release_date}}{{formatDate data.offer_release_date "DD-MMM-YYYY"}}{{else}}{{today}}{{/if}}</div>
-</div>
 
 <div class="body">
 
@@ -685,11 +681,6 @@
      PAGE 4 — REMAINING TERMS, SIGNATURE & ACCEPTANCE
      ════════════════════════════════════════════════════════════ -->
 <div class="page">
-<div class="top-bar"></div>
-<div class="page-header">
-  <div class="ph-left">{{company.name}} &nbsp;&mdash;&nbsp; Letter of Appointment</div>
-  <div class="ph-right">{{employee.full_name}} &nbsp;|&nbsp; {{#if data.offer_release_date}}{{formatDate data.offer_release_date "DD-MMM-YYYY"}}{{else}}{{today}}{{/if}}</div>
-</div>
 
 <div class="body">
 
