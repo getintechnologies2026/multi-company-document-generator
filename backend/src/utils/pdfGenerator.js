@@ -18,6 +18,7 @@ Handlebars.registerHelper('inr', (n) => {
 Handlebars.registerHelper('today', () => moment().format('DD-MMM-YYYY'));
 Handlebars.registerHelper('upper', (s) => (s || '').toString().toUpperCase());
 Handlebars.registerHelper('eq',  (a, b) => a === b);
+Handlebars.registerHelper('or',  (a, b) => a || b);
 Handlebars.registerHelper('inc', (n)    => Number(n) + 1);
 
 // ── Template map ──────────────────────────────────────────

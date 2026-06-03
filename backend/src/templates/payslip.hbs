@@ -167,12 +167,14 @@
         <td class="lbl">Account No.</td>
         <td class="val">{{employee.bank_account}}</td>
       </tr>
+      {{#if (or employee.uan employee.pf_no)}}
       <tr>
         <td class="lbl">UAN</td>
         <td class="val">{{employee.uan}}</td>
         <td class="lbl">PF No.</td>
         <td class="val">{{employee.pf_no}}</td>
       </tr>
+      {{/if}}
       <tr>
         <td class="lbl">Working Days</td>
         <td class="val">{{data.working_days}}</td>
