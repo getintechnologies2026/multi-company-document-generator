@@ -129,6 +129,7 @@ export default function GenerateAll() {
   const [employees,   setEmployees]   = useState([]);
   const [companyId,   setCompanyId]   = useState('');
   const [employeeId,  setEmployeeId]  = useState('');
+  const [genCode,     setGenCode]     = useState(false);
   const [open, setOpen] = useState({ joining: true, payslips: true, increments: true, inc_payslips: true, exit: true });
 
   /* ── Phase 1 – Joining ── */
@@ -224,6 +225,20 @@ export default function GenerateAll() {
   }, [salaryGross, salaryDed, salaryNet]); // eslint-disable-line
 
   const ch     = setter => e => setter(p => ({ ...p, [e.target.name]: e.target.value }));
+
+  /* ── Auto-generate employee code ── */
+  const generateEmpCode = async () => {
+    if (!companyId) return toast.error('Select a company first');
+    setGenCode(true);
+    try {
+      const { data } = await api.get(`/employees/next-code?company_id=${companyId}`);
+      setEmp(p => ({ ...p, emp_code: data.emp_code }));
+    } catch {
+      toast.error('Could not generate employee code');
+    } finally {
+      setGenCode(false);
+    }
+  };
   const toggle = id => setOpen(o => ({ ...o, [id]: !o[id] }));
 
   /* ── Scale salary components proportionally to new CTC ── */
@@ -612,7 +627,6 @@ export default function GenerateAll() {
                         <div className="grid md:grid-cols-3 gap-4">
                           {[
                             ['full_name','Full Name *','Rajesh Kumar'],
-                            ['emp_code','Employee Code','EMP001'],
                             ['designation','Designation','Software Engineer'],
                             ['department','Department','Technology'],
                             ['email','Email ID','rajesh@company.com'],
@@ -622,6 +636,23 @@ export default function GenerateAll() {
                               <SInput ring={phase.ring} name={name} value={emp[name]} onChange={ch(setEmp)} placeholder={ph} />
                             </Field>
                           ))}
+                          {/* Employee Code with ⚡ auto-generate */}
+                          <Field label="Employee Code" color={phase.text}>
+                            <div className="flex gap-2">
+                              <div className="flex-1">
+                                <SInput ring={phase.ring} name="emp_code" value={emp.emp_code} onChange={ch(setEmp)} placeholder="Auto-generate or type" />
+                              </div>
+                              <button type="button" onClick={generateEmpCode}
+                                disabled={genCode || !companyId}
+                                title={!companyId ? 'Select a company first' : 'Auto-generate employee code'}
+                                className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-white shadow-sm transition disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                                style={{ background: 'linear-gradient(135deg, #3b82f6, #2563eb)' }}>
+                                {genCode
+                                  ? <><Loader size={12} className="animate-spin" /> Generating</>
+                                  : <><Zap size={12} /> Generate</>}
+                              </button>
+                            </div>
+                          </Field>
                           <Field label="Date of Joining" color={phase.text}>
                             <SInput ring={phase.ring} type="date" name="date_of_joining" value={emp.date_of_joining} onChange={ch(setEmp)} />
                           </Field>
