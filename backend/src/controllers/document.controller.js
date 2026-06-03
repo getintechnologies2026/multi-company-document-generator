@@ -38,6 +38,24 @@ function calDuration(fromDate, toDate) {
     return parts.join(' ') || '0 Days';
 }
 
+/**
+ * Generate a unique random 2–3 digit document sequence number.
+ * Tries up to 50 times to avoid collisions, then falls back to 4 digits.
+ * Returns { seq, doc_number } — no separate COUNT query needed.
+ */
+async function genDocNum(prefix, code, year) {
+    for (let i = 0; i < 50; i++) {
+        const seq        = String(Math.floor(Math.random() * 990) + 10); // 10–999
+        const doc_number = `${prefix}/${code}/${year}/${seq}`;
+        const [rows]     = await db.query('SELECT id FROM documents WHERE doc_number = ? LIMIT 1', [doc_number]);
+        if (!rows.length) return { seq, doc_number };
+    }
+    // Fallback: 4-digit random (virtually no collision risk)
+    const seq        = String(Math.floor(Math.random() * 9000) + 1000);
+    const doc_number = `${prefix}/${code}/${year}/${seq}`;
+    return { seq, doc_number };
+}
+
 exports.list = async (req, res) => {
     const { company_id, doc_type, employee_id, search } = req.query;
     let sql = `SELECT d.*, c.name as company_name, u.name as created_by_name
@@ -115,9 +133,7 @@ exports.generate = async (req, res) => {
             data.date_of_leaving    ||   // experience: leaving date fallback
             null
         );
-        const [cnt] = await db.query('SELECT COUNT(*) as c FROM documents WHERE company_id = ? AND doc_type = ?', [company_id, doc_type]);
-        const seq = String(cnt[0].c + 1).padStart(4, '0');
-        const doc_number = `${prefix}/${typeShort}/${year}/${seq}`;
+        const { seq, doc_number } = await genDocNum(prefix, typeShort, year);
 
         // For offer letter: compute annual salary columns (monthly × 12)
         if (doc_type === 'offer_letter') {
@@ -226,9 +242,7 @@ exports.generateAll = async (req, res) => {
                         if (netV   > 0) { data.net_pay = netV;          data.net_annual   = Math.round(netV   * 12); }
                     }
 
-                    const [cnt] = await db.query('SELECT COUNT(*) as c FROM documents WHERE company_id = ? AND doc_type = ?', [company_id, doc_type]);
-                    const seq = String(cnt[0].c + 1).padStart(4, '0');
-                    const doc_number = `${prefix}/${typeShorts[doc_type]}/${year}/${seq}`;
+                    const { seq, doc_number } = await genDocNum(prefix, typeShorts[doc_type], year);
                     const filename = `${doc_number.replace(/\//g, '_')}.pdf`;
                     const outPath = path.join(__dirname, '..', '..', 'generated', filename);
 
@@ -314,12 +328,8 @@ exports.generateAll = async (req, res) => {
                         new_conv_fmt: fmt(nw.conv), new_med_fmt: fmt(nw.med), new_special_fmt: fmt(nw.special),
                         new_gross_fmt: fmt(nw.gross), new_pf_fmt: fmt(nw.pf), new_net_fmt: fmt(nw.net),
                     };
-                    const [cntInc] = await db.query(
-                        "SELECT COUNT(*) as c FROM documents WHERE company_id = ? AND doc_type = 'salary_increment'", [company_id]
-                    );
-                    const seqInc = String(cntInc[0].c + 1).padStart(4, '0');
                     const incYear = docYear(increment.increment_date);
-                    const incDocNum = `${prefix}/INC/${incYear}/${seqInc}`;
+                    const { doc_number: incDocNum } = await genDocNum(prefix, 'INC', incYear);
                     const incFilename = `${incDocNum.replace(/\//g, '_')}.pdf`;
                     const incOutPath = path.join(__dirname, '..', '..', 'generated', incFilename);
                     await generatePDF('salary_increment', { company, employee: empData, data: incData, doc_number: incDocNum }, incOutPath, browser);
@@ -371,12 +381,7 @@ exports.generateBulkPayslips = async (req, res) => {
         try {
             for (const monthData of months) {
                 try {
-                    const [cnt] = await db.query(
-                        'SELECT COUNT(*) as c FROM documents WHERE company_id = ? AND doc_type = ?',
-                        [company_id, 'payslip']
-                    );
-                    const seq = String(cnt[0].c + 1).padStart(4, '0');
-                    const doc_number = `${prefix}/PAY/${monthData.pay_year}/${seq}`;
+                    const { doc_number } = await genDocNum(prefix, 'PAY', monthData.pay_year);
                     const filename = `${doc_number.replace(/\//g, '_')}_${monthData.pay_month}.pdf`;
                     const outPath = path.join(__dirname, '..', '..', 'generated', filename);
                     const data = { ...monthData };
@@ -552,12 +557,7 @@ exports.generateSalaryIncrement = async (req, res) => {
         // Doc number — year from increment's own effective date
         const prefix   = company.doc_number_prefix || 'DOC';
         const year     = docYear(increment.increment_date);
-        const [cnt]    = await db.query(
-            "SELECT COUNT(*) as c FROM documents WHERE company_id = ? AND doc_type = 'salary_increment'",
-            [company_id]
-        );
-        const seq      = String(cnt[0].c + 1).padStart(4, '0');
-        const doc_number = `${prefix}/INC/${year}/${seq}`;
+        const { doc_number } = await genDocNum(prefix, 'INC', year);
         const filename   = `${doc_number.replace(/\//g, '_')}.pdf`;
         const outPath    = path.join(__dirname, '..', '..', 'generated', filename);
 
@@ -654,12 +654,7 @@ exports.generateInternshipCertificate = async (req, res) => {
         // Doc number — year from cert date (preferred) → to_date → from_date
         const prefix   = company.doc_number_prefix || 'DOC';
         const year     = docYear(intern.cert_date || intern.to_date || intern.from_date);
-        const [cnt]    = await db.query(
-            "SELECT COUNT(*) as c FROM documents WHERE company_id = ? AND doc_type = 'internship_certificate'",
-            [company_id]
-        );
-        const seq        = String(cnt[0].c + 1).padStart(4, '0');
-        const doc_number = `${prefix}/INT/${year}/${seq}`;
+        const { doc_number } = await genDocNum(prefix, 'INT', year);
         const filename   = `${doc_number.replace(/\//g, '_')}.pdf`;
         const outPath    = path.join(__dirname, '..', '..', 'generated', filename);
 
@@ -741,11 +736,7 @@ exports.generateInternshipOffer = async (req, res) => {
         // Doc number — year from offer date (preferred) → from_date → to_date
         const prefix   = company.doc_number_prefix || 'DOC';
         const year     = docYear(intern.offer_date || intern.from_date || intern.to_date);
-        const [cnt]    = await db.query(
-            "SELECT COUNT(*) as c FROM documents WHERE company_id = ? AND doc_type = 'internship_offer'", [company_id]
-        );
-        const seq        = String(cnt[0].c + 1).padStart(4, '0');
-        const doc_number = `${prefix}/IOF/${year}/${seq}`;
+        const { doc_number } = await genDocNum(prefix, 'IOF', year);
         const filename   = `${doc_number.replace(/\//g, '_')}.pdf`;
         const outPath    = path.join(__dirname, '..', '..', 'generated', filename);
 
@@ -813,11 +804,7 @@ exports.generateInternshipConfirmation = async (req, res) => {
         // Doc number — year from internship joining / start date
         const prefix   = company.doc_number_prefix || 'DOC';
         const year     = docYear(intern.joining_date || intern.from_date || intern.to_date);
-        const [cnt]    = await db.query(
-            "SELECT COUNT(*) as c FROM documents WHERE company_id = ? AND doc_type = 'internship_confirmation'", [company_id]
-        );
-        const seq        = String(cnt[0].c + 1).padStart(4, '0');
-        const doc_number = `${prefix}/ICF/${year}/${seq}`;
+        const { doc_number } = await genDocNum(prefix, 'ICF', year);
         const filename   = `${doc_number.replace(/\//g, '_')}.pdf`;
         const outPath    = path.join(__dirname, '..', '..', 'generated', filename);
 
@@ -928,12 +915,7 @@ exports.generateInternshipAttendance = async (req, res) => {
 
         const prefix   = company.doc_number_prefix || 'DOC';
         const year     = docYear(intern.att_date || intern.from_date || intern.to_date);
-        const [cnt]    = await db.query(
-            "SELECT COUNT(*) as c FROM documents WHERE company_id = ? AND doc_type = 'internship_attendance'",
-            [company_id]
-        );
-        const seq        = String(cnt[0].c + 1).padStart(4, '0');
-        const doc_number = `${prefix}/INA/${year}/${seq}`;
+        const { doc_number } = await genDocNum(prefix, 'INA', year);
         const filename   = `${doc_number.replace(/\//g, '_')}.pdf`;
         const outPath    = path.join(__dirname, '..', '..', 'generated', filename);
 
@@ -1024,12 +1006,7 @@ exports.generateInternshipSalaryCertificate = async (req, res) => {
 
         const prefix   = company.doc_number_prefix || 'DOC';
         const year     = docYear(intern.salary_cert_date || intern.from_date || intern.to_date);
-        const [cnt]    = await db.query(
-            "SELECT COUNT(*) as c FROM documents WHERE company_id = ? AND doc_type = 'internship_salary_cert'",
-            [company_id]
-        );
-        const seq        = String(cnt[0].c + 1).padStart(4, '0');
-        const doc_number = `${prefix}/INS/${year}/${seq}`;
+        const { doc_number } = await genDocNum(prefix, 'INS', year);
         const filename   = `${doc_number.replace(/\//g, '_')}.pdf`;
         const outPath    = path.join(__dirname, '..', '..', 'generated', filename);
 
@@ -1101,12 +1078,7 @@ exports.generateInternshipAll = async (req, res) => {
                     (intern.from_date || intern.to_date);
 
                 const year = docYear(refDate);
-                const [cnt] = await db.query(
-                    'SELECT COUNT(*) as c FROM documents WHERE company_id = ? AND doc_type = ?',
-                    [company_id, docType]
-                );
-                const seq        = String(cnt[0].c + 1).padStart(4, '0');
-                const doc_number = `${prefix}/${code}/${year}/${seq}`;
+                const { doc_number } = await genDocNum(prefix, code, year);
                 const filename   = `${doc_number.replace(/\//g, '_')}.pdf`;
                 const outPath    = path.join(__dirname, '..', '..', 'generated', filename);
 
@@ -1279,12 +1251,7 @@ exports.generateBulkInternship = async (req, res) => {
                     if (!cfg) continue;
 
                     try {
-                        const [cnt] = await db.query(
-                            'SELECT COUNT(*) as c FROM documents WHERE company_id = ? AND doc_type = ?',
-                            [company_id, cfg.dbType]
-                        );
-                        const seq        = String(cnt[0].c + 1).padStart(4, '0');
-                        const doc_number = `${prefix}/${cfg.code}/${year}/${seq}`;
+                        const { doc_number } = await genDocNum(prefix, cfg.code, year);
 
                         const safeName = `${(student.roll_no || '').replace(/[^a-zA-Z0-9]/g, '')}_${(student.intern_name || 'intern').replace(/\s+/g, '_')}`;
                         const filename = `${doc_number.replace(/\//g, '_')}_${safeName}.pdf`;
