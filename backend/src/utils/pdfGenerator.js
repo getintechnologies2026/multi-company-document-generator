@@ -84,7 +84,7 @@ function generateWithWkhtmltopdf(html, outputPath, options = {}) {
         const args = [
             '--quiet',
             '--page-size',    'A4',
-            '--margin-top',   '0mm',
+            '--margin-top',   (options.marginTop || '0mm'),
             '--margin-right', '0mm',
             '--margin-bottom', tmpFooter ? '12mm' : '0mm',
             '--margin-left',  '0mm',

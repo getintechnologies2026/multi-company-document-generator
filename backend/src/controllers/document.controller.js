@@ -150,7 +150,7 @@ exports.generate = async (req, res) => {
         // Render PDF
         const filename = `${doc_number.replace(/\//g, '_')}.pdf`;
         const outPath = path.join(__dirname, '..', '..', 'generated', filename);
-        const pdfOpts = doc_type === 'offer_letter' ? { footerHtml: offerFooterHtml(company, doc_number) } : {};
+        const pdfOpts = doc_type === 'offer_letter' ? { footerHtml: offerFooterHtml(company, doc_number), marginTop: '8mm' } : {};
         await generatePDF(doc_type, { company, employee: empData, data, doc_number }, outPath, null, pdfOpts);
 
         // Insert record
@@ -246,7 +246,7 @@ exports.generateAll = async (req, res) => {
                     const filename = `${doc_number.replace(/\//g, '_')}.pdf`;
                     const outPath = path.join(__dirname, '..', '..', 'generated', filename);
 
-                    const pdfOpts = doc_type === 'offer_letter' ? { footerHtml: offerFooterHtml(company, doc_number) } : {};
+                    const pdfOpts = doc_type === 'offer_letter' ? { footerHtml: offerFooterHtml(company, doc_number), marginTop: '8mm' } : {};
                     await generatePDF(doc_type, { company, employee: empData, data, doc_number }, outPath, browser, pdfOpts);
 
                     const [r] = await db.query(
